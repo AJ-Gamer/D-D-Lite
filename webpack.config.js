@@ -7,7 +7,7 @@ const DIST_DIR = path.join(__dirname, '/dist/client');
 
 module.exports = {
   devtool: 'source-map',
-  entry: `${SRC_DIR}/index.jsx`,
+  entry: `${SRC_DIR}/index.tsx`,
   output: {
     filename: 'bundle.js',
     path: DIST_DIR,
@@ -20,15 +20,8 @@ module.exports = {
       {
         test: /\.(ts|tsx)$/,
         exclude: /node_modules/,
-        use: {
-          loader: 'babel-loader',
-          options: {
-            presets: [
-              '@babel/preset-env',
-              ['@babel/preset-react', { runtime: 'automatic' }],
-            ],
-          },
-        },
+        use: 'ts-loader',
+        include: [SRC_DIR]
       },
     ],
   },

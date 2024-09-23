@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { FC } from 'react';
 import HomePage from './HomePage';
+import CharCreation from './CharCreation';
 
-const App = () => {
+const App: FC = () => {
   return (
     <div>
       <HomePage />
+      <CharCreation />
     </div>
   );
 };

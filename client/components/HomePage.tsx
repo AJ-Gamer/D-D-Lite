@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { FC } from 'react';
 
-const HomePage = () => {
+const HomePage: FC = () => {
   return (
     <div style={{ textAlign: 'center', marginTop: '50px' }}>
         <h1>This page is under construction!</h1>

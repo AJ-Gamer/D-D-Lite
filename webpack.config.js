@@ -13,7 +13,8 @@ module.exports = {
     path: DIST_DIR,
   },
   resolve: {
-    extensions: ['.ts', '.tsx'],
+    modules: ['node_modules'],
+    extensions: ['.ts', '.tsx', '.js', '.jsx', '.json'],
   },
   module: {
     rules: [

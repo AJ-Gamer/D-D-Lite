@@ -17,7 +17,6 @@ app.use(session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(express.static(DIST_DIR));
 
 app.use('/auth', authRouter);
 
@@ -43,6 +42,8 @@ app.get('/login', (req: Request, res: Response) => {
 app.get('/home', isAuthenticated, (req, res) => {
   res.sendFile(path.resolve(DIST_DIR, 'index.html'));
 });
+
+app.use(express.static(DIST_DIR));
 
 app.listen(PORT, () => {
   console.info(`Server listening at http://127.0.0.1:${PORT}`);

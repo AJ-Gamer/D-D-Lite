@@ -11,7 +11,7 @@ import {
   Navigate,
 } from 'react-router-dom';
 import axios from 'axios';
-import { ChakraProvider } from '@chakra-ui/react';
+import { ChakraProvider, Box } from '@chakra-ui/react';
 import Login from './Login';
 import HomePage from './HomePage';
 import NavBar from './NavBar';
@@ -70,58 +70,60 @@ const App: FC = () => {
   return (
     <ChakraProvider>
       <Router>
-        {isAuthenticated && <NavBar />}
-        <Routes>
-          <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/home" replace />} />
-          <Route
-            path="/home"
-            element={(
-              <ProtectedRoute>
-                <HomePage />
-              </ProtectedRoute>
-            )}
-          />
-          <Route
-            path="/char-creation"
-            element={(
-              <ProtectedRoute>
-                <CharCreation />
-              </ProtectedRoute>
-            )}
-          />
-          <Route
-            path="/encounters"
-            element={(
-              <ProtectedRoute>
-                <Encounters />
-              </ProtectedRoute>
-            )}
-          />
-          <Route
-            path="/inventory"
-            element={(
-              <ProtectedRoute>
-                <Inventory />
-              </ProtectedRoute>
-            )}
-          />
-          <Route
-            path="/map-gen"
-            element={(
-              <ProtectedRoute>
-                <MapGen />
-              </ProtectedRoute>
-            )}
-          />
-          <Route
-            path="/store"
-            element={(
-              <ProtectedRoute>
-                <Store />
-              </ProtectedRoute>
-            )}
-          />
-        </Routes>
+        <Box bg="darkred" minHeight="100vh">
+          {isAuthenticated && <NavBar />}
+          <Routes>
+            <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/home" replace />} />
+            <Route
+              path="/home"
+              element={(
+                <ProtectedRoute>
+                  <HomePage />
+                </ProtectedRoute>
+              )}
+            />
+            <Route
+              path="/char-creation"
+              element={(
+                <ProtectedRoute>
+                  <CharCreation />
+                </ProtectedRoute>
+              )}
+            />
+            <Route
+              path="/encounters"
+              element={(
+                <ProtectedRoute>
+                  <Encounters />
+                </ProtectedRoute>
+              )}
+            />
+            <Route
+              path="/inventory"
+              element={(
+                <ProtectedRoute>
+                  <Inventory />
+                </ProtectedRoute>
+              )}
+            />
+            <Route
+              path="/map-gen"
+              element={(
+                <ProtectedRoute>
+                  <MapGen />
+                </ProtectedRoute>
+              )}
+            />
+            <Route
+              path="/store"
+              element={(
+                <ProtectedRoute>
+                  <Store />
+                </ProtectedRoute>
+              )}
+            />
+          </Routes>
+        </Box>
       </Router>
     </ChakraProvider>
   );

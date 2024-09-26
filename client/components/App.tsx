@@ -86,7 +86,7 @@ const App: FC = () => {
               path="/char-creation"
               element={(
                 <ProtectedRoute>
-                  <CharCreation />
+                  <CharCreation profile={profile} />
                 </ProtectedRoute>
               )}
             />

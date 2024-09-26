@@ -4,6 +4,7 @@ import session from 'express-session';
 import passport from 'passport';
 import path from 'path';
 import authRouter from './routes/auth';
+import charRouter from './routes/character';
 
 const PORT = 3000;
 const DIST_DIR = path.resolve(__dirname, '../dist/client');
@@ -19,6 +20,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use('/auth', authRouter);
+app.use('/character', charRouter);
 
 const isAuthenticated = (
   req: Request,

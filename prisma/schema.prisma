@@ -14,8 +14,49 @@ datasource db {
 }
 
 model User {
-  id        Int       @id @default(autoincrement())
-  googleId  String    @unique
-  email     String
-  name      String
+  id          Int         @id @default(autoincrement())
+  googleId    String      @unique
+  email       String
+  name        String
+  characters  Character[]
+}
+
+model Character {
+  id            Int       @id @default(autoincrement())
+  name          String
+  class         String
+  race          String
+  constitution  Int
+  strength      Int
+  dexterity     Int
+  charisma      Int
+  image         String
+  userId        Int
+  user          User      @relation(fields: [userId], references: [id])
+  weapons       Weapon[]  @relation("CharacterWeapons")
+  armor         Armor[]   @relation("CharacterArmor")
+  items         Item[]    @relation("CharacterItems")
+}
+
+model Weapon {
+  id          Int         @id @default(autoincrement())
+  name        String
+  damage      Int
+  rarity      String
+  characters  Character[] @relation("CharacterWeapons")
+}
+
+model Armor {
+  id          Int         @id @default(autoincrement())
+  name        String
+  defense     Int
+  rarity      String
+  characters  Character[] @relation("CharacterArmor")
+}
+
+model Item {
+  id          Int         @id @default(autoincrement())
+  name        String
+  description String
+  characters  Character[] @relation("CharacterItems")
 }

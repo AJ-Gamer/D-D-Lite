@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, FC } from 'react';
 import axios from 'axios';
 import { Box, Text, Image } from '@chakra-ui/react';
 
@@ -9,7 +9,7 @@ interface Character {
   startingEquipment: any[];
 }
 
-const Inventory = () => {
+const Inventory: FC = () => {
   const [character, setCharacter] = useState<Character | null>(null);
 
   useEffect(() => {

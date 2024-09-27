@@ -4,6 +4,7 @@ import session from 'express-session';
 import passport from 'passport';
 import path from 'path';
 import authRouter from './routes/auth';
+import storeRouter from './routes/store';
 
 const PORT = 3000;
 const DIST_DIR = path.resolve(__dirname, '../dist/client');
@@ -42,6 +43,8 @@ app.get('/login', (req: Request, res: Response) => {
 app.get('/home', isAuthenticated, (req, res) => {
   res.sendFile(path.resolve(DIST_DIR, 'index.html'));
 });
+
+app.use('/store', storeRouter);
 
 app.use(express.static(DIST_DIR));
 

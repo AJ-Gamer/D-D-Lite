@@ -1,13 +1,41 @@
-import React, { FC } from 'react';
-import { Box, Text, Image } from '@chakra-ui/react';
+import React, { FC, useEffect, useState } from 'react';
+import axios from 'axios';
+import { Box, Text, Image, Spinner } from '@chakra-ui/react';
+
+interface Equipment {
+  name: string;
+  index: string;
+}
 
 const Store: FC = () => {
+  const [equipment, setEquipment] = useState<Equipment[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchEquipment = async () => {
+      try {
+        const response = await axios.get('/store/equipment');
+        setEquipment(response.data);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching equipment:', error);
+        setLoading(false);
+      }
+    };
+
+    fetchEquipment();
+  }, []);
+
+  if (loading) {
+    return <Spinner />;
+  }
+
   return (
-    <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" minHeight="80vh">
-      <Image src="https://i.makeagif.com/media/5-29-2016/OtT-9Z.gif" alt="Magical Merchant" boxSize="300px" />
-      <Text fontSize="2xl" textAlign="center" mt={4}>
-        One stop shop for all your magical and deadly adventurous needs!
-      </Text>
+    <Box>
+      <Text fontSize="2xl" mb={4}>Store Inventory</Text>
+      {equipment.map((item) => (
+        <Text key={item.index} my={2}>{item.name}</Text>
+      ))}
     </Box>
   );
 };

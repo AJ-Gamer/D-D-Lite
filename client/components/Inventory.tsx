@@ -1,13 +1,64 @@
-import React, { FC } from 'react';
+import React, { useEffect, useState, FC } from 'react';
+import axios from 'axios';
 import { Box, Text, Image } from '@chakra-ui/react';
 
+interface Character {
+  name: string;
+  class: string;
+  race: string;
+  startingEquipment: any[];
+}
+
 const Inventory: FC = () => {
+  const [character, setCharacter] = useState<Character | null>(null);
+
+  useEffect(() => {
+    const fakeCharacter: Character = {
+      name: 'Danny',
+      class: 'Rogue',
+      race: 'Dragonborn',
+      startingEquipment: [],
+    };
+
+    const fetchStartingEquipment = async () => {
+      try {
+        const response = await axios.get('https://www.dnd5eapi.co/api/classes/rogue/starting-equipment');
+        fakeCharacter.startingEquipment = response.data.starting_equipment;
+        console.log(fakeCharacter);
+        setCharacter(fakeCharacter);
+      } catch (error) {
+        console.error('Error fetching equipment:', error);
+      }
+    };
+
+    fetchStartingEquipment();
+  }, []);
+
   return (
-    <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" minHeight="80vh">
-      <Image src="https://i.redd.it/c76d0zry2bw81.gif" alt="Inventory GIF" boxSize="300px" />
-      <Text fontSize="2xl" textAlign="center" mt={4}>
-        Adventuring gear is being shipped!
-      </Text>
+    <Box p={4}>
+      {character ? (
+        <>
+          <Text fontSize="2xl" fontWeight="bold">
+            {character.name}'s Inventory
+          </Text>
+          <Text fontSize="lg">Class: {character.class}</Text>
+          <Text fontSize="lg">Race: {character.race}</Text>
+          <Box mt={4}>
+            <Text fontSize="xl" fontWeight="bold">Starting Equipment:</Text>
+            {character.startingEquipment.length > 0 ? (
+              <ul>
+                {character.startingEquipment.map((item, index) => (
+                  <li key={index}>{item.equipment.name}</li>
+                ))}
+              </ul>
+            ) : (
+              <Text>No starting equipment found.</Text>
+            )}
+          </Box>
+        </>
+      ) : (
+        <Text>Loading character data...</Text>
+      )}
     </Box>
   );
 };

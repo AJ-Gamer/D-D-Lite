@@ -1,13 +1,122 @@
-import React, { FC } from 'react';
-import { Box, Text, Image } from '@chakra-ui/react';
+import React, { FC, useEffect, useState } from 'react';
+import { Box, SimpleGrid, Card, Text, Input, Button } from '@chakra-ui/react';
+import axios from 'axios';
+
+interface Equipment {
+  name: string;
+  index: string;
+}
+
+interface EquipmentDetail {
+  name: string;
+  desc: string[];
+}
 
 const Store: FC = () => {
+  const [equipment, setEquipment] = useState<Equipment[]>([]);
+  const [filteredEquipment, setFilteredEquipment] = useState<Equipment[]>([]);
+  const [selectedIndex, setSelectedIndex] = useState<string | null>(null);
+  const [selectedEquipmentDetails, setSelectedEquipmentDetails] = useState<EquipmentDetail | null>(null);
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const itemsPerPage = 20;
+
+  useEffect(() => {
+    const fetchEquipment = async () => {
+      try {
+        const response = await axios.get('/store/equipment');
+        setEquipment(response.data);
+        setFilteredEquipment(response.data);
+      } catch (error) {
+        console.error('Error fetching equipment:', error);
+      }
+    };
+
+    fetchEquipment();
+  }, []);
+
+  useEffect(() => {
+    const filtered = equipment.filter(item => 
+      item.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredEquipment(filtered);
+    setCurrentPage(1);
+  }, [searchTerm, equipment]);
+
+  const handleCardClick = async (index: string) => {
+    if (selectedIndex === index) {
+      setSelectedIndex(null);
+      setSelectedEquipmentDetails(null);
+    } else {
+      try {
+        const response = await axios.get(`/store/equipment/${index}`);
+        setSelectedIndex(index);
+        setSelectedEquipmentDetails(response.data);
+      } catch (error) {
+        console.error('Failed to fetch equipment details', error);
+      }
+    }
+  };
+
+  const totalPages = Math.ceil(filteredEquipment.length / itemsPerPage);
+  const paginatedItems = filteredEquipment.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
   return (
-    <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" minHeight="80vh">
-      <Image src="https://i.makeagif.com/media/5-29-2016/OtT-9Z.gif" alt="Magical Merchant" boxSize="300px" />
-      <Text fontSize="2xl" textAlign="center" mt={4}>
-        One stop shop for all your magical and deadly adventurous needs!
-      </Text>
+    <Box pt="5%" px="5%">
+      <Input
+        placeholder="Search for equipment..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        mb={5}
+        bg="white"
+        width="50%"
+        boxShadow="md"
+      />
+
+      <SimpleGrid columns={5} spacing={5}>
+        {paginatedItems.map((item) => (
+          <Card
+            key={item.index}
+            onClick={() => handleCardClick(item.index)}
+            p={5}
+            bg="#DA702F"
+            cursor="pointer"
+            height={selectedIndex === item.index ? 'auto' : '100px'}
+            _hover={{ transform: selectedIndex === item.index ? 'none' : 'scale(1.05)', transition: '0.3s' }}
+          >
+            <Text fontWeight="bold">{item.name}</Text>
+            {selectedIndex === item.index && selectedEquipmentDetails && (
+              <Box mt={2}>
+                <Text mt={2} color="gray.600">
+                  {selectedEquipmentDetails.desc.join(' ')}
+                </Text>
+              </Box>
+            )}
+          </Card>
+        ))}
+      </SimpleGrid>
+
+      <Box mt={5} textAlign="center">
+        <Button
+          onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+          disabled={currentPage === 1}
+          mr={2}
+          bg="#FDCE5C"
+        >
+          Previous
+        </Button>
+        <Text display="inline" fontWeight="bold">
+          Page {currentPage} of {totalPages}
+        </Text>
+        <Button
+          onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+          disabled={currentPage === totalPages}
+          ml={2}
+          bg="#FDCE5C"
+        >
+          Next
+        </Button>
+      </Box>
     </Box>
   );
 };

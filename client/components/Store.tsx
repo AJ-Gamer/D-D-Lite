@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useState } from 'react';
-import { Box, SimpleGrid, Card, Text } from '@chakra-ui/react';
+import { Box, SimpleGrid, Card, Text, Input, Button } from '@chakra-ui/react';
 import axios from 'axios';
 
 interface Equipment {
@@ -14,14 +14,19 @@ interface EquipmentDetail {
 
 const Store: FC = () => {
   const [equipment, setEquipment] = useState<Equipment[]>([]);
+  const [filteredEquipment, setFilteredEquipment] = useState<Equipment[]>([]);
   const [selectedIndex, setSelectedIndex] = useState<string | null>(null);
   const [selectedEquipmentDetails, setSelectedEquipmentDetails] = useState<EquipmentDetail | null>(null);
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const itemsPerPage = 20;
 
   useEffect(() => {
     const fetchEquipment = async () => {
       try {
         const response = await axios.get('/store/equipment');
         setEquipment(response.data);
+        setFilteredEquipment(response.data);
       } catch (error) {
         console.error('Error fetching equipment:', error);
       }
@@ -29,6 +34,14 @@ const Store: FC = () => {
 
     fetchEquipment();
   }, []);
+
+  useEffect(() => {
+    const filtered = equipment.filter(item => 
+      item.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredEquipment(filtered);
+    setCurrentPage(1);
+  }, [searchTerm, equipment]);
 
   const handleCardClick = async (index: string) => {
     if (selectedIndex === index) {
@@ -45,18 +58,31 @@ const Store: FC = () => {
     }
   };
 
+  const totalPages = Math.ceil(filteredEquipment.length / itemsPerPage);
+  const paginatedItems = filteredEquipment.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
   return (
-    <Box pt="10%" px="5%">
+    <Box pt="5%" px="5%">
+      <Input
+        placeholder="Search for equipment..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        mb={5}
+        bg="white"
+        width="50%"
+        boxShadow="md"
+      />
+
       <SimpleGrid columns={5} spacing={5}>
-        {equipment.map((item) => (
+        {paginatedItems.map((item) => (
           <Card
             key={item.index}
             onClick={() => handleCardClick(item.index)}
             p={5}
+            bg="#DA702F"
             cursor="pointer"
             height={selectedIndex === item.index ? 'auto' : '100px'}
             _hover={{ transform: selectedIndex === item.index ? 'none' : 'scale(1.05)', transition: '0.3s' }}
-            border={selectedIndex === item.index ? '2px solid #DAA520' : '1px solid #B8860B'}
           >
             <Text fontWeight="bold">{item.name}</Text>
             {selectedIndex === item.index && selectedEquipmentDetails && (
@@ -69,6 +95,28 @@ const Store: FC = () => {
           </Card>
         ))}
       </SimpleGrid>
+
+      <Box mt={5} textAlign="center">
+        <Button
+          onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+          disabled={currentPage === 1}
+          mr={2}
+          bg="#FDCE5C"
+        >
+          Previous
+        </Button>
+        <Text display="inline" fontWeight="bold">
+          Page {currentPage} of {totalPages}
+        </Text>
+        <Button
+          onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+          disabled={currentPage === totalPages}
+          ml={2}
+          bg="#FDCE5C"
+        >
+          Next
+        </Button>
+      </Box>
     </Box>
   );
 };

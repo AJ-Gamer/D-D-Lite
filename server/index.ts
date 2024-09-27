@@ -22,6 +22,7 @@ app.use(passport.session());
 
 app.use('/auth', authRouter);
 app.use('/character', charRouter);
+app.use('/store', storeRouter);
 
 const isAuthenticated = (
   req: Request,
@@ -45,8 +46,6 @@ app.get('/login', (req: Request, res: Response) => {
 app.get('/home', isAuthenticated, (req, res) => {
   res.sendFile(path.resolve(DIST_DIR, 'index.html'));
 });
-
-app.use('/store', storeRouter);
 
 app.use(express.static(DIST_DIR));
 

@@ -19,6 +19,7 @@ model User {
   email       String
   name        String
   characters  Character[]
+  gold        Int         @default(300)
 }
 
 model Character {

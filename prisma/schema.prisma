@@ -24,13 +24,14 @@ model User {
 model Character {
   id            Int       @id @default(autoincrement())
   name          String
+  description   String
   class         String
   race          String
   constitution  Int
   strength      Int
   dexterity     Int
   charisma      Int
-  image         String
+  image         String?
   userId        Int
   user          User      @relation(fields: [userId], references: [id])
   weapons       Weapon[]  @relation("CharacterWeapons")

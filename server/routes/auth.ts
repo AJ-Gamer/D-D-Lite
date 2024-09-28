@@ -1,11 +1,11 @@
 import express, { Request, Response, NextFunction } from 'express';
 import passport from 'passport';
-import * as dotenv from 'dotenv';
+import dotenv from 'dotenv';
 import { Strategy as GoogleStrategy, Profile } from 'passport-google-oauth20';
 import { User } from '@prisma/client';
 import prisma from './prisma';
 
-dotenv.config({ path: `${__dirname}/.env` });
+dotenv.config();
 
 const auth = express.Router();
 const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, GOOGLE_CALLBACK_URL } = process.env;

@@ -6,6 +6,7 @@ import path from 'path';
 import authRouter from './routes/auth';
 import charRouter from './routes/character';
 import storeRouter from './routes/store';
+import replicateRouter from './routes/replicate';
 
 const PORT = 3000;
 const DIST_DIR = path.resolve(__dirname, '../dist/client');
@@ -21,6 +22,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use('/auth', authRouter);
+app.use('/replicate', replicateRouter);
 app.use('/character', charRouter);
 app.use('/store', storeRouter);
 

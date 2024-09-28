@@ -23,6 +23,7 @@ The most recently tested node version was node 22
 **TECH STACK**
   - Api:
     - **D&D 5e API** [Docs](https://5e-bits.github.io/docs/)
+    - **Replicate** [Docs](https://replicate.com/docs/)
 
   - Frontend: **React** [Docs](https://react.dev/)
 

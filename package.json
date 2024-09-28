@@ -28,7 +28,8 @@
     "prisma": "^5.19.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.26.2"
+    "react-router-dom": "^6.26.2",
+    "replicate": "^0.34.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.25.6",

@@ -14,10 +14,15 @@ const startingWeapons: Record<CharacterClass, string> = {
 
 interface CreateCharReq {
   name: string;
+  description: string;
   class: string;
   race: string;
   image: string;
   userId: number;
+}
+
+interface UpdateCharReq {
+  image: string;
 }
 
 interface FetchUserId {
@@ -47,6 +52,7 @@ character.post('/create', async (
 ) => {
   const {
     name,
+    description,
     class: characterClass,
     race,
     image,
@@ -66,6 +72,7 @@ character.post('/create', async (
     const newChar: Character = await prisma.character.create({
       data: {
         name,
+        description,
         class: characterClass,
         race,
         constitution: 10,
@@ -92,6 +99,46 @@ character.post('/create', async (
     return res.status(201).json({ newChar, startingWeapon });
   } catch (error) {
     return res.status(500).json({ error: 'Failed to create character' });
+  }
+});
+
+character.put('/:id/update', async (
+  req: Request<{ id: string }, object, UpdateCharReq>,
+  res: Response,
+) => {
+  const { id } = req.params;
+  const { image } = req.body;
+
+  if (!image) {
+    return res.status(400).json({ error: 'Image Url required' });
+  }
+  try {
+    const characterId = parseInt(id, 10);
+    const imageUrl = image[0];
+    const updatedChar = await prisma.character.update({
+      where: { id: characterId },
+      data: { image: imageUrl },
+    });
+    res.json(updatedChar);
+  } catch (error) {
+    console.error('Error updating character image:', error);
+    res.status(500).json({ error: 'Failed to update character image' });
+  }
+});
+
+character.delete('/:id', async (
+  req: Request<{ id: string }>,
+  res: Response,
+) => {
+  const { id } = req.params;
+
+  try {
+    const characterId = parseInt(id, 10);
+    await prisma.character.delete({ where: { id: characterId } });
+
+    return res.status(200).json({ message: 'Character Deleted' });
+  } catch (error) {
+    return res.status(500).json({ error: 'Failed to delete character' });
   }
 });
 

@@ -102,7 +102,7 @@ const App: FC = () => {
               path="/inventory"
               element={(
                 <ProtectedRoute>
-                  <Inventory />
+                  <Inventory userId={profile?.id} />
                 </ProtectedRoute>
               )}
             />
@@ -118,7 +118,7 @@ const App: FC = () => {
               path="/store"
               element={(
                 <ProtectedRoute>
-                  <Store userId={profile?.id}/>
+                  <Store userId={profile?.id} />
                 </ProtectedRoute>
               )}
             />

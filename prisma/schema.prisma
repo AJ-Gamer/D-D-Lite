@@ -20,6 +20,7 @@ model User {
   name        String
   characters  Character[]
   gold        Int         @default(300)
+  inventory    Inventory[]
 }
 
 model Character {
@@ -61,4 +62,19 @@ model Item {
   name        String
   description String
   characters  Character[] @relation("CharacterItems")
+}
+
+model Inventory {
+  id          Int       @id @default(autoincrement())
+  userId      Int
+  user        User      @relation(fields: [userId], references: [id])
+  equipment   Equipment[] // Assuming you have an Equipment model
+}
+
+model Equipment {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String?
+  inventory   Inventory @relation(fields: [inventoryId], references: [id])
+  inventoryId Int
 }

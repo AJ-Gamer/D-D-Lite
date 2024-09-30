@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useState } from 'react';
-import { Box, SimpleGrid, Card, Text, Input, Button } from '@chakra-ui/react';
+import { Box, SimpleGrid, Card, Text, Input, Button, Flex } from '@chakra-ui/react';
 import axios from 'axios';
 
 interface Equipment {
@@ -12,14 +12,32 @@ interface EquipmentDetail {
   desc: string[];
 }
 
-const Store: FC = () => {
+interface StoreProps {
+  userId: number | undefined; // Define userId as a prop
+}
+
+const Store: FC<StoreProps> = ({ userId }) => {
   const [equipment, setEquipment] = useState<Equipment[]>([]);
   const [filteredEquipment, setFilteredEquipment] = useState<Equipment[]>([]);
   const [selectedIndex, setSelectedIndex] = useState<string | null>(null);
   const [selectedEquipmentDetails, setSelectedEquipmentDetails] = useState<EquipmentDetail | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [gold, setGold] = useState<number | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const itemsPerPage = 20;
+
+  const fetchGold = async () => {
+    try {
+      const response = await axios.get('/store/gold', {
+        params: { userId },
+      });
+      setGold(response.data.gold);
+    } catch (err) {
+      setError('Failed to load gold amount');
+      console.error(err);
+    }
+  };
 
   useEffect(() => {
     const fetchEquipment = async () => {
@@ -33,10 +51,11 @@ const Store: FC = () => {
     };
 
     fetchEquipment();
+    fetchGold();
   }, []);
 
   useEffect(() => {
-    const filtered = equipment.filter(item => 
+    const filtered = equipment.filter(item =>
       item.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
     setFilteredEquipment(filtered);
@@ -63,15 +82,22 @@ const Store: FC = () => {
 
   return (
     <Box pt="5%" px="5%">
-      <Input
-        placeholder="Search for equipment..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        mb={5}
-        bg="white"
-        width="50%"
-        boxShadow="md"
-      />
+      <Flex justify="space-between" align="center" mb={4}>
+        <Input
+          placeholder="Search for equipment..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          mb={5}
+          bg="white"
+          width="50%"
+          boxShadow="md"
+        />
+        {gold !== null ? (
+          <Text fontSize="lg" fontWeight="bold">Gold: {gold}</Text>
+        ) : (
+          <Text fontSize="lg">Loading gold...</Text>
+        )}
+      </Flex>
 
       <SimpleGrid columns={5} spacing={5}>
         {paginatedItems.map((item) => (

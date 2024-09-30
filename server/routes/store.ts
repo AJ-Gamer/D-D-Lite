@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import axios from 'axios';
+import prisma from './prisma';
 
 const storeRouter = express.Router();
 
@@ -19,6 +20,29 @@ storeRouter.get('/equipment/:index', async (req: Request, res: Response) => {
     res.json(response.data);
   } catch (error) {
     res.status(500).json({ message: 'Failed to fetch specific equipment' });
+  }
+});
+
+storeRouter.get('/gold', async (req: Request, res: Response) => {
+  const userId = parseInt(req.query.userId as string, 10);
+  console.log('test:', userId);
+  if (!userId) {
+    return res.status(400).json({ message: 'User ID is required' });
+  }
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { gold: true },
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({ gold: user.gold });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
   }
 });
 

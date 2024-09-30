@@ -74,7 +74,6 @@ const CharCreation: FC<CharCreationProps> = ({ profile }) => {
   };
 
   const handleSubmit = async () => {
-    setLoading(true);
     try {
       const response = await axios.post<CreateCharRes>('/character/create', {
         name: charName,
@@ -83,14 +82,11 @@ const CharCreation: FC<CharCreationProps> = ({ profile }) => {
         race: race.toLowerCase(),
         userId: profile?.id,
       });
-      console.log('Character creation response:', response.data);
-
       const characterId = response.data.newChar.id;
       const replResponse = await axios.post<ReplRes>('/replicate/gen-image', {
         prompt: description,
         characterId,
       });
-      console.log(replResponse.data);
       const { imgUrl } = replResponse.data;
 
       await axios.put(`/character/${characterId}/update`, { image: imgUrl });
@@ -103,7 +99,6 @@ const CharCreation: FC<CharCreationProps> = ({ profile }) => {
         isClosable: true,
       });
     } catch (err) {
-      console.error(err);
       toast({
         title: 'Failed to Create Adventurer.',
         description: error ?? 'An Error occurred',
@@ -151,9 +146,6 @@ const CharCreation: FC<CharCreationProps> = ({ profile }) => {
         selectedChar={selectedChar}
         onDeleteChar={handleDeleteChar}
       />
-      <Text fontSize="2xl" textAlign="center" mt={4}>
-        Create your character and embark on an epic adventure!
-      </Text>
       <Box p={6} bg="#B8860B" alignContent="center" borderWidth="1px" borderRadius="lg">
         <Customization
           charName={charName}

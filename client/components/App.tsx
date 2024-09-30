@@ -118,7 +118,7 @@ const App: FC = () => {
               path="/store"
               element={(
                 <ProtectedRoute>
-                  <Store />
+                  <Store userId={profile?.id}/>
                 </ProtectedRoute>
               )}
             />

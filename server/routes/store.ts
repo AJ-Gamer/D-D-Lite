@@ -24,8 +24,8 @@ storeRouter.get('/equipment/:index', async (req: Request, res: Response) => {
 });
 
 storeRouter.get('/gold', async (req: Request, res: Response) => {
-  const { userId } = req.body;
-
+  const userId = parseInt(req.query.userId as string, 10);
+  console.log('test:', userId);
   if (!userId) {
     return res.status(400).json({ message: 'User ID is required' });
   }

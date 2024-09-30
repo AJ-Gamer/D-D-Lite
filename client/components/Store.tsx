@@ -12,7 +12,11 @@ interface EquipmentDetail {
   desc: string[];
 }
 
-const Store: FC = () => {
+interface StoreProps {
+  userId: number | undefined; // Define userId as a prop
+}
+
+const Store: FC<StoreProps> = ({ userId }) => {
   const [equipment, setEquipment] = useState<Equipment[]>([]);
   const [filteredEquipment, setFilteredEquipment] = useState<Equipment[]>([]);
   const [selectedIndex, setSelectedIndex] = useState<string | null>(null);
@@ -25,9 +29,8 @@ const Store: FC = () => {
 
   const fetchGold = async () => {
     try {
-      const userId = 1;
-      const response = await axios.get('/api/store/gold', {
-        data: { userId },
+      const response = await axios.get('/store/gold', {
+        params: { userId },
       });
       setGold(response.data.gold);
     } catch (err) {

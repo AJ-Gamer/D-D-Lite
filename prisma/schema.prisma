@@ -68,7 +68,7 @@ model Inventory {
   id          Int       @id @default(autoincrement())
   userId      Int
   user        User      @relation(fields: [userId], references: [id])
-  equipment   Equipment[] // Assuming you have an Equipment model
+  equipment   Equipment[] 
 }
 
 model Equipment {

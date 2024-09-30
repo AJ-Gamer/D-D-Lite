@@ -1,6 +1,7 @@
 // server/routes/inventory.ts
 import express, { Request, Response } from 'express';
 import axios from 'axios';
+import { Inventory } from '@prisma/client';
 import prisma from './prisma';
 
 const inventory = express.Router();

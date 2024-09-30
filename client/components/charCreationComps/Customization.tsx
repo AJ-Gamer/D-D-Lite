@@ -34,6 +34,9 @@ const Customization: FC<CustomizationProps> = ({
 
   return (
     <VStack spacing={4} align="stretch">
+      <Text fontSize="2xl" textAlign="center" mt={4}>
+        Create your character and embark on an epic adventure!
+      </Text>
       <Box>
         <Text fontSize="lg" mb={2} as="b">Name Your Adventurer</Text>
         <Input

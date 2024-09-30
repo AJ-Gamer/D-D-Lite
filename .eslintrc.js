@@ -14,6 +14,7 @@ module.exports = {
     '@typescript-eslint/no-floating-promises': 'off',
     'consistent-return': 'off',
     'react/prop-types': 'off',
+    'react/jsx-one-expression-per-line': 'off',
   },
   extends: [
     'airbnb',

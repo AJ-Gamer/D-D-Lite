@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useState } from 'react';
-import { Box, Text, Select, Spinner, useToast, SimpleGrid, Card, CardHeader, CardBody } from '@chakra-ui/react';
+import { Box, Text, Spinner, SimpleGrid, Card, CardHeader, CardBody } from '@chakra-ui/react';
 import axios from 'axios';
 
 interface Character {
@@ -10,82 +10,57 @@ interface Character {
 }
 
 const Inventory: FC<{ userId?: number }> = ({ userId }) => {
-  const [characters, setCharacters] = useState<Character[]>([]);
-  const [selectedChar, setSelectedChar] = useState<number | null>(null);
-  const [startingEquipment, setStartingEquipment] = useState<any[]>([]);
+  const [equipment, setEquipment] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const toast = useToast();
 
   useEffect(() => {
-    const fetchCharacters = async () => {
+    const fetchCharactersAndEquipment = async () => {
       try {
         const response = await axios.get('/character/all', { params: { userId } });
-        setCharacters(response.data.characters);
+        const characters: Character[] = response.data.characters;
+
+        // Fetch starting equipment for all characters
+        const equipmentPromises = characters.map(async (character) => {
+          const res = await axios.get(`/inventory/${character.class}`);
+          return res.data.startingEquipment;
+        });
+
+        const equipmentArrays = await Promise.all(equipmentPromises);
+        // Flatten the array of arrays into a single array
+        const allEquipment = equipmentArrays.flat();
+        setEquipment(allEquipment);
         setLoading(false);
       } catch (err) {
-        setError('Failed to load characters');
+        setError('Failed to load characters or equipment');
         setLoading(false);
       }
     };
-    fetchCharacters();
-  }, [userId]);
 
-  const handleSelectChar = async (id: number) => {
-    setSelectedChar(id);
-    try {
-      const character = characters.find(char => char.id === id);
-      if (character) {
-        const response = await axios.get(`/inventory/${character.class}`);
-        setStartingEquipment(response.data.startingEquipment);
-      }
-    } catch (err) {
-      setError('Failed to load starting equipment');
-      toast({
-        title: 'Error',
-        description: 'Could not load starting equipment',
-        status: 'error',
-        duration: 4000,
-        isClosable: true,
-      });
-    }
-  };
+    fetchCharactersAndEquipment();
+  }, [userId]);
 
   if (loading) return <Spinner alignContent="center" />;
   if (error) return <Text>{error}</Text>;
 
   return (
-    <Box p={4} mt="5%">
-      <Select placeholder="Select a character" onChange={(e) => handleSelectChar(parseInt(e.target.value, 10))}>
-        {characters.map(character => (
-          <option key={character.id} value={character.id}>
-            {character.name}
-          </option>
-        ))}
-      </Select>
-
-      {selectedChar ? (
-        <Box mt={4}>
-          <Text fontSize="2xl">Starting Equipment:</Text>
-          {startingEquipment.length > 0 ? (
-            <SimpleGrid columns={{ sm: 1, md: 2, lg: 3 }} spacing={4} mt={4}>
-              {startingEquipment.map((item, index) => (
-                <Card key={index} variant="outline">
-                  <CardHeader>
-                    <Text fontSize="lg" fontWeight="bold">{item.equipment.name}</Text>
-                  </CardHeader>
-                  <CardBody>
-                    <Text>{item.equipment.description || 'No description available.'}</Text>
-                  </CardBody>
-                </Card>
-              ))}
-            </SimpleGrid>
-          ) : (
-            <Text>No starting equipment found.</Text>
-          )}
-        </Box>
+    <Box p={4} mt="3.5%">
+      <Text fontSize="2xl">Starting Equipment:</Text>
+      {equipment.length > 0 ? (
+        <SimpleGrid columns={{ sm: 1, md: 2, lg: 3 }} spacing={4} mt={4}>
+          {equipment.map((item, index) => (
+            <Card key={index} variant="outline" bg="#DA702F">
+              <CardHeader>
+                <Text fontSize="lg" fontWeight="bold">{item.equipment.name}</Text>
+              </CardHeader>
+              <CardBody>
+                <Text>{item.equipment.description || 'No description available.'}</Text>
+              </CardBody>
+            </Card>
+          ))}
+        </SimpleGrid>
       ) : (
-        <Text>Select a character to view their inventory.</Text>
+        <Text>No starting equipment found.</Text>
       )}
     </Box>
   );

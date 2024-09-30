@@ -1,6 +1,14 @@
 import React, { FC, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import {
+  Box,
+  Button,
+  Center,
+  Heading,
+  Text,
+  VStack,
+} from '@chakra-ui/react';
 
 interface AuthCheck {
   isAuthenticated: boolean
@@ -24,15 +32,31 @@ const Login: FC = () => {
   };
 
   return (
-    <div>
-      <h1>Login Here</h1>
-      <button
-        type="button"
-        onClick={handleGoogleLogin}
+    <Center minHeight="100vh">
+      <Box
+        p={8}
+        maxWidth="400px"
+        borderWidth="1px"
+        borderRadius="lg"
+        boxShadow="lg"
+        bg="yellow.400"
       >
-        Login with Google
-      </button>
-    </div>
+        <VStack spacing={6}>
+          <Heading as="h1" size="xl" color="gray.700" textAlign="center">
+            DnD Lite
+          </Heading>
+          <Text>Your adventure begins here</Text>
+          <Button
+            colorScheme="blue"
+            size="lg"
+            onClick={handleGoogleLogin}
+            width="full"
+          >
+            Login with Google
+          </Button>
+        </VStack>
+      </Box>
+    </Center>
   );
 };
 

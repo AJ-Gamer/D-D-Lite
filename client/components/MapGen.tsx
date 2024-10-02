@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-syntax */
 /* eslint-disable new-cap */
 /* eslint-disable no-param-reassign */
 import React, {
@@ -10,48 +11,97 @@ import React, {
 import p5 from 'p5';
 import { Box, Button, HStack } from '@chakra-ui/react';
 
+interface TT {
+  minHeight: number;
+  maxHeight: number;
+  minColor: p5.Color;
+  maxColor: p5.Color;
+  lerpAdj: number;
+}
+
 const MapGen: FC = () => {
-  const zoom = 100;
   const sketchRef = useRef<HTMLDivElement | null>(null);
   const p5InstanceRef = useRef<p5 | null>(null);
   const [canvasSize, setCanvasSize] = useState<number>(600);
+  const terrains = useRef<TT[]>([]);
+  const zoom = 100;
+
+  const createTerrainType = useCallback((
+    p: p5,
+    minHeight: number,
+    maxHeight: number,
+    minColor: [number, number, number],
+    maxColor: [number, number, number],
+    lerpAdj = 0,
+  ): TT => ({
+    minHeight,
+    maxHeight,
+    minColor: p.color(minColor[0], minColor[1], minColor[2]),
+    maxColor: p.color(maxColor[0], maxColor[1], maxColor[2]),
+    lerpAdj,
+  }), []);
+
+  const initTerrains = useCallback((p: p5) => {
+    terrains.current = [
+      createTerrainType(p, 0.2, 0.4, [30, 176, 251], [40, 255, 255]),
+      createTerrainType(p, 0.4, 0.45, [215, 192, 158], [255, 246, 193], 0.3),
+      createTerrainType(p, 0.45, 0.7, [2, 166, 155], [118, 239, 124]),
+      createTerrainType(p, 0.7, 0.75, [22, 181, 141], [10, 145, 113], -0.5),
+    ];
+  }, [createTerrainType]);
 
   const drawMap = useCallback((p: p5) => {
+    if (terrains.current.length === 0) return;
     p.randomSeed(p.random(10000));
     p.noiseSeed(p.random(10000));
     p.loadPixels();
+
+    const normalize = (value: number, max: number, min: number) => {
+      if (value > max) return 1;
+      if (value < min) return 0;
+      return (value - min) / (max - min);
+    };
+
+    const getTerrainColor = (noiseValue: number, terrainType: TT) => {
+      const normalized = normalize(noiseValue, terrainType.maxHeight, terrainType.minHeight);
+      return p.lerpColor(
+        terrainType.minColor,
+        terrainType.maxColor,
+        normalized + terrainType.lerpAdj,
+      );
+    };
 
     for (let x = 0; x < p.width; x += 1) {
       for (let y = 0; y < p.height; y += 1) {
         const noiseValue = p.noise(x / zoom, y / zoom);
         let terrainColor;
 
-        if (noiseValue < 0.50) {
-          terrainColor = p.color(30, 176, 251);
-        } else if (noiseValue < 0.53) {
-          terrainColor = p.color(255, 246, 193);
-        } else if (noiseValue < 0.65) {
-          terrainColor = p.color(118, 239, 124);
-        } else {
-          terrainColor = p.color(22, 181, 141);
+        for (const terrain of terrains.current) {
+          if (noiseValue < terrain.maxHeight) {
+            terrainColor = getTerrainColor(noiseValue, terrain);
+            break;
+          }
+        }
+        if (!terrainColor) {
+          terrainColor = getTerrainColor(noiseValue, terrains.current[terrains.current.length - 1]);
         }
         p.set(x, y, terrainColor);
       }
     }
     p.updatePixels();
-  }, [zoom]);
+  }, [terrains]);
 
   const genNewMap = useCallback((size: number) => {
-    setCanvasSize(size);
-
     if (p5InstanceRef.current) {
       p5InstanceRef.current.remove();
+      p5InstanceRef.current = null;
     }
+    setCanvasSize(size);
 
     const sketch = (p: p5) => {
       p.setup = () => {
         p.createCanvas(size, size);
-        p.background(200);
+        initTerrains(p);
         p.noLoop();
       };
 
@@ -62,7 +112,7 @@ const MapGen: FC = () => {
     if (sketchRef.current) {
       p5InstanceRef.current = new p5(sketch, sketchRef.current);
     }
-  }, [drawMap]);
+  }, [drawMap, initTerrains]);
 
   useEffect(() => {
     genNewMap(canvasSize);

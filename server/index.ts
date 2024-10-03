@@ -8,6 +8,7 @@ import charRouter from './routes/character';
 import storeRouter from './routes/store';
 import replicateRouter from './routes/replicate';
 import inventoryRouter from './routes/inventory';
+import encountersRouter from './routes/encounters'
 
 const PORT = 3000;
 const DIST_DIR = path.resolve(__dirname, '../dist/client');
@@ -27,6 +28,7 @@ app.use('/replicate', replicateRouter);
 app.use('/character', charRouter);
 app.use('/store', storeRouter);
 app.use('/inventory', inventoryRouter);
+app.use('/encounters', encountersRouter);
 
 const isAuthenticated = (
   req: Request,

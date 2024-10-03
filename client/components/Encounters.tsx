@@ -46,7 +46,7 @@ const Encounters: FC = () => {
 
   const restartAdventure = () => {
     setEnding(null);
-    fetchStoryNode(0);
+    fetchStoryNode(1);
   };
 
   if (loading) {
@@ -73,7 +73,7 @@ const Encounters: FC = () => {
   const { prompt, options } = currentNode;
 
   return (
-    <VStack spacing={5} mt="4%" align="center">
+    <VStack spacing={5} mt="5%" align="center">
       <Text fontSize="2xl">{prompt}</Text>
       {options.map((option) => (
         <Button key={option.id} onClick={() => handleOptionClick(option.nextNodeId, option.result)}>

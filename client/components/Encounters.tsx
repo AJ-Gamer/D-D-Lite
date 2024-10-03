@@ -1,84 +1,82 @@
-import React, { FC, useState } from 'react';
-import { Box, Text, Button, VStack } from '@chakra-ui/react';
+import React, { FC, useEffect, useState } from 'react';
+import axios from 'axios';
+import { Box, Text, Button, VStack, Spinner } from '@chakra-ui/react';
 
-interface StoryNode {
-  prompt: string;
-  options: { text: string; nextNode: number | null; result?: string }[];
+interface Option {
+  id: number;
+  text: string;
+  nextNodeId: number | null;
+  result?: string;
 }
 
-const storyline: StoryNode[] = [
-  {
-    prompt: 'You find yourself in a dark forest. Three paths lie ahead of you.',
-    options: [
-      { text: 'Take the left path', nextNode: 1 },
-      { text: 'Take the middle path', nextNode: 2 },
-      { text: 'Take the right path', nextNode: 3 },
-    ],
-  },
-  {
-    prompt: 'You encounter a strange merchant. He offers you a sword. Do you take it?',
-    options: [
-      { text: 'Yes', nextNode: 4 },
-      { text: 'No', nextNode: 5 },
-      { text: 'Ask for directions instead', nextNode: 6 },
-    ],
-  },
-  {
-    prompt: 'The middle path leads to a deep chasm. You fall and die.',
-    options: [{ text: 'Restart', nextNode: 0, result: 'bad' }],
-  },
-  {
-    prompt: 'The right path leads to a hidden cave. A treasure chest awaits.',
-    options: [{ text: 'Open the chest', nextNode: 7 }],
-  },
-  {
-    prompt: 'You take the sword. A sense of power surges through you.',
-    options: [{ text: 'Continue', nextNode: 7 }],
-  },
-  {
-    prompt: 'You refuse the sword and move on.',
-    options: [{ text: 'Continue', nextNode: 7 }],
-  },
-  {
-    prompt: 'The merchant gives you directions to the treasure.',
-    options: [{ text: 'Follow the directions', nextNode: 7 }],
-  },
-  {
-    prompt: 'You reach the treasure and claim victory. You’ve won the game!',
-    options: [{ text: 'Play Again', nextNode: 0, result: 'good' }],
-  },
-];
+interface StoryNode {
+  id: number;
+  prompt: string;
+  options: Option[];
+}
 
 const Encounters: FC = () => {
-  const [currentNode, setCurrentNode] = useState<number>(0);
+  const [currentNode, setCurrentNode] = useState<StoryNode | null>(null);
   const [ending, setEnding] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
 
-  const handleOptionClick = (nextNode: number | null, result?: string) => {
-    if (result) {
-      setEnding(result);
-    } else if (nextNode !== null) {
-      setCurrentNode(nextNode);
+  const fetchStoryNode = async (id: number) => {
+    setLoading(true);
+    try {
+      const { data } = await axios.get(`/encounters/story/${id}`);
+      setCurrentNode(data);
+    } catch (error) {
+      console.error('Error fetching story node:', error);
+    } finally {
+      setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchStoryNode(1);
+  }, []);
+
+  const handleOptionClick = async (nextNodeId: number | null, result?: string) => {
+    if (result) {
+      setEnding(result);
+    } else if (nextNodeId !== null) {
+      fetchStoryNode(nextNodeId);
+    }
+  };
+
+  const restartAdventure = () => {
+    setEnding(null);
+    fetchStoryNode(0);
+  };
+
+  if (loading) {
+    return <Spinner size="xl" mt="20%" />;
+  }
 
   if (ending) {
     return (
       <Box textAlign="center" mt={10}>
-        <Text fontSize="3xl">{ending === 'good' ? 'You achieved the good ending!' : 'You met an unfortunate end.'}</Text>
-        <Button mt={4} onClick={() => { setCurrentNode(0); setEnding(null); }}>
+        <Text fontSize="3xl">
+          {ending === 'good' ? 'You achieved the good ending!' : 'You met an unfortunate end.'}
+        </Text>
+        <Button mt={4} onClick={restartAdventure}>
           Restart the Adventure
         </Button>
       </Box>
     );
   }
 
-  const { prompt, options } = storyline[currentNode];
+  if (!currentNode) {
+    return <Text>Failed to load story node.</Text>;
+  }
+
+  const { prompt, options } = currentNode;
 
   return (
     <VStack spacing={5} mt="4%" align="center">
       <Text fontSize="2xl">{prompt}</Text>
-      {options.map((option, index) => (
-        <Button key={index} onClick={() => handleOptionClick(option.nextNode, option.result)}>
+      {options.map((option) => (
+        <Button key={option.id} onClick={() => handleOptionClick(option.nextNodeId, option.result)}>
           {option.text}
         </Button>
       ))}

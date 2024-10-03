@@ -82,6 +82,7 @@ model Equipment {
 
 model StoryNode {
   id          Int                 @id @default(autoincrement())
+  storyId     Int
   prompt      String
   options     Option[]            @relation("CurrentNode")
   nextOptions Option[]            @relation("NextNode")

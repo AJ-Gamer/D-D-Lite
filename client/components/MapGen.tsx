@@ -10,6 +10,7 @@ import React, {
 } from 'react';
 import p5 from 'p5';
 import { Box, Button, HStack } from '@chakra-ui/react';
+import MapUploader from './mapGenComps/MapUploader';
 
 interface TT {
   minHeight: number;
@@ -23,6 +24,7 @@ const MapGen: FC = () => {
   const sketchRef = useRef<HTMLDivElement | null>(null);
   const p5InstanceRef = useRef<p5 | null>(null);
   const [canvasSize, setCanvasSize] = useState<number>(600);
+  const [imgDataUrl, setImgDataUrl] = useState<string>('');
   const terrains = useRef<TT[]>([]);
   const zoom = 100;
 
@@ -43,10 +45,12 @@ const MapGen: FC = () => {
 
   const initTerrains = useCallback((p: p5) => {
     terrains.current = [
-      createTerrainType(p, 0.2, 0.4, [30, 176, 251], [40, 255, 255]),
-      createTerrainType(p, 0.4, 0.45, [215, 192, 158], [255, 246, 193], 0.3),
-      createTerrainType(p, 0.45, 0.7, [2, 166, 155], [118, 239, 124]),
-      createTerrainType(p, 0.7, 0.75, [22, 181, 141], [10, 145, 113], -0.5),
+      createTerrainType(p, 0.15, 0.35, [30, 176, 251], [40, 255, 255]), // Water
+      createTerrainType(p, 0.35, 0.4, [215, 192, 158], [255, 246, 193], 0.3), // Sand
+      createTerrainType(p, 0.4, 0.6, [2, 166, 155], [118, 239, 124]), // Grass
+      createTerrainType(p, 0.6, 0.65, [22, 181, 141], [10, 145, 113], 0.3), // Forest
+      createTerrainType(p, 0.65, 0.75, [150, 150, 150], [180, 180, 180]), // Mountain
+      createTerrainType(p, 0.75, 0.95, [250, 250, 250], [255, 255, 255], -0.5), // SnowCapped
     ];
   }, [createTerrainType]);
 
@@ -102,6 +106,7 @@ const MapGen: FC = () => {
       p.setup = () => {
         p.createCanvas(size, size);
         initTerrains(p);
+        p.noiseDetail(9, 0.5);
         p.noLoop();
       };
 
@@ -124,6 +129,14 @@ const MapGen: FC = () => {
     };
   }, [canvasSize, genNewMap]);
 
+  const capMapScreenshot = () => {
+    const canvas = document.querySelector('canvas');
+
+    if (canvas) {
+      setImgDataUrl(canvas.toDataURL('image/png'));
+    }
+  };
+
   return (
     <Box justifyContent="center" p={5}>
       <HStack spacing={4} justify="center" mt={32} mb={4}>
@@ -138,6 +151,10 @@ const MapGen: FC = () => {
         </Button>
       </HStack>
       <Box ref={sketchRef} display="flex" justifyContent="center" m={4} />
+      <Button colorScheme="teal" onClick={capMapScreenshot}>
+        Send Map Data
+      </Button>
+      <MapUploader imgDataUrl={imgDataUrl} />
     </Box>
   );
 };

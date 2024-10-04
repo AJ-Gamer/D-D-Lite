@@ -8,7 +8,8 @@
     "start": "nodemon ./server/index.ts",
     "build:client": "webpack --mode production",
     "build:dev": "webpack --mode development --watch",
-    "dev": "concurrently \"npm run build:dev\" \"npm start\" "
+    "dev": "concurrently \"npm run build:dev\" \"npm start\" ",
+    "seed": "ts-node prisma/seed/storyNodes.ts"
   },
   "keywords": [],
   "author": "",

@@ -70,7 +70,7 @@ const App: FC = () => {
   return (
     <ChakraProvider>
       <Router>
-        <Box bg="darkred" minHeight="100vh">
+        <Box bg="#CB0404" minHeight="100vh">
           {isAuthenticated && <NavBar />}
           <Routes>
             <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/home" replace />} />

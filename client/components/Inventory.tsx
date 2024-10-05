@@ -49,7 +49,7 @@ const Inventory: FC<{ userId?: number }> = ({ userId }) => {
       {equipment.length > 0 ? (
         <SimpleGrid columns={{ sm: 1, md: 2, lg: 3 }} spacing={4} mt={4}>
           {equipment.map((item, index) => (
-            <Card key={index} variant="outline" bg="#DA702F">
+            <Card key={index} variant="outline" bg="#F49004">
               <CardHeader>
                 <Text fontSize="lg" fontWeight="bold">{item.equipment.name}</Text>
               </CardHeader>

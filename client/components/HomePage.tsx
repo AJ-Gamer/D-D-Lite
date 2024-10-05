@@ -20,9 +20,17 @@ interface Character {
   charisma: number;
 }
 
+interface Equipment {
+  equipment: {
+    name: string;
+  };
+}
+
 const HomePage: FC = () => {
   const [chars, setChars] = useState<Character[]>([]);
   const [selectedChar, setSelectedChar] = useState<number | null>(null);
+  const [equipment, setEquipment] = useState<Equipment[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchChars = async () => {
@@ -40,6 +48,27 @@ const HomePage: FC = () => {
     };
     fetchChars();
   }, []);
+
+  useEffect(() => {
+    const fetchEquipment = async () => {
+      if (selectedChar) {
+        setLoading(true);
+        try {
+          const charObj = chars.find((char) => char.id === selectedChar);
+          if (charObj) {
+            const response = await axios.get(`/inventory/${charObj.class}`);
+            setEquipment(response.data.startingEquipment);
+          }
+        } catch (error) {
+          console.error('Failed to fetch equipment:', error);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchEquipment();
+  }, [selectedChar, chars]);
 
   const handleSelectChar = (id: number) => {
     setSelectedChar(id);
@@ -73,6 +102,7 @@ const HomePage: FC = () => {
           ml={4}
           display="flex"
           flexDirection="row"
+          justifyContent="center"
         >
           {/* Character Stats */}
           <Box
@@ -115,6 +145,8 @@ const HomePage: FC = () => {
             bg="#B8860B"
             borderWidth="1px"
             borderRadius="lg"
+            width="20%"
+            mr={4}
           >
             <Text fontSize="lg" fontWeight="bold"> Current Character:</Text>
             <Image
@@ -126,6 +158,36 @@ const HomePage: FC = () => {
               m={8}
             />
             <Text fontSize="xl" fontWeight="bold" mt={2}>{charObj?.name}</Text>
+          </Box>
+
+          {/* Equipment Box */}
+          <Box
+            alignItems="center"
+            textAlign="center"
+            bg="#B8860B"
+            borderWidth="1px"
+            borderRadius="lg"
+            width="20%"
+          >
+            <Text fontSize="lg" fontWeight="bold" ml={4} mt={4}>
+              Equipment:
+            </Text>
+            <Divider my={2} borderColor="gray.600" />
+            {loading ? (
+              <Text>Loading equipment...</Text>
+            ) : (
+              <Box ml={4} mt={4} mb={4}>
+                {equipment.length > 0 ? (
+                  equipment.map((item, index) => (
+                    <Text key={index} fontSize="lg" fontWeight="bold">
+                      {item.equipment.name}
+                    </Text>
+                  ))
+                ) : (
+                  <Text>No equipment available.</Text>
+                )}
+              </Box>
+            )}
           </Box>
         </Box>
       )}

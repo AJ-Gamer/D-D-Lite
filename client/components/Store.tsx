@@ -105,7 +105,7 @@ const Store: FC<StoreProps> = ({ userId }) => {
             key={item.index}
             onClick={() => handleCardClick(item.index)}
             p={5}
-            bg="#DA702F"
+            bg="#F49004"
             cursor="pointer"
             height={selectedIndex === item.index ? 'auto' : '100px'}
             _hover={{ transform: selectedIndex === item.index ? 'none' : 'scale(1.05)', transition: '0.3s' }}

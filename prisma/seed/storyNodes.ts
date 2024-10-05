@@ -16,7 +16,7 @@ interface StoryNode {
 
 const storyline: StoryNode[] = [
   {
-    prompt: 'You find yourself in a dark forest. Three paths lie ahead of you.',
+    prompt: 'You are a {class}. You find yourself in a dark forest. Three paths lie ahead of you.',
     options: [
       { text: 'Take the left path', nextNodeId: 2 },
       { text: 'Take the middle path', nextNodeId: 3 },
@@ -69,21 +69,22 @@ async function main() {
   const createdStoryNodes: { [key: number]: number } = {};
 
   await Promise.all(
-    storyline.map(async (node, index) => {
+    storyline.map(async (node) => {
       const createdNode = await prisma.storyNode.create({
         data: {
           prompt: node.prompt,
           storyId: node.storyId,
         },
       });
-      createdStoryNodes[index + 1] = createdNode.id;
+       // Map by storyId
+      createdStoryNodes[node.storyId] = createdNode.id;
     })
   );
 
   console.log('Created story nodes:', createdStoryNodes);
 
   await Promise.all(
-    storyline.map(async (node, index) => {
+    storyline.map(async (node) => {
       const optionsData = node.options.map((option) => ({
         text: option.text,
         nextNodeId: option.nextNodeId !== null ? createdStoryNodes[option.nextNodeId] : null,
@@ -91,12 +92,12 @@ async function main() {
       }));
 
       console.log(`Updating node with options:`, {
-        nodeId: createdStoryNodes[index + 1],
+        nodeId: createdStoryNodes[node.storyId],
         optionsData,
       });
 
       return prisma.storyNode.update({
-        where: { id: createdStoryNodes[index + 1] },
+        where: { id: createdStoryNodes[node.storyId] },
         data: {
           options: {
             create: optionsData,

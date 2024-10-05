@@ -146,7 +146,7 @@ const CharCreation: FC<CharCreationProps> = ({ profile }) => {
         selectedChar={selectedChar}
         onDeleteChar={handleDeleteChar}
       />
-      <Box p={6} bg="#B8860B" alignContent="center" borderWidth="1px" borderRadius="lg">
+      <Box p={6} bg="#F6CC12" alignContent="center" borderWidth="1px" borderRadius="lg">
         <Customization
           charName={charName}
           setCharName={setCharName}
@@ -158,7 +158,7 @@ const CharCreation: FC<CharCreationProps> = ({ profile }) => {
           setCharClass={setCharClass}
         />
         <Button
-          bg="#B8860B"
+          bg="#F6CC12"
           mt={4}
           onClick={handleSubmit}
           isDisabled={!charName || !race || !charClass}

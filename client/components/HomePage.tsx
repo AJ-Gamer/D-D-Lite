@@ -108,7 +108,7 @@ const HomePage: FC = () => {
           <Box
             alignItems="left"
             textAlign="left"
-            bg="#B8860B"
+            bg="#F6CC12"
             borderWidth="1px"
             borderRadius="lg"
             width="20%"
@@ -142,7 +142,7 @@ const HomePage: FC = () => {
           <Box
             alignItems="center"
             textAlign="center"
-            bg="#B8860B"
+            bg="#F6CC12"
             borderWidth="1px"
             borderRadius="lg"
             width="20%"
@@ -164,7 +164,7 @@ const HomePage: FC = () => {
           <Box
             alignItems="center"
             textAlign="center"
-            bg="#B8860B"
+            bg="#F6CC12"
             borderWidth="1px"
             borderRadius="lg"
             width="20%"

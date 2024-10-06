@@ -144,7 +144,7 @@ const Encounters: FC = () => {
             alt={`${selectedCharacter.name} Image`}
             fallbackSrc={DEFAULT_IMAGE_URL}
           />
-          <Box border="1px solid #ccc" p={4} bg="#B8860B" borderRadius="md" w="200px" textAlign="center">
+          <Box border="1px solid #ccc" p={4} bg="#F6CC12" borderRadius="md" w="200px" textAlign="center">
             <Box mt={4}>
               <Text fontSize="lg">Strength:</Text>
               <Text fontSize="lg" fontWeight="bold">{selectedCharacter.strength}</Text>

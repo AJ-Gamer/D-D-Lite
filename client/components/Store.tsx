@@ -127,7 +127,8 @@ const Store: FC<StoreProps> = ({ userId }) => {
           onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
           disabled={currentPage === 1}
           mr={2}
-          bg="#FDCE5C"
+          bg="#E6AD28"
+          _hover={{ bg: "#E6AD28" }}
         >
           Previous
         </Button>
@@ -138,7 +139,8 @@ const Store: FC<StoreProps> = ({ userId }) => {
           onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
           disabled={currentPage === totalPages}
           ml={2}
-          bg="#FDCE5C"
+          bg="#E6AD28"
+          _hover={{ bg: "#E6AD28" }}
         >
           Next
         </Button>

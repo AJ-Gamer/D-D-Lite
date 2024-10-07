@@ -4,7 +4,9 @@ import {
   Button,
   Input,
   Text,
+  HStack,
   VStack,
+  useToast,
 } from '@chakra-ui/react';
 import axios from 'axios';
 
@@ -19,6 +21,7 @@ interface Map {
 }
 
 const MapUploader: FC<MapUploaderProps> = ({ imgDataUrl, userId }) => {
+  const toast = useToast();
   const [mapName, setMapName] = useState<string>('');
   const [maps, setMaps] = useState<Map[]>([]);
 
@@ -35,8 +38,22 @@ const MapUploader: FC<MapUploaderProps> = ({ imgDataUrl, userId }) => {
           'Content-Type': 'application/json',
         },
       });
+
+      toast({
+        title: 'Map uploaded successfully!',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
     } catch (error) {
       console.error('Failed to upload', error);
+
+      toast({
+        title: 'Failed to upload the map',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
     }
   };
 
@@ -67,18 +84,18 @@ const MapUploader: FC<MapUploaderProps> = ({ imgDataUrl, userId }) => {
         Save This Map
       </Button>
       <Box mt={4} w="full">
-        <Text fontSize="lg" fontWeight="bold">Your Saved Maps</Text>
+        <Text fontSize="lg" fontWeight="bold" color="#E6AD28">Your Saved Maps</Text>
         {maps.length > 0 ? (
-          <VStack spacing={2} mt={2} align="start">
+          <HStack spacing={2} mt={2} align="start">
             {maps.map((map) => (
-              <Box key={map.key} p={2} borderWidth={1} borderRadius="md" w="full">
+              <Box key={map.key} p={2} borderWidth={1} borderRadius="md" w="33%" bg="#E6AD28">
                 <Text>
                   <a href={map.url} target="_blank" rel="noopener noreferrer">{map.key}</a>
                 </Text>
                 <img src={map.url} alt={map.key} style={{ width: '100%', height: 'auto', borderRadius: '4px' }} />
               </Box>
             ))}
-          </VStack>
+          </HStack>
         ) : (
           <Text>Upload some Maps.</Text>
         )}

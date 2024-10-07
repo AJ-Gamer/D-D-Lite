@@ -9,7 +9,12 @@ import React, {
   useState,
 } from 'react';
 import p5 from 'p5';
-import { Box, Button, HStack } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  HStack,
+  useToast,
+} from '@chakra-ui/react';
 import MapUploader from './mapGenComps/MapUploader';
 
 interface TT {
@@ -25,6 +30,7 @@ interface MapGenProps {
 }
 
 const MapGen: FC<MapGenProps> = ({ userId }) => {
+  const toast = useToast();
   const sketchRef = useRef<HTMLDivElement | null>(null);
   const p5InstanceRef = useRef<p5 | null>(null);
   const [canvasSize, setCanvasSize] = useState<number>(600);
@@ -138,6 +144,21 @@ const MapGen: FC<MapGenProps> = ({ userId }) => {
 
     if (canvas) {
       setImgDataUrl(canvas.toDataURL('image/png'));
+      toast({
+        title: 'Map screenshot captured.',
+        description: 'Your map has been successfully captured and is ready to be uploaded!',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+    } else {
+      toast({
+        title: 'Error capturing map.',
+        description: 'There was an issue capturing your map. Please try again.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
     }
   };
 

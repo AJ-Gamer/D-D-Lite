@@ -110,7 +110,7 @@ const App: FC = () => {
               path="/map-gen"
               element={(
                 <ProtectedRoute>
-                  <MapGen />
+                  <MapGen userId={profile?.id} />
                 </ProtectedRoute>
               )}
             />

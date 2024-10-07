@@ -3,7 +3,7 @@ import express, { NextFunction, Request, Response } from 'express';
 import session from 'express-session';
 import passport from 'passport';
 import path from 'path';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, ListObjectsCommand } from '@aws-sdk/client-s3';
 import { Buffer } from 'buffer';
 import dotenv from 'dotenv';
 import bodyParser from 'body-parser';
@@ -53,24 +53,23 @@ const s3 = new S3Client({
 interface UploadReqBody {
   imageData: string;
   fileName: string;
+  userId: number;
 }
 
 app.post('/api/upload', async (
   req: Request<object, object, UploadReqBody>,
   res: Response,
 ) => {
-  console.log(req.body);
-  console.log('Request Headers:', req.headers);
-  const { imageData, fileName } = req.body;
+  console.log(req.user);
+  const { imageData, fileName, userId } = req.body;
 
   try {
-    console.log('Image Data URL:', imageData);
     const base64Image = imageData.split(';base64,')[1];
-    console.log('Base64 Image:', base64Image);
     const buffer = Buffer.from(base64Image ?? '', 'base64');
+    const uploadKey = `${userId}/${fileName}`;
     const uploadParams = {
       Bucket: BUCKET_NAME,
-      Key: fileName,
+      Key: uploadKey,
       Body: buffer,
       ContentType: 'image/png',
     };
@@ -80,6 +79,45 @@ app.post('/api/upload', async (
   } catch (error) {
     console.error('Error uploading to s3', error);
     res.status(500).send('Failed to upload image');
+  }
+});
+
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace Express {
+    interface User {
+      id: number;
+      googleId: string,
+      email: string,
+      name: string,
+    }
+  }
+}
+
+app.get('/api/maps', async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  const params = {
+    Bucket: BUCKET_NAME,
+    Prefix: `${userId}/`,
+    Delimiter: '/',
+  };
+
+  try {
+    const data = await s3.send(new ListObjectsCommand(params));
+
+    if (!data.Contents || data.Contents.length === 0) {
+      return res.status(404).json({ message: 'No maps found' });
+    }
+
+    const maps = data.Contents.map((item) => ({
+      key: item.Key,
+      url: `https://${BUCKET_NAME}.s3.${BUCKET_REGION}.amazonaws.com/${item.Key}`,
+    }));
+
+    res.status(200).json(maps);
+  } catch (error) {
+    console.error('Error fetching maps from S3', error);
+    res.status(500).json({ message: 'Failed to fetch maps' });
   }
 });
 

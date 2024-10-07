@@ -38,7 +38,7 @@ passport.use(new GoogleStrategy({
 }));
 
 passport.serializeUser((user: object, done) => done(null, user));
-passport.deserializeUser((obj: object, done) => done(null, obj));
+passport.deserializeUser((obj: any, done) => done(null, obj));
 
 const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
   if (req.isAuthenticated()) {

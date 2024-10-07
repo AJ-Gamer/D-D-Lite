@@ -20,7 +20,11 @@ interface TT {
   lerpAdj: number;
 }
 
-const MapGen: FC = () => {
+interface MapGenProps {
+  userId: number | undefined;
+}
+
+const MapGen: FC<MapGenProps> = ({ userId }) => {
   const sketchRef = useRef<HTMLDivElement | null>(null);
   const p5InstanceRef = useRef<p5 | null>(null);
   const [canvasSize, setCanvasSize] = useState<number>(600);
@@ -154,7 +158,7 @@ const MapGen: FC = () => {
       <Button colorScheme="teal" onClick={capMapScreenshot}>
         Send Map Data
       </Button>
-      <MapUploader imgDataUrl={imgDataUrl} />
+      <MapUploader userId={userId} imgDataUrl={imgDataUrl} />
     </Box>
   );
 };

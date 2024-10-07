@@ -5,4 +5,4 @@
 
 */
 -- AlterTable
-ALTER TABLE `storynode` ADD COLUMN `storyId` INTEGER NOT NULL;
+ALTER TABLE `StoryNode` ADD COLUMN `storyId` INTEGER NOT NULL;

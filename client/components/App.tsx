@@ -1,8 +1,9 @@
 import React, {
   FC,
+  ReactNode,
+  Suspense,
   useState,
   useEffect,
-  ReactNode,
 } from 'react';
 import {
   BrowserRouter as Router,
@@ -11,15 +12,16 @@ import {
   Navigate,
 } from 'react-router-dom';
 import axios from 'axios';
-import { ChakraProvider, Box } from '@chakra-ui/react';
+import { ChakraProvider, Box, Spinner } from '@chakra-ui/react';
 import Login from './Login';
 import HomePage from './HomePage';
 import NavBar from './NavBar';
-import CharCreation from './CharCreation';
-import Encounters from './Encounters';
-import Inventory from './Inventory';
-import MapGen from './MapGen';
-import Store from './Store';
+// added lazy loading
+const CharCreation = React.lazy(() => import('./CharCreation'));
+const Encounters = React.lazy(() => import('./Encounters'));
+const Inventory = React.lazy(() => import('./Inventory'));
+const Store = React.lazy(() => import('./Store'));
+const MapGen = React.lazy(() => import('./MapGen'));
 
 interface AuthCheck {
   isAuthenticated: boolean
@@ -72,57 +74,59 @@ const App: FC = () => {
       <Router>
         <Box bg="#CB0404" minHeight="100vh">
           {isAuthenticated && <NavBar />}
-          <Routes>
-            <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/home" replace />} />
-            <Route
-              path="/home"
-              element={(
-                <ProtectedRoute>
-                  <HomePage />
-                </ProtectedRoute>
-              )}
-            />
-            <Route
-              path="/char-creation"
-              element={(
-                <ProtectedRoute>
-                  <CharCreation profile={profile} />
-                </ProtectedRoute>
-              )}
-            />
-            <Route
-              path="/encounters"
-              element={(
-                <ProtectedRoute>
-                  <Encounters />
-                </ProtectedRoute>
-              )}
-            />
-            <Route
-              path="/inventory"
-              element={(
-                <ProtectedRoute>
-                  <Inventory userId={profile?.id} />
-                </ProtectedRoute>
-              )}
-            />
-            <Route
-              path="/map-gen"
-              element={(
-                <ProtectedRoute>
-                  <MapGen userId={profile?.id} />
-                </ProtectedRoute>
-              )}
-            />
-            <Route
-              path="/store"
-              element={(
-                <ProtectedRoute>
-                  <Store userId={profile?.id} />
-                </ProtectedRoute>
-              )}
-            />
-          </Routes>
+          <Suspense fallback={<Spinner color="white" size="xl" />}>
+            <Routes>
+              <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/home" replace />} />
+              <Route
+                path="/home"
+                element={(
+                  <ProtectedRoute>
+                    <HomePage />
+                  </ProtectedRoute>
+                )}
+              />
+              <Route
+                path="/char-creation"
+                element={(
+                  <ProtectedRoute>
+                    <CharCreation profile={profile} />
+                  </ProtectedRoute>
+                )}
+              />
+              <Route
+                path="/encounters"
+                element={(
+                  <ProtectedRoute>
+                    <Encounters />
+                  </ProtectedRoute>
+                )}
+              />
+              <Route
+                path="/inventory"
+                element={(
+                  <ProtectedRoute>
+                    <Inventory userId={profile?.id} />
+                  </ProtectedRoute>
+                )}
+              />
+              <Route
+                path="/map-gen"
+                element={(
+                  <ProtectedRoute>
+                    <MapGen userId={profile?.id} />
+                  </ProtectedRoute>
+                )}
+              />
+              <Route
+                path="/store"
+                element={(
+                  <ProtectedRoute>
+                    <Store userId={profile?.id} />
+                  </ProtectedRoute>
+                )}
+              />
+            </Routes>
+          </Suspense>
         </Box>
       </Router>
     </ChakraProvider>

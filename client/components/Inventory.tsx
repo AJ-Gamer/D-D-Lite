@@ -44,7 +44,7 @@ const Inventory: FC<{ userId?: number }> = ({ userId }) => {
   if (error) return <Text>{error}</Text>;
 
   return (
-    <Box p={4} mt="3.5%">
+    <Box p={4} mt={12}>
       <Text fontSize="2xl">Starting Equipment:</Text>
       {equipment.length > 0 ? (
         <SimpleGrid columns={{ sm: 1, md: 2, lg: 3 }} spacing={4} mt={4}>

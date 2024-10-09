@@ -81,13 +81,13 @@ const Store: FC<StoreProps> = ({ userId }) => {
   const paginatedItems = filteredEquipment.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   return (
-    <Box pt="5%" px="5%">
+    <Box mt={12} px={4}>
       <Flex justify="space-between" align="center" mb={4}>
         <Input
           placeholder="Search for equipment..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          mb={5}
+          my={4}
           bg="white"
           width="50%"
           boxShadow="md"

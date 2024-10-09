@@ -38,7 +38,16 @@ passport.use(new GoogleStrategy({
 }));
 
 passport.serializeUser((user: object, done) => done(null, user));
-passport.deserializeUser((obj: any, done) => done(null, obj));
+passport.deserializeUser(async (id: number, done: (err: unknown, user?: User | null) => void) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id },
+    });
+    done(null, user);
+  } catch (error) {
+    done(error);
+  }
+});
 
 const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
   if (req.isAuthenticated()) {
@@ -78,6 +87,20 @@ auth.get('/google/callback', passport.authenticate('google', {
   res: Response,
   next: NextFunction,
 ) => void);
+
+auth.post('/logout', (req, res) => {
+  req.logout((err) => {
+    if (err) {
+      return res.status(500).json({ message: 'Error logging out' });
+    }
+    req.session.destroy((error) => {
+      if (error) {
+        return res.status(500).json({ message: 'Error destroying session' });
+      }
+      res.sendStatus(200);
+    });
+  });
+});
 
 auth.get('/check-auth', (req: Request, res: Response) => {
   res.json({ isAuthenticated: req.isAuthenticated(), user: req.user });

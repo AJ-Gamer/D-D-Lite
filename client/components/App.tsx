@@ -73,7 +73,7 @@ const App: FC = () => {
     <ChakraProvider>
       <Router>
         <Box bg="#CB0404" minHeight="100vh">
-          {isAuthenticated && <NavBar />}
+          {isAuthenticated && <NavBar setIsAuth={setIsAuthenticated} />}
           <Suspense fallback={<Spinner color="white" size="xl" />}>
             <Routes>
               <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/home" replace />} />

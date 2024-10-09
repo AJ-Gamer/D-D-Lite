@@ -90,6 +90,7 @@ declare global {
       googleId: string,
       email: string,
       name: string,
+      gold: number,
     }
   }
 }

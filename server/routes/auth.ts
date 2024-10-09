@@ -37,7 +37,9 @@ passport.use(new GoogleStrategy({
     .catch((err: null) => done(err));
 }));
 
-passport.serializeUser((user: object, done) => done(null, user));
+passport.serializeUser((user: User, done: (err: unknown, id?: number) => void) => {
+  done(null, user.id);
+});
 passport.deserializeUser(async (id: number, done: (err: unknown, user?: User | null) => void) => {
   try {
     const user = await prisma.user.findUnique({

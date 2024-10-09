@@ -16,7 +16,7 @@ import { ChakraProvider, Box, Spinner } from '@chakra-ui/react';
 import Login from './Login';
 import HomePage from './HomePage';
 import NavBar from './NavBar';
-
+// added lazy loading
 const CharCreation = React.lazy(() => import('./CharCreation'));
 const Encounters = React.lazy(() => import('./Encounters'));
 const Inventory = React.lazy(() => import('./Inventory'));

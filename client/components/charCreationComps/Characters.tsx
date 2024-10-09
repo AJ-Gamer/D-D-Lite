@@ -19,10 +19,10 @@ const Characters: FC<CharsProps> = ({
   selectedChar,
   onDeleteChar,
 }) => (
-  <Box mt={28} mb={4}>
+  <Box mb={4}>
     <Select
       bg="#B8860B"
-      mt={28}
+      mt={12}
       mb={4}
       placeholder="Select Character"
       value={selectedChar ?? ''}

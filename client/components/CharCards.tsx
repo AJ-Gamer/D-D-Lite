@@ -28,7 +28,7 @@ const CharCards: FC<CharCardsProps> = ({
   onDeleteChar,
 }) => (
   <>
-    <Text fontSize="lg" color="yellow.300" mt={32}>Choose Your Adventurer</Text>
+    <Text fontSize="lg" color="yellow.300" mt={16}>Choose Your Adventurer</Text>
     <Box display="flex" padding="1rem">
       {characters.map((char) => (
         <Box

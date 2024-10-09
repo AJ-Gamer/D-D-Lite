@@ -1,6 +1,16 @@
 import React, { FC, useEffect, useState } from 'react';
 import axios from 'axios';
-import { Box, Text, Button, VStack, Spinner, Image, Flex, SimpleGrid, Divider } from '@chakra-ui/react';
+import {
+  Box,
+  Text,
+  Button,
+  VStack,
+  Spinner,
+  Image,
+  Flex,
+  SimpleGrid,
+  Divider,
+} from '@chakra-ui/react';
 
 interface Option {
   id: number;
@@ -109,7 +119,7 @@ const Encounters: FC = () => {
 
   if (!selectedCharacter && !startCampaign) {
     return (
-      <Box textAlign="center" mt="3.5%">
+      <Box textAlign="center" mt={12}>
         <Text fontSize="xl">Select a character to start your campaign:</Text>
         <VStack spacing={4} mt={4}>
           {characters.map((char) => (

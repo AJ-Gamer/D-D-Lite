@@ -80,6 +80,7 @@ const CharCreation: FC<CharCreationProps> = ({ profile }) => {
         description,
         class: charClass.toLowerCase(),
         race: race.toLowerCase(),
+        image: 'https://t4.ftcdn.net/jpg/04/73/25/49/360_F_473254957_bxG9yf4ly7OBO5I0O5KABlN930GwaMQz.jpg',
         userId: profile?.id,
       });
       const characterId = response.data.newChar.id;
@@ -137,7 +138,6 @@ const CharCreation: FC<CharCreationProps> = ({ profile }) => {
     <Box
       display="flex"
       flexDirection="column"
-      minHeight="80vh"
       padding="2rem"
     >
       <Characters

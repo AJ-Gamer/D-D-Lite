@@ -145,17 +145,20 @@ const HomePage: FC = () => {
             bg="#F6CC12"
             borderWidth="1px"
             borderRadius="lg"
-            width="20%"
-            mr={4}
+            width={['100%', '30%']}
+            mr={[0, 4]}
+            mb={[4, 0]}
+            maxWidth="300px"
+            overflow="hidden"
           >
             <Text fontSize="lg" fontWeight="bold"> Current Character:</Text>
             <Image
               src={charObj?.image}
               alt={charObj?.name}
-              boxSize="300px"
-              objectFit="cover"
+              boxSize="80%"
+              objectFit="contain"
               borderRadius="lg"
-              m={8}
+              mx={8}
             />
             <Text fontSize="xl" fontWeight="bold" mt={2}>{charObj?.name}</Text>
           </Box>

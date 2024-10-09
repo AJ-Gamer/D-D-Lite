@@ -1,25 +1,46 @@
 import React, { FC } from 'react';
+import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import {
   Box,
   Flex,
   Link,
   Button,
-  Divider,
-  Menu,
-  MenuButton,
-  MenuList,
-  MenuItem,
   useBreakpointValue,
+  useDisclosure,
 } from '@chakra-ui/react';
-import { Link as RouterLink, useLocation } from 'react-router-dom';
+import MobileMenu from './navBarComps/MobileMenu';
+import LogoutModal from './navBarComps/LogoutModal';
 
-const NavBar: FC = () => {
+interface NavBarProps {
+  setIsAuth: (isAuth: boolean) => void;
+}
+
+const NavBar: FC<NavBarProps> = ({ setIsAuth }) => {
   const isMobile = useBreakpointValue({ base: true, md: false });
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    onOpen();
+  };
+
+  const confirmLogout = () => {
+    axios.post('/auth/logout')
+      .then(() => {
+        setIsAuth(false);
+        navigate('/login');
+      })
+      .catch((err) => {
+        console.error('Error logging out', err);
+      });
+    onClose();
+  };
 
   const getActiveStyle = (path: string) => (
     location.pathname === path
-      ? { color: '#FBBE30', fontWeight: 'bold' } // Active link style
+      ? { color: '#FBBE30', fontWeight: 'bold' }
       : { color: 'white' }
   );
 
@@ -38,49 +59,42 @@ const NavBar: FC = () => {
     >
       <Flex justifyContent="space-between" alignItems="center">
         {isMobile ? (
-          <Flex justifyContent="flex-end" w="100%">
-            <Menu>
-              <MenuButton as={Button} bg="#E6AD28" color="black" _hover={{ bg: '#E6AD28' }} _active={{ bg: '#E6AD28' }}>
-                Menu
-              </MenuButton>
-              <MenuList bg="#FBBE30">
-                <MenuItem as={RouterLink} to="/home" bg="#FBBE30" color="black" fontWeight="bold">Home</MenuItem>
-                <Divider my={2} borderColor="gray.600" />
-                <MenuItem as={RouterLink} to="/char-creation" bg="#FBBE30" color="black" fontWeight="bold">Character Creation</MenuItem>
-                <Divider my={2} borderColor="gray.600" />
-                <MenuItem as={RouterLink} to="/encounters" bg="#FBBE30" color="black" fontWeight="bold">Encounters</MenuItem>
-                <Divider my={2} borderColor="gray.600" />
-                <MenuItem as={RouterLink} to="/inventory" bg="#FBBE30" color="black" fontWeight="bold">Inventory</MenuItem>
-                <Divider my={2} borderColor="gray.600" />
-                <MenuItem as={RouterLink} to="/map-gen" bg="#FBBE30" color="black" fontWeight="bold">Map Generator</MenuItem>
-                <Divider my={2} borderColor="gray.600" />
-                <MenuItem as={RouterLink} to="/store" bg="#FBBE30" color="black" fontWeight="bold">Store</MenuItem>
-              </MenuList>
-            </Menu>
-          </Flex>
+          <MobileMenu onLogout={handleLogout} />
         ) : (
-          <Flex alignItems="center" gap={4}>
-            <Link as={RouterLink} to="/home" style={getActiveStyle('/home')} _hover={{ textDecoration: 'none', color: '#FBBE30' }}>
-              Home
-            </Link>
-            <Link as={RouterLink} to="/char-creation" style={getActiveStyle('/char-creation')} _hover={{ textDecoration: 'none', color: '#FBBE30' }}>
-              Character Creation
-            </Link>
-            <Link as={RouterLink} to="/encounters" style={getActiveStyle('/encounters')} _hover={{ textDecoration: 'none', color: '#FBBE30' }}>
-              Encounters
-            </Link>
-            <Link as={RouterLink} to="/inventory" style={getActiveStyle('/inventory')} _hover={{ textDecoration: 'none', color: '#FBBE30' }}>
-              Inventory
-            </Link>
-            <Link as={RouterLink} to="/store" style={getActiveStyle('/store')} _hover={{ textDecoration: 'none', color: '#FBBE30' }}>
-              Store
-            </Link>
-            <Link as={RouterLink} to="/map-gen" style={getActiveStyle('/map-gen')} _hover={{ textDecoration: 'none', color: '#FBBE30' }}>
-              Map Generator
-            </Link>
+          <Flex w="100%" alignItems="center">
+            <Flex alignItems="center" gap={4}>
+              <Link as={RouterLink} to="/home" style={getActiveStyle('/home')} _hover={{ textDecoration: 'none', color: '#FBBE30' }}>
+                Home
+              </Link>
+              <Link as={RouterLink} to="/char-creation" style={getActiveStyle('/char-creation')} _hover={{ textDecoration: 'none', color: '#FBBE30' }}>
+                Character Creation
+              </Link>
+              <Link as={RouterLink} to="/encounters" style={getActiveStyle('/encounters')} _hover={{ textDecoration: 'none', color: '#FBBE30' }}>
+                Encounters
+              </Link>
+              <Link as={RouterLink} to="/inventory" style={getActiveStyle('/inventory')} _hover={{ textDecoration: 'none', color: '#FBBE30' }}>
+                Inventory
+              </Link>
+              <Link as={RouterLink} to="/store" style={getActiveStyle('/store')} _hover={{ textDecoration: 'none', color: '#FBBE30' }}>
+                Store
+              </Link>
+              <Link as={RouterLink} to="/map-gen" style={getActiveStyle('/map-gen')} _hover={{ textDecoration: 'none', color: '#FBBE30' }}>
+                Map Generator
+              </Link>
+            </Flex>
+            <Flex ml="auto">
+              <Button onClick={handleLogout} variant="ghost" color="white" _hover={{ textDecoration: 'none', color: '#FBBE30' }}>
+                Logout
+              </Button>
+            </Flex>
           </Flex>
         )}
       </Flex>
+      <LogoutModal
+        isOpen={isOpen}
+        onClose={onClose}
+        onConfirm={confirmLogout}
+      />
     </Box>
   );
 };

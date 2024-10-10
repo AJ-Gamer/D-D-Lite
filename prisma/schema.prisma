@@ -78,6 +78,7 @@ model Equipment {
   description String?
   inventory   Inventory @relation(fields: [inventoryId], references: [id])
   inventoryId Int
+  owned       Int       @default(0)
 }
 
 model StoryNode {

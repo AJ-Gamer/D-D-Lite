@@ -106,11 +106,11 @@ const Encounters: FC = () => {
 
   if (ending) {
     return (
-      <Box textAlign="center" mt={10}>
+      <Box textAlign="center" mt={18}>
         <Text fontSize="3xl">
           {ending === 'good' ? 'You achieved the good ending!' : 'You met an unfortunate end.'}
         </Text>
-        <Button mt={4} onClick={restartAdventure} bg="#FDCE5C">
+        <Button mt={4} onClick={restartAdventure} bg="#F49004" _hover={{ bg: "#FDCE5C" }}>
           Restart the Adventure
         </Button>
       </Box>
@@ -119,7 +119,7 @@ const Encounters: FC = () => {
 
   if (!selectedCharacter && !startCampaign) {
     return (
-      <Box textAlign="center" mt={12}>
+      <Box textAlign="center" mt={18}>
         <Text fontSize="xl">Select a character to start your campaign:</Text>
         <VStack spacing={4} mt={4}>
           {characters.map((char) => (

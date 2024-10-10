@@ -76,7 +76,6 @@ async function main() {
           storyId: node.storyId,
         },
       });
-       // Map by storyId
       createdStoryNodes[node.storyId] = createdNode.id;
     })
   );

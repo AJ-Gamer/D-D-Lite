@@ -20,14 +20,12 @@ const Inventory: FC<{ userId?: number }> = ({ userId }) => {
         const response = await axios.get('/character/all', { params: { userId } });
         const characters: Character[] = response.data.characters;
 
-        // Fetch starting equipment for all characters
         const equipmentPromises = characters.map(async (character) => {
           const res = await axios.get(`/inventory/${character.class}`);
           return res.data.startingEquipment;
         });
 
         const equipmentArrays = await Promise.all(equipmentPromises);
-        // Flatten the array of arrays into a single array
         const allEquipment = equipmentArrays.flat();
         setEquipment(allEquipment);
         setLoading(false);
@@ -51,16 +49,16 @@ const Inventory: FC<{ userId?: number }> = ({ userId }) => {
           {equipment.map((item, index) => (
             <Card key={index} variant="outline" bg="#F49004">
               <CardHeader>
-                <Text fontSize="lg" fontWeight="bold">{item.equipment.name}</Text>
+                <Text fontWeight="bold">{item.name}</Text>
               </CardHeader>
               <CardBody>
-                <Text>{item.equipment.description || 'No description available.'}</Text>
+                <Text>{item.desc.join(', ')}</Text>
               </CardBody>
             </Card>
           ))}
         </SimpleGrid>
       ) : (
-        <Text>No starting equipment found.</Text>
+        <Text>No equipment found.</Text>
       )}
     </Box>
   );

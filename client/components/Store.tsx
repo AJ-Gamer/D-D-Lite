@@ -3,8 +3,10 @@ import { Box, SimpleGrid, Card, Text, Input, Button, Flex } from '@chakra-ui/rea
 import axios from 'axios';
 
 interface Equipment {
+  id: number;
   name: string;
   index: string;
+  owned: number;
 }
 
 interface EquipmentDetail {
@@ -13,7 +15,7 @@ interface EquipmentDetail {
 }
 
 interface StoreProps {
-  userId: number | undefined; // Define userId as a prop
+  userId: number | undefined;
 }
 
 const Store: FC<StoreProps> = ({ userId }) => {
@@ -77,6 +79,27 @@ const Store: FC<StoreProps> = ({ userId }) => {
     }
   };
 
+  const handleBuy = async (equipmentId: number) => {
+    if (gold !== null && gold < 50) {
+      alert('Not enough gold to buy this item.');
+      return;
+    }
+
+    try {
+      const response = await axios.post(`/store/buy`, { userId, equipmentId });
+
+      const updatedEquipment = equipment.map(item => 
+        item.id === equipmentId ? { ...item, owned: item.owned + 1 } : item
+      );
+
+      setEquipment(updatedEquipment);
+      setGold(gold! - 50);
+      alert(response.data.message);
+    } catch (error) {
+      console.error('Error buying equipment:', error);
+    }
+  };
+
   const totalPages = Math.ceil(filteredEquipment.length / itemsPerPage);
   const paginatedItems = filteredEquipment.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
@@ -87,13 +110,13 @@ const Store: FC<StoreProps> = ({ userId }) => {
           placeholder="Search for equipment..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          mt={6}
+          mt={8}
           bg="white"
           width="50%"
           boxShadow="md"
         />
         {gold !== null ? (
-          <Text fontSize="lg" fontWeight="bold">Gold: {gold}</Text>
+          <Text fontSize="lg" fontWeight="bold" mt={8}>Gold: {gold}</Text>
         ) : (
           <Text fontSize="lg">Loading gold...</Text>
         )}
@@ -109,8 +132,12 @@ const Store: FC<StoreProps> = ({ userId }) => {
             cursor="pointer"
             height={selectedIndex === item.index ? 'auto' : '100px'}
             _hover={{ transform: selectedIndex === item.index ? 'none' : 'scale(1.05)', transition: '0.3s' }}
+            position="relative"
           >
-            <Text fontWeight="bold">{item.name}</Text>
+            <Flex justify="space-between" align="center">
+              <Text fontWeight="bold">{item.name}</Text>
+              <Text fontWeight="bold" color="gray.600">Owned: {item.owned}</Text>
+            </Flex>
             {selectedIndex === item.index && selectedEquipmentDetails && (
               <Box mt={2}>
                 <Text mt={2} color="gray.600">
@@ -118,6 +145,19 @@ const Store: FC<StoreProps> = ({ userId }) => {
                 </Text>
               </Box>
             )}
+            <Box mt={2}>
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleBuy(item.id);
+                }}
+                colorScheme="green"
+                size="sm"
+                mt={2}
+              >
+                Buy
+              </Button>
+            </Box>
           </Card>
         ))}
       </SimpleGrid>

@@ -81,13 +81,13 @@ const Store: FC<StoreProps> = ({ userId }) => {
   const paginatedItems = filteredEquipment.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   return (
-    <Box mt={12} px={4}>
-      <Flex justify="space-between" align="center" mb={4}>
+    <Box mt={10} px={4} maxWidth="100%" overflow="hidden">
+      <Flex justify="space-between" align="center" mb={3}>
         <Input
           placeholder="Search for equipment..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          my={4}
+          mt={6}
           bg="white"
           width="50%"
           boxShadow="md"
@@ -145,6 +145,23 @@ const Store: FC<StoreProps> = ({ userId }) => {
           Next
         </Button>
       </Box>
+
+      <Flex justifyContent="center" mt={4}>
+        {Array.from({ length: totalPages }, (_, index) => index + 1).map(page => (
+          <Button
+            key={page}
+            onClick={() => setCurrentPage(page)}
+            size="xs"
+            mx={1}
+            bg={page === currentPage ? "#F49004" : "#E6AD28"}
+            _hover={{ bg: "#F49004" }}
+            disabled={page === currentPage}
+            border="none"
+          >
+            {page}
+          </Button>
+        ))}
+      </Flex>
     </Box>
   );
 };

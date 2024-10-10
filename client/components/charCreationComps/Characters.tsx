@@ -1,5 +1,10 @@
 import React, { FC } from 'react';
-import { Box, Button, Select } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Flex,
+  Text,
+} from '@chakra-ui/react';
 
 interface Character {
   id: number;
@@ -18,36 +23,61 @@ const Characters: FC<CharsProps> = ({
   onSelectChar,
   selectedChar,
   onDeleteChar,
-}) => (
-  <Box mb={4}>
-    <Select
-      bg="#B8860B"
-      mt={12}
-      mb={4}
-      placeholder="Select Character"
-      value={selectedChar ?? ''}
-      onChange={(e) => onSelectChar(Number(e.target.value))}
-    >
+}) => {
+  const charSlots = 4;
+  const emptySlots = charSlots - characters.length;
+
+  return (
+    <Flex justifyContent="space-between" mb={4} mt={12} p={4} borderRadius="md" boxShadow="md">
       {characters.map((char) => (
-        <option color="#B8860B" key={char.id} value={char.id}>
-          {char.name}
-        </option>
-      ))}
-    </Select>
-    {characters.map((char) => (
-      <Box key={char.id} display="flex" alignItems="center" mt={2}>
-        <Button
-          size="sm"
-          colorScheme="red"
-          onClick={() => onDeleteChar(char.id)}
+        <Box
+          key={char.id}
+          border="1px solid"
+          borderColor={selectedChar === char.id ? 'gold' : 'gray.500'}
+          p={4}
+          borderRadius="md"
+          cursor="pointer"
+          onClick={() => onSelectChar(char.id)}
+          bg={selectedChar === char.id ? 'yellow.200' : 'gray.300'}
+          transition="background-color 0.3s ease"
+          width="150px"
+          textAlign="center"
         >
-          Delete
-          {' '}
-          {char.name}
-        </Button>
-      </Box>
-    ))}
-  </Box>
-);
+          <Text fontWeight="bold">{char.name}</Text>
+          <Button
+            size="sm"
+            colorScheme="red"
+            mt={2}
+            onClick={(e) => {
+              e.stopPropagation();
+              onDeleteChar(char.id);
+            }}
+          >
+            Delete
+          </Button>
+        </Box>
+      ))}
+      {Array.from({ length: emptySlots }).map((_, index) => (
+        <Box
+          // eslint-disable-next-line react/no-array-index-key
+          key={`empty-slot-${index}`}
+          border="1px dotted"
+          borderColor="gray.300"
+          p={4}
+          borderRadius="md"
+          width="150px"
+          textAlign="center"
+          bg="gray.600"
+          color="gray.400"
+          display="flex"
+          justifyContent="center"
+          alignItems="center"
+        >
+          <Text>Add Character</Text>
+        </Box>
+      ))}
+    </Flex>
+  );
+};
 
 export default Characters;

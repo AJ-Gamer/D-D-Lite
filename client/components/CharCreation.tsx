@@ -30,6 +30,7 @@ interface CharCreationProps {
 interface CreateCharRes {
   newChar: {
     id: number;
+    name: string;
   }
 }
 
@@ -83,14 +84,16 @@ const CharCreation: FC<CharCreationProps> = ({ profile }) => {
         image: 'https://t4.ftcdn.net/jpg/04/73/25/49/360_F_473254957_bxG9yf4ly7OBO5I0O5KABlN930GwaMQz.jpg',
         userId: profile?.id,
       });
-      const characterId = response.data.newChar.id;
+      const newCharacter = response.data.newChar;
+      setChars((prevChars) => [...prevChars, newCharacter]);
+      setSelectedChar(newCharacter.id);
       const replResponse = await axios.post<ReplRes>('/replicate/gen-image', {
         prompt: description,
-        characterId,
+        characterId: newCharacter.id,
       });
       const { imgUrl } = replResponse.data;
 
-      await axios.put(`/character/${characterId}/update`, { image: imgUrl });
+      await axios.put(`/character/${newCharacter.id}/update`, { image: imgUrl });
       setImageUrl(imgUrl);
 
       toast({
@@ -101,7 +104,7 @@ const CharCreation: FC<CharCreationProps> = ({ profile }) => {
       });
     } catch (err) {
       toast({
-        title: 'Failed to Create Adventurer.',
+        title: 'Failed to Generate Image.',
         description: error ?? 'An Error occurred',
         status: 'error',
         duration: 4000,

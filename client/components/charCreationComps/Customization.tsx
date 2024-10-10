@@ -1,12 +1,17 @@
 import React, { FC } from 'react';
 import {
   Box,
+  Icon,
   Input,
-  Select,
+  Radio,
+  RadioGroup,
+  Stack,
   Text,
   Textarea,
+  Tooltip,
   VStack,
 } from '@chakra-ui/react';
+import { InfoOutlineIcon } from '@chakra-ui/icons';
 
 interface CustomizationProps {
   charName: string;
@@ -47,7 +52,12 @@ const Customization: FC<CustomizationProps> = ({
         />
       </Box>
       <Box>
-        <Text fontSize="lg" mb={2} as="b">Adventurer Description</Text>
+        <Text fontSize="lg" mb={2} as="b">
+          Adventurer Description{' '}
+          <Tooltip label="This will be used to generate your adventurer's image.">
+            <Icon as={InfoOutlineIcon} w={4} h={4} ml={2} />
+          </Tooltip>
+        </Text>
         <Textarea
           placeholder="Details (hair, eyes, etc)..."
           value={description}
@@ -58,31 +68,27 @@ const Customization: FC<CustomizationProps> = ({
       </Box>
       <Box>
         <Text fontSize="lg" mb={2} as="b">Select Race</Text>
-        <Select
-          placeholder="Select race"
-          value={race}
-          onChange={(e) => setRace(e.target.value)}
-        >
-          {races.map((r) => (
-            <option key={r} value={r}>
-              {r}
-            </option>
-          ))}
-        </Select>
+        <RadioGroup onChange={setRace} value={race}>
+          <Stack direction="row">
+            {races.map((r) => (
+              <Radio key={r} value={r}>
+                {r}
+              </Radio>
+            ))}
+          </Stack>
+        </RadioGroup>
       </Box>
       <Box>
         <Text fontSize="lg" mb={2} as="b">Select Class</Text>
-        <Select
-          placeholder="Select class"
-          value={charClass}
-          onChange={(e) => setCharClass(e.target.value)}
-        >
-          {classes.map((cls) => (
-            <option key={cls} value={cls}>
-              {cls}
-            </option>
-          ))}
-        </Select>
+        <RadioGroup onChange={setCharClass} value={charClass}>
+          <Stack direction="row">
+            {classes.map((cls) => (
+              <Radio key={cls} value={cls}>
+                {cls}
+              </Radio>
+            ))}
+          </Stack>
+        </RadioGroup>
       </Box>
     </VStack>
   );

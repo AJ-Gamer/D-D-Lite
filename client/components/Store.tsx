@@ -115,6 +115,24 @@ const Store: FC<StoreProps> = ({ userId }) => {
     }
   };
 
+  const handleSell = async (equipmentId: number) => {
+    try {
+      const response = await axios.post(`/store/sell`, { userId, equipmentId });
+      
+      const updatedEquipment = equipment.map(item => 
+        item.id === equipmentId && item.owned > 0 
+        ? { ...item, owned: item.owned - 1 } 
+        : item
+      );
+      
+      setEquipment(updatedEquipment);
+      await fetchGold();
+      alert(response.data.message);
+    } catch (error) {
+      console.error('Error selling equipment:', error);
+    }
+  };
+  
   const totalPages = Math.ceil(filteredEquipment.length / itemsPerPage);
   const paginatedItems = filteredEquipment.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
@@ -154,6 +172,18 @@ const Store: FC<StoreProps> = ({ userId }) => {
               mt={2}
             >
               Buy
+            </Button>
+            <Button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleSell(item.id);
+              }}
+              colorScheme="red"
+              size="sm"
+              mt={2}
+              isDisabled={item.owned === 0}
+            >
+              Sell
             </Button>
           </Box>
         </Card>

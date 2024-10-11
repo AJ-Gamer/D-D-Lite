@@ -55,7 +55,7 @@ const Store: FC<StoreProps> = ({ userId }) => {
     const fetchMagicItems = async () => {
       try {
         const response = await axios.get('/store/magic-items');
-        setMagicItems(response.data);
+        setMagicItems(response.data.results);
       } catch (error) {
         console.error('Error fetching magic items:', error);
       }

@@ -4,9 +4,11 @@ import {
   Divider,
   Image,
   Text,
+  useDisclosure,
 } from '@chakra-ui/react';
 import axios from 'axios';
 import CharCards from './CharCards';
+import RedirectModal from './homePageComps/RedirectModal';
 
 interface Character {
   id: number;
@@ -31,12 +33,17 @@ const HomePage: FC = () => {
   const [selectedChar, setSelectedChar] = useState<number | null>(null);
   const [equipment, setEquipment] = useState<Equipment[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   useEffect(() => {
     const fetchChars = async () => {
       try {
         const response = await axios.get<{ characters: Character[] }>('/character/all');
         setChars(response.data.characters);
+
+        if (response.data.characters.length === 0) {
+          onOpen();
+        }
 
         const savedCharId = localStorage.getItem('selectedChar');
         if (savedCharId) {
@@ -47,7 +54,7 @@ const HomePage: FC = () => {
       }
     };
     fetchChars();
-  }, []);
+  }, [onOpen]);
 
   useEffect(() => {
     const fetchEquipment = async () => {
@@ -56,7 +63,7 @@ const HomePage: FC = () => {
         try {
           const charObj = chars.find((char) => char.id === selectedChar);
           if (charObj) {
-            const response = await axios.get(`/inventory/${charObj.class}`);
+            const response = await axios.get<{ startingEquipment: Equipment[] }>(`/inventory/${charObj.class}`);
             setEquipment(response.data.startingEquipment);
           }
         } catch (error) {
@@ -96,10 +103,10 @@ const HomePage: FC = () => {
           onDeleteChar={handleDeleteChar}
         />
       </Box>
+      <RedirectModal isOpen={isOpen} onClose={onClose} />
       {charObj && (
         <Box
-          mt={4}
-          ml={4}
+          mt={8}
           display="flex"
           flexDirection="row"
           justifyContent="center"
@@ -108,9 +115,9 @@ const HomePage: FC = () => {
           <Box
             alignItems="left"
             textAlign="left"
-            bg="#F6CC12"
-            borderWidth="1px"
+            borderWidth="2px"
             borderRadius="lg"
+            boxShadow="xl"
             width="20%"
             mr={4}
           >
@@ -142,14 +149,14 @@ const HomePage: FC = () => {
           <Box
             alignItems="center"
             textAlign="center"
-            bg="#F6CC12"
-            borderWidth="1px"
+            borderWidth="2px"
             borderRadius="lg"
             width={['100%', '30%']}
             mr={[0, 4]}
             mb={[4, 0]}
             maxWidth="300px"
             overflow="hidden"
+            boxShadow="xl"
           >
             <Text fontSize="lg" fontWeight="bold"> Current Character:</Text>
             <Image
@@ -165,12 +172,12 @@ const HomePage: FC = () => {
 
           {/* Equipment Box */}
           <Box
-            alignItems="center"
-            textAlign="center"
-            bg="#F6CC12"
-            borderWidth="1px"
+            alignItems="left"
+            textAlign="left"
+            borderWidth="2px"
             borderRadius="lg"
             width="20%"
+            boxShadow="xl"
           >
             <Text fontSize="lg" fontWeight="bold" ml={4} mt={4}>
               Equipment:

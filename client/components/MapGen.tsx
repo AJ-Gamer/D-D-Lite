@@ -164,19 +164,19 @@ const MapGen: FC<MapGenProps> = ({ userId }) => {
 
   return (
     <Box justifyContent="center" p={5}>
-      <HStack spacing={4} justify="center" mt={32} mb={4}>
-        <Button colorScheme="teal" onClick={() => genNewMap(400)}>
+      <HStack spacing={4} justify="center" mt={16} mb={4}>
+        <Button onClick={() => genNewMap(400)}>
           Generate a Small Map
         </Button>
-        <Button colorScheme="teal" onClick={() => genNewMap(600)}>
+        <Button onClick={() => genNewMap(600)}>
           Generate a Medium Map
         </Button>
-        <Button colorScheme="teal" onClick={() => genNewMap(800)}>
+        <Button onClick={() => genNewMap(800)}>
           Generate a Large Map
         </Button>
       </HStack>
       <Box ref={sketchRef} display="flex" justifyContent="center" m={4} />
-      <Button colorScheme="teal" onClick={capMapScreenshot}>
+      <Button onClick={capMapScreenshot} mb={2}>
         Send Map Data
       </Button>
       <MapUploader userId={userId} imgDataUrl={imgDataUrl} />

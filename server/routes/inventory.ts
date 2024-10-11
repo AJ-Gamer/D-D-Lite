@@ -52,11 +52,17 @@ inventory.get('/:class', async (req: Request, res: Response) => {
       }
     }
 
-    res.json({ startingEquipment });
+    const allEquipment = await prisma.equipment.findMany({
+      where: {
+        inventoryId: inventory.id,
+      },
+    });
+
+    res.json({ allEquipment });
   } catch (error) {
     console.error('Error fetching equipment:', error);
     res.status(500).json({ error: 'Failed to fetch starting equipment' });
-  }  
+  }
 });
 
 export default inventory;

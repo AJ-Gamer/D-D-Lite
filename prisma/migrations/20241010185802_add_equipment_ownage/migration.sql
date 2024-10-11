@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `Equipment` ADD COLUMN `owned` INTEGER NOT NULL DEFAULT 0;

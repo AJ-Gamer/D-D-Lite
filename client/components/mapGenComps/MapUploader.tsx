@@ -80,7 +80,7 @@ const MapUploader: FC<MapUploaderProps> = ({ imgDataUrl, userId }) => {
         value={mapName}
         onChange={(e) => setMapName(e.target.value)}
       />
-      <Button colorScheme="teal" onClick={uploadMap} isDisabled={!imgDataUrl || !mapName}>
+      <Button onClick={uploadMap} isDisabled={!imgDataUrl || !mapName}>
         Save This Map
       </Button>
       <Box mt={4} w="full">

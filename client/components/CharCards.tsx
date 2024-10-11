@@ -2,6 +2,7 @@ import React, { FC } from 'react';
 import {
   Box,
   Button,
+  Heading,
   Image,
   Text,
 } from '@chakra-ui/react';
@@ -28,16 +29,17 @@ const CharCards: FC<CharCardsProps> = ({
   onDeleteChar,
 }) => (
   <>
-    <Text fontSize="lg" color="yellow.300" mt={16}>Choose Your Adventurer</Text>
+    <Heading mt={20}>Choose Your Adventurer</Heading>
     <Box display="flex" padding="1rem">
       {characters.map((char) => (
         <Box
           key={char.id}
-          borderWidth="1px"
+          borderWidth="2px"
           borderRadius="lg"
           padding="1rem"
           margin="0 1rem"
-          bg={selectedChar === char.id ? 'yellow.300' : 'gray.500'}
+          bg={selectedChar === char.id ? 'yellow.400' : 'gray.500'}
+          boxShadow="2xl"
         >
           <Image
             src={char.image}
@@ -46,14 +48,15 @@ const CharCards: FC<CharCardsProps> = ({
             boxSize="150px"
             objectFit="cover"
           />
-          <Text mt={2} fontSize="xl">{char.name}</Text>
-          <Text mt={1} fontSize="lg">
+          <Text mt={2} fontSize="xl" fontWeight="bold" color="black">{char.name}</Text>
+          <Text mt={1} fontSize="lg" color="black">
             {char.race} {char.class}
           </Text>
           {selectedChar !== char.id && (
             <>
               <Button
-                colorScheme="blue"
+                bg="yellow.400"
+                color="black"
                 onClick={() => onSelectChar(char.id)}
                 mt={2}
                 mr={4}

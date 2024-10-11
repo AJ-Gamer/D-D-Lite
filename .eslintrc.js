@@ -15,6 +15,7 @@ module.exports = {
     'consistent-return': 'off',
     'react/prop-types': 'off',
     'react/jsx-one-expression-per-line': 'off',
+    'react/no-array-index-key': 'off',
   },
   extends: [
     'airbnb',

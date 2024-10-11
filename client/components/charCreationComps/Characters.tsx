@@ -33,7 +33,7 @@ const Characters: FC<CharsProps> = ({
         <Box
           key={char.id}
           border="1px solid"
-          borderColor={selectedChar === char.id ? 'gold' : 'gray.500'}
+          borderColor={selectedChar === char.id ? 'yellow.400' : 'gray.500'}
           p={4}
           borderRadius="md"
           cursor="pointer"
@@ -43,7 +43,7 @@ const Characters: FC<CharsProps> = ({
           width="150px"
           textAlign="center"
         >
-          <Text fontWeight="bold">{char.name}</Text>
+          <Text fontWeight="bold" color="black">{char.name}</Text>
           <Button
             size="sm"
             colorScheme="red"

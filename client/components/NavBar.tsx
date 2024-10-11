@@ -7,16 +7,19 @@ import {
   Link,
   Button,
   useBreakpointValue,
+  useColorModeValue,
   useDisclosure,
 } from '@chakra-ui/react';
 import MobileMenu from './navBarComps/MobileMenu';
 import LogoutModal from './navBarComps/LogoutModal';
+import ThemeToggle from './navBarComps/ThemeToggle';
 
 interface NavBarProps {
   setIsAuth: (isAuth: boolean) => void;
 }
 
 const NavBar: FC<NavBarProps> = ({ setIsAuth }) => {
+  const bg = useColorModeValue('red.600', 'red.700');
   const isMobile = useBreakpointValue({ base: true, md: false });
   const { isOpen, onOpen, onClose } = useDisclosure();
   const location = useLocation();
@@ -47,7 +50,7 @@ const NavBar: FC<NavBarProps> = ({ setIsAuth }) => {
   return (
     <Box
       as="nav"
-      bg="gray.800"
+      bg={bg}
       color="white"
       px={4}
       py={3}
@@ -55,7 +58,7 @@ const NavBar: FC<NavBarProps> = ({ setIsAuth }) => {
       width="100%"
       top={0}
       zIndex={1000}
-      boxShadow="md"
+      boxShadow="2xl"
     >
       <Flex justifyContent="space-between" alignItems="center">
         {isMobile ? (
@@ -82,7 +85,8 @@ const NavBar: FC<NavBarProps> = ({ setIsAuth }) => {
                 Map Generator
               </Link>
             </Flex>
-            <Flex ml="auto">
+            <Flex ml="auto" alignItems="center" gap={2}>
+              <ThemeToggle />
               <Button onClick={handleLogout} variant="ghost" color="white" _hover={{ textDecoration: 'none', color: '#FBBE30' }}>
                 Logout
               </Button>

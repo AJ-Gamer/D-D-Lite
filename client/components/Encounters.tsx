@@ -63,6 +63,7 @@ const Encounters: FC = () => {
     try {
       const { data } = await axios.get(`/encounters/story/${id}`);
       setCurrentNode(data);
+      speakText(data.prompt);
     } catch (error) {
       console.error('Error fetching story node:', error);
     } finally {
@@ -84,6 +85,7 @@ const Encounters: FC = () => {
   const handleOptionClick = async (nextNodeId: number | null, result?: string) => {
     if (result) {
       setEnding(result);
+      speakText(result === 'good' ? 'You achieved the good ending!' : 'You met an unfortunate end.'); // Speak the ending
     } else if (nextNodeId !== null) {
       fetchStoryNode(nextNodeId);
     }
@@ -98,6 +100,11 @@ const Encounters: FC = () => {
     return prompt
       .replace('{name}', character.name)
       .replace('{class}', character.class);
+  };
+
+  const speakText = (text: string) => {
+    const utterance = new SpeechSynthesisUtterance(text);
+    window.speechSynthesis.speak(utterance);
   };
 
   if (loading) {
@@ -158,7 +165,7 @@ const Encounters: FC = () => {
             <Box mt={4}>
               <Text fontSize="lg">Strength:</Text>
               <Text fontSize="lg" fontWeight="bold">{selectedCharacter.strength}</Text>
-            </Box>.
+            </Box>
             <Divider my={2} borderColor="gray.600" />
             <Box mt={4}>
               <Text fontSize="lg">Dexterity:</Text>

@@ -2,13 +2,16 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
+const dotenv = require('dotenv')
 
 const path = require('path');
+dotenv.config();
 
 const SRC_DIR = path.join(__dirname, '/client');
 const DIST_DIR = path.join(__dirname, '/dist/client');
-
+const { NODE_ENV } = process.env;
 module.exports = {
+  mode: NODE_ENV,
   devtool: 'source-map',
   entry: `${SRC_DIR}/index.tsx`,
   output: {

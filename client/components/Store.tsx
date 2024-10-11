@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useState } from 'react';
-import { Box, SimpleGrid, Card, Text, Input, Button, Flex } from '@chakra-ui/react';
+import { Box, SimpleGrid, Card, Text, Input, Button, Flex, Tabs, TabList, Tab, TabPanels, TabPanel } from '@chakra-ui/react';
 import axios from 'axios';
 
 interface Equipment {
@@ -21,12 +21,14 @@ interface StoreProps {
 const Store: FC<StoreProps> = ({ userId }) => {
   const [equipment, setEquipment] = useState<Equipment[]>([]);
   const [filteredEquipment, setFilteredEquipment] = useState<Equipment[]>([]);
+  const [magicItems, setMagicItems] = useState<Equipment[]>([]);
   const [selectedIndex, setSelectedIndex] = useState<string | null>(null);
   const [selectedEquipmentDetails, setSelectedEquipmentDetails] = useState<EquipmentDetail | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [gold, setGold] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<string>('equipment');
   const itemsPerPage = 20;
 
   const fetchGold = async () => {
@@ -50,7 +52,17 @@ const Store: FC<StoreProps> = ({ userId }) => {
       }
     };
 
+    const fetchMagicItems = async () => {
+      try {
+        const response = await axios.get('/store/magic-items');
+        setMagicItems(response.data);
+      } catch (error) {
+        console.error('Error fetching magic items:', error);
+      }
+    };
+
     fetchEquipment();
+    fetchMagicItems();
     fetchGold();
   }, []);
 
@@ -82,19 +94,19 @@ const Store: FC<StoreProps> = ({ userId }) => {
       alert('Not enough gold to buy this item.');
       return;
     }
-  
+
     try {
       if (!userId) {
         alert('User ID is required.');
         return;
       }
-  
+
       const response = await axios.post(`/store/buy`, { userId, equipmentId, equipmentName });
-  
+
       const updatedEquipment = equipment.map(item =>
         item.id === equipmentId ? { ...item, owned: item.owned + 1 } : item
       );
-  
+
       setEquipment(updatedEquipment);
       await fetchGold();
       alert(response.data.message);
@@ -105,6 +117,49 @@ const Store: FC<StoreProps> = ({ userId }) => {
 
   const totalPages = Math.ceil(filteredEquipment.length / itemsPerPage);
   const paginatedItems = filteredEquipment.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  const renderCards = (items: Equipment[]) => (
+    <SimpleGrid columns={5} spacing={5}>
+      {items.map((item) => (
+        <Card
+          key={item.index}
+          onClick={() => handleCardClick(item.index)}
+          p={5}
+          bg="#F49004"
+          cursor="pointer"
+          height={selectedIndex === item.index ? 'auto' : '100px'}
+          _hover={{ transform: selectedIndex === item.index ? 'none' : 'scale(1.05)', transition: '0.3s' }}
+          position="relative"
+        >
+          <Flex justify="space-between" align="center">
+            <Text fontWeight="bold">{item.name}</Text>
+            <Text fontWeight="bold" color="gray.600">Owned: {item.owned}</Text>
+          </Flex>
+          {selectedIndex === item.index && selectedEquipmentDetails && (
+            <Box mt={2}>
+              <Text mt={2} color="gray.600">
+                {selectedEquipmentDetails.desc.join(' ')}
+              </Text>
+            </Box>
+          )}
+          <Box mt={2}>
+            <Text>Cost: 50 gold</Text>
+            <Button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleBuy(item.id, item.name);
+              }}
+              colorScheme="green"
+              size="sm"
+              mt={2}
+            >
+              Buy
+            </Button>
+          </Box>
+        </Card>
+      ))}
+    </SimpleGrid>
+  );
 
   return (
     <Box mt={10} px={4} maxWidth="100%" overflow="hidden">
@@ -125,46 +180,20 @@ const Store: FC<StoreProps> = ({ userId }) => {
         )}
       </Flex>
 
-      <SimpleGrid columns={5} spacing={5}>
-        {paginatedItems.map((item) => (
-          <Card
-            key={item.index}
-            onClick={() => handleCardClick(item.index)}
-            p={5}
-            bg="#F49004"
-            cursor="pointer"
-            height={selectedIndex === item.index ? 'auto' : '100px'}
-            _hover={{ transform: selectedIndex === item.index ? 'none' : 'scale(1.05)', transition: '0.3s' }}
-            position="relative"
-          >
-            <Flex justify="space-between" align="center">
-              <Text fontWeight="bold">{item.name}</Text>
-              <Text fontWeight="bold" color="gray.600">Owned: {item.owned}</Text>
-            </Flex>
-            {selectedIndex === item.index && selectedEquipmentDetails && (
-              <Box mt={2}>
-                <Text mt={2} color="gray.600">
-                  {selectedEquipmentDetails.desc.join(' ')}
-                </Text>
-              </Box>
-            )}
-            <Box mt={2}>
-              <Text>Cost: 50 gold</Text>
-              <Button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleBuy(item.id, item.name);
-                }}
-                colorScheme="green"
-                size="sm"
-                mt={2}
-              >
-                Buy
-              </Button>
-            </Box>
-          </Card>
-        ))}
-      </SimpleGrid>
+      <Tabs onChange={(index) => setActiveTab(index === 0 ? 'equipment' : 'magicItems')} variant="enclosed">
+        <TabList>
+          <Tab>Equipment</Tab>
+          <Tab>Magic Items</Tab>
+        </TabList>
+        <TabPanels>
+          <TabPanel>
+            {renderCards(paginatedItems)}
+          </TabPanel>
+          <TabPanel>
+            {renderCards(magicItems)}
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
 
       <Box mt={5} textAlign="center">
         <Button

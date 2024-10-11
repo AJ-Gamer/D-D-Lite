@@ -108,4 +108,15 @@ storeRouter.post('/buy', async (req: Request, res: Response) => {
   }
 });
 
+storeRouter.get('/store/magic-items', async (req, res) => {
+  try {
+    const response = await axios.get('https://www.dnd5eapi.co/api/magic-items/');
+    console.log('Magical Equipment:', response.data.results);
+    res.json(response.data.results);
+  } catch (error) {
+    console.error('Error fetching magic items:', error);
+    res.status(500).send('Error fetching magic items');
+  }
+});
+
 export default storeRouter;

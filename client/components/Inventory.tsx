@@ -21,8 +21,9 @@ const Inventory: FC<{ userId?: number }> = ({ userId }) => {
         const characters: Character[] = response.data.characters;
 
         const equipmentPromises = characters.map(async (character) => {
-          const res = await axios.get(`/inventory/${character.class}`);
-          return res.data.startingEquipment;
+          const res = await axios.get(`/inventory/${character.class}`, { params: { userId } });
+          console.log('Response:', res.data.allEquipment);
+          return res.data.allEquipment;
         });
 
         const equipmentArrays = await Promise.all(equipmentPromises);
@@ -43,7 +44,7 @@ const Inventory: FC<{ userId?: number }> = ({ userId }) => {
 
   return (
     <Box p={4} mt={12}>
-      <Text fontSize="2xl">Starting Equipment:</Text>
+      <Text fontSize="2xl">Equipment:</Text>
       {equipment.length > 0 ? (
         <SimpleGrid columns={{ sm: 1, md: 2, lg: 3 }} spacing={4} mt={4}>
           {equipment.map((item, index) => (
@@ -52,7 +53,8 @@ const Inventory: FC<{ userId?: number }> = ({ userId }) => {
                 <Text fontWeight="bold">{item.name}</Text>
               </CardHeader>
               <CardBody>
-                <Text>{item.desc.join(', ')}</Text>
+                <Text fontWeight="bold" mt={2}>Quantity: {item.owned}</Text>
+                <Text>{item.description || 'No description available'}</Text>
               </CardBody>
             </Card>
           ))}

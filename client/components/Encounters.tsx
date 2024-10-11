@@ -10,6 +10,7 @@ import {
   Flex,
   SimpleGrid,
   Divider,
+  HStack,
 } from '@chakra-ui/react';
 
 interface Option {
@@ -45,6 +46,7 @@ const Encounters: FC = () => {
   const [ending, setEnding] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [startCampaign, setStartCampaign] = useState<boolean>(false);
+  const [isTTSActive, setIsTTSActive] = useState<boolean>(false);
 
   const fetchCharacters = async () => {
     setLoading(true);
@@ -63,6 +65,7 @@ const Encounters: FC = () => {
     try {
       const { data } = await axios.get(`/encounters/story/${id}`);
       setCurrentNode(data);
+      speakText(data.prompt);
     } catch (error) {
       console.error('Error fetching story node:', error);
     } finally {
@@ -84,6 +87,7 @@ const Encounters: FC = () => {
   const handleOptionClick = async (nextNodeId: number | null, result?: string) => {
     if (result) {
       setEnding(result);
+      speakText(result === 'good' ? 'You achieved the good ending!' : 'You met an unfortunate end.');
     } else if (nextNodeId !== null) {
       fetchStoryNode(nextNodeId);
     }
@@ -98,6 +102,20 @@ const Encounters: FC = () => {
     return prompt
       .replace('{name}', character.name)
       .replace('{class}', character.class);
+  };
+
+  const speakText = (text: string) => {
+    if (isTTSActive && selectedCharacter) {
+      const utterance = new SpeechSynthesisUtterance(text);
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+  
+  const toggleTextToSpeech = () => {
+    setIsTTSActive(!isTTSActive);
+    if (!isTTSActive && currentNode && selectedCharacter) {
+      speakText(replacePlaceholders(currentNode.prompt, selectedCharacter));
+    }
   };
 
   if (loading) {
@@ -119,9 +137,9 @@ const Encounters: FC = () => {
 
   if (!selectedCharacter && !startCampaign) {
     return (
-      <Box textAlign="center" mt={18}>
-        <Text fontSize="xl">Select a character to start your campaign:</Text>
+      <Box textAlign="center" mt={16}>
         <VStack spacing={4} mt={4}>
+        <Text fontSize="xl">Select a character to start your campaign:</Text>
           {characters.map((char) => (
             <Button key={char.id} onClick={() => setSelectedCharacter(char)} bg="#F49004" _hover={{ bg: "#FDCE5C" }}>
               {char.name} ({char.class})
@@ -134,7 +152,7 @@ const Encounters: FC = () => {
 
   if (selectedCharacter && !startCampaign) {
     return (
-      <Box textAlign="center" mt="3.7%">
+      <Box textAlign="center" mt={16}>
         <Text fontSize="2xl">Hello {selectedCharacter.name}, are you ready to start your campaign?</Text>
         <Button mt={4} onClick={handleStartCampaign} bg="#F49004" _hover={{ bg: "#FDCE5C" }}>
           Start your campaign
@@ -158,7 +176,7 @@ const Encounters: FC = () => {
             <Box mt={4}>
               <Text fontSize="lg">Strength:</Text>
               <Text fontSize="lg" fontWeight="bold">{selectedCharacter.strength}</Text>
-            </Box>.
+            </Box>
             <Divider my={2} borderColor="gray.600" />
             <Box mt={4}>
               <Text fontSize="lg">Dexterity:</Text>
@@ -178,9 +196,20 @@ const Encounters: FC = () => {
         </VStack>
 
         <VStack spacing={5} flex={1} mt={10} align="center">
+          <HStack>
+            
           <Text fontSize="2xl" textAlign="center" maxW="60%">
             {replacePlaceholders(currentNode.prompt, selectedCharacter)}
           </Text>
+
+          <Button
+            onClick={toggleTextToSpeech}
+            bg={isTTSActive ? "#F49004" : "#ccc"}
+            _hover={{ bg: isTTSActive ? "#FDCE5C" : "#bbb" }}
+            >
+            {isTTSActive ? 'Stop Speaking' : 'Start Speaking'}
+          </Button>
+          </HStack>
 
           <SimpleGrid columns={3} mt={40} spacing={4}>
             {currentNode.options.map((option) => (

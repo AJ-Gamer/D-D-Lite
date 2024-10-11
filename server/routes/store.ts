@@ -46,66 +46,129 @@ storeRouter.get('/gold', async (req: Request, res: Response) => {
   }
 });
 
-// New route to handle buying equipment
 storeRouter.post('/buy', async (req: Request, res: Response) => {
-  const { userId, equipmentId } = req.body;
-
-  if (!userId || !equipmentId) {
-    return res.status(400).json({ message: 'User ID and equipment ID are required' });
+  const { userId, equipmentId, equipmentName } = req.body;
+  if (!userId || !equipmentId || !equipmentName) {
+    return res.status(400).json({ message: 'User ID, Equipment ID, and Equipment Name are required' });
   }
 
   try {
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      include: { inventory: true },
+      select: { gold: true },
     });
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    let inventory = user.inventory[0];
-
-    if (!inventory) {
-      inventory = await prisma.inventory.create({
-        data: { userId: user.id },
-      });
-    }
-
-    let equipment = await prisma.equipment.findFirst({
-      where: { inventoryId: inventory.id, id: equipmentId },
-    });
-
-    const itemPrice = 50;
-
-    if (user.gold < itemPrice) {
+    if (user.gold < 50) {
       return res.status(400).json({ message: 'Not enough gold to buy this item' });
     }
 
     await prisma.user.update({
       where: { id: userId },
-      data: { gold: { decrement: itemPrice } },
+      data: { gold: user.gold - 50 },
     });
 
-    if (equipment) {
-      equipment = await prisma.equipment.update({
-        where: { id: equipment.id },
-        data: { owned: { increment: 1 } },
+    const inventory = await prisma.inventory.findFirst({
+      where: { userId: userId },
+    });
+
+    if (!inventory) {
+      return res.status(404).json({ message: 'Inventory not found' });
+    }
+
+    const existingItem = await prisma.equipment.findFirst({
+      where: {
+        name: equipmentName,
+        inventoryId: inventory.id,
+      },
+    });
+
+    if (existingItem) {
+      await prisma.equipment.update({
+        where: { id: existingItem.id },
+        data: { owned: existingItem.owned + 1 },
       });
     } else {
-      equipment = await prisma.equipment.create({
+      await prisma.equipment.create({
         data: {
-          name: `Equipment Name`,
-          description: `Equipment Description`,
+          name: equipmentName,
           inventoryId: inventory.id,
           owned: 1,
         },
       });
     }
 
-    res.status(200).json({ message: 'Item bought successfully', equipment });
+    res.json({ message: 'Equipment bought successfully' });
   } catch (error) {
-    res.status(500).json({ message: 'Error processing purchase', error });
+    console.error('Error buying equipment:', error);
+    res.status(500).json({ message: 'Error processing the purchase' });
+  }
+});
+
+storeRouter.post('/sell', async (req: Request, res: Response) => {
+  const { userId, equipmentId } = req.body;
+  if (!userId || !equipmentId) {
+    return res.status(400).json({ message: 'User ID and Equipment ID are required' });
+  }
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { gold: true },
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const inventory = await prisma.inventory.findFirst({
+      where: { userId: userId },
+    });
+
+    if (!inventory) {
+      return res.status(404).json({ message: 'Inventory not found' });
+    }
+
+    const existingItem = await prisma.equipment.findFirst({
+      where: {
+        id: equipmentId,
+        inventoryId: inventory.id,
+      },
+    });
+
+    if (!existingItem || existingItem.owned <= 0) {
+      return res.status(400).json({ message: 'You do not own this item' });
+    }
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { gold: user.gold + 50 },
+    });
+
+    await prisma.equipment.update({
+      where: { id: existingItem.id },
+      data: { owned: existingItem.owned - 1 },
+    });
+
+    res.json({ message: 'Equipment sold successfully' });
+  } catch (error) {
+    console.error('Error selling equipment:', error);
+    res.status(500).json({ message: 'Error processing the sale' });
+  }
+});
+
+storeRouter.get('/store/magic-items', async (req: Request, res: Response) => {
+  console.log('MI Request:', req);
+  try {
+    const response = await axios.get('https://www.dnd5eapi.co/api/magic-items/');
+    console.log('Magical Equipment:', response.data.results);
+    res.json(response.data.results);
+  } catch (error) {
+    console.error('Error fetching magic items:', error);
+    res.status(500).send('Error fetching magic items');
   }
 });
 

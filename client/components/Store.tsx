@@ -31,9 +31,7 @@ const Store: FC<StoreProps> = ({ userId }) => {
 
   const fetchGold = async () => {
     try {
-      const response = await axios.get('/store/gold', {
-        params: { userId },
-      });
+      const response = await axios.get('/store/gold', { params: { userId } });
       setGold(response.data.gold);
     } catch (err) {
       setError('Failed to load gold amount');
@@ -79,21 +77,26 @@ const Store: FC<StoreProps> = ({ userId }) => {
     }
   };
 
-  const handleBuy = async (equipmentId: number) => {
+  const handleBuy = async (equipmentId: number, equipmentName: string) => {
     if (gold !== null && gold < 50) {
       alert('Not enough gold to buy this item.');
       return;
     }
-
+  
     try {
-      const response = await axios.post(`/store/buy`, { userId, equipmentId });
-
-      const updatedEquipment = equipment.map(item => 
+      if (!userId) {
+        alert('User ID is required.');
+        return;
+      }
+  
+      const response = await axios.post(`/store/buy`, { userId, equipmentId, equipmentName });
+  
+      const updatedEquipment = equipment.map(item =>
         item.id === equipmentId ? { ...item, owned: item.owned + 1 } : item
       );
-
+  
       setEquipment(updatedEquipment);
-      setGold(gold! - 50);
+      await fetchGold();
       alert(response.data.message);
     } catch (error) {
       console.error('Error buying equipment:', error);
@@ -146,10 +149,11 @@ const Store: FC<StoreProps> = ({ userId }) => {
               </Box>
             )}
             <Box mt={2}>
+              <Text>Cost: 50 gold</Text>
               <Button
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleBuy(item.id);
+                  handleBuy(item.id, item.name);
                 }}
                 colorScheme="green"
                 size="sm"

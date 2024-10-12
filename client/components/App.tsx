@@ -30,7 +30,7 @@ interface Profile {
 }
 
 const App: FC = () => {
-  const bg = useColorModeValue('white', 'gray.900');
+  const bg = useColorModeValue('gray.300', 'gray.900');
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(false);
   const [profile, setProfile] = useState<Profile | null>(null);
 
@@ -91,7 +91,7 @@ const App: FC = () => {
             path="/encounters"
             element={(
               <ProtectedRoute>
-                <Encounters />
+                <Encounters profile={profile} />
               </ProtectedRoute>
             )}
           />

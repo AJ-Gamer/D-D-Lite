@@ -15,17 +15,25 @@ const Inventory: FC<{ userId?: number }> = ({ userId }) => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    const deleteSoldEquipment = async () => {
+      try {
+        await axios.delete('/inventory/deleteSold', { params: { userId } });
+        console.log('Deleted equipment with zero quantity');
+      } catch (error) {
+        console.error('Error deleting zero-quantity equipment:', error);
+      }
+    };
+  
     const fetchCharactersAndEquipment = async () => {
       try {
         const response = await axios.get('/character/all', { params: { userId } });
         const characters: Character[] = response.data.characters;
-
+  
         const equipmentPromises = characters.map(async (character) => {
           const res = await axios.get(`/inventory/${character.class}`, { params: { userId } });
-          console.log('Response:', res.data.allEquipment);
           return res.data.allEquipment;
         });
-
+  
         const equipmentArrays = await Promise.all(equipmentPromises);
         const allEquipment = equipmentArrays.flat();
         setEquipment(allEquipment);
@@ -35,7 +43,8 @@ const Inventory: FC<{ userId?: number }> = ({ userId }) => {
         setLoading(false);
       }
     };
-
+  
+    deleteSoldEquipment();
     fetchCharactersAndEquipment();
   }, [userId]);
 

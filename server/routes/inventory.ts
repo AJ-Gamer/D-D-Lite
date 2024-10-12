@@ -78,4 +78,34 @@ inventory.get('/startingEquipment/:class', async (req: Request, res: Response) =
   }
 });
 
+inventory.delete('/deleteSold', async (req: Request, res: Response) => {
+  const { userId } = req.query;
+
+  if (!userId) {
+    return res.status(400).json({ error: 'User ID is required' });
+  }
+
+  try {
+    const inventory = await prisma.inventory.findFirst({
+      where: { userId: Number(userId) },
+    });
+
+    if (!inventory) {
+      return res.status(404).json({ message: 'Inventory not found' });
+    }
+
+    await prisma.equipment.deleteMany({
+      where: {
+        inventoryId: inventory.id,
+        owned: 0,
+      },
+    });
+
+    res.json({ message: 'Equipment with zero quantity deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting equipment:', error);
+    res.status(500).json({ error: 'Failed to delete equipment' });
+  }
+});
+
 export default inventory;

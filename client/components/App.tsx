@@ -75,7 +75,7 @@ const App: FC = () => {
             path="/home"
             element={(
               <ProtectedRoute>
-                <HomePage />
+                <HomePage profile={profile} />
               </ProtectedRoute>
             )}
           />

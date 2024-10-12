@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import axios from 'axios';
 import prisma from './prisma';
+import { start } from 'repl';
 
 const inventory = express.Router();
 
@@ -16,8 +17,6 @@ inventory.get('/:class', async (req: Request, res: Response) => {
   try {
     const response = await axios.get(`https://www.dnd5eapi.co/api/classes/${characterClass}/starting-equipment`);
     const startingEquipment = response.data.starting_equipment;
-
-    console.log('Starting Equipment:', startingEquipment);
 
     let inventory = await prisma.inventory.findFirst({
       where: { userId: userId },
@@ -59,6 +58,20 @@ inventory.get('/:class', async (req: Request, res: Response) => {
     });
 
     res.json({ allEquipment });
+  } catch (error) {
+    console.error('Error fetching equipment:', error);
+    res.status(500).json({ error: 'Failed to fetch starting equipment' });
+  }
+});
+
+inventory.get('/startingEquipment/:class', async (req: Request, res: Response) => {
+  const { class: characterClass } = req.params;
+
+  try {
+    const response = await axios.get(`https://www.dnd5eapi.co/api/classes/${characterClass}/starting-equipment`);
+    const startingEquipment = response.data.starting_equipment;
+
+    res.json({startingEquipment});
   } catch (error) {
     console.error('Error fetching equipment:', error);
     res.status(500).json({ error: 'Failed to fetch starting equipment' });

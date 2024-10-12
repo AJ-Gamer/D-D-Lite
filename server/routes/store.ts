@@ -47,8 +47,9 @@ storeRouter.get('/gold', async (req: Request, res: Response) => {
 });
 
 storeRouter.post('/buy', async (req: Request, res: Response) => {
-  const { userId, equipmentId, equipmentName } = req.body;
-  if (!userId || !equipmentId || !equipmentName) {
+  console.log('Buy Request:', req.body);
+  const { userId, equipmentName } = req.body;
+  if (!userId || !equipmentName) {
     return res.status(400).json({ message: 'User ID, Equipment ID, and Equipment Name are required' });
   }
 
@@ -109,8 +110,8 @@ storeRouter.post('/buy', async (req: Request, res: Response) => {
 });
 
 storeRouter.post('/sell', async (req: Request, res: Response) => {
-  const { userId, equipmentId } = req.body;
-  if (!userId || !equipmentId) {
+  const { userId, equipmentName } = req.body;
+  if (!userId) {
     return res.status(400).json({ message: 'User ID and Equipment ID are required' });
   }
 
@@ -134,7 +135,7 @@ storeRouter.post('/sell', async (req: Request, res: Response) => {
 
     const existingItem = await prisma.equipment.findFirst({
       where: {
-        id: equipmentId,
+        name: equipmentName,
         inventoryId: inventory.id,
       },
     });

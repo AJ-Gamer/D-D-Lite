@@ -34,6 +34,7 @@ const Store: FC<StoreProps> = ({ userId }) => {
   const fetchGold = async () => {
     try {
       const response = await axios.get('/store/gold', { params: { userId } });
+      console.log('User Gold:', response.data.gold);
       setGold(response.data.gold);
     } catch (err) {
       setError('Failed to load gold amount');
@@ -55,6 +56,7 @@ const Store: FC<StoreProps> = ({ userId }) => {
     const fetchMagicItems = async () => {
       try {
         const response = await axios.get('/store/magic-items');
+        console.log('Magical Items:', response.data.results);
         setMagicItems(response.data.results);
       } catch (error) {
         console.error('Error fetching magic items:', error);
@@ -65,6 +67,51 @@ const Store: FC<StoreProps> = ({ userId }) => {
     fetchMagicItems();
     fetchGold();
   }, []);
+  
+  const handleBuy = async (equipmentName: string) => {
+    console.log('Equipment Name:', equipmentName);
+    if (gold !== null && gold < 50) {
+      alert('Not enough gold to buy this item.');
+      return;
+    }
+
+    try {
+      if (!userId) {
+        alert('User ID is required.');
+        return;
+      }
+
+      const response = await axios.post(`/store/buy`, { userId, equipmentName });
+      
+      const updatedEquipment = equipment.map(item =>
+        item.name === equipmentName ? { ...item, owned: item.owned + 1 } : item
+      );
+
+      setEquipment(updatedEquipment);
+      await fetchGold();
+      alert(response.data.message);
+    } catch (error) {
+      console.error('Error buying equipment:', error);
+    }
+  };
+  
+  const handleSell = async (equipmentName: string) => {
+    try {
+      const response = await axios.post(`/store/sell`, { userId, equipmentName });
+      
+      const updatedEquipment = equipment.map(item => 
+        item.name === equipmentName && item.owned > 0 
+        ? { ...item, owned: item.owned - 1 } 
+        : item
+      );
+      
+      setEquipment(updatedEquipment);
+      await fetchGold();
+      alert(response.data.message);
+    } catch (error) {
+      console.error('Error selling equipment:', error);
+    }
+  };
 
   useEffect(() => {
     const filtered = equipment.filter(item =>
@@ -86,50 +133,6 @@ const Store: FC<StoreProps> = ({ userId }) => {
       } catch (error) {
         console.error('Failed to fetch equipment details', error);
       }
-    }
-  };
-
-  const handleBuy = async (equipmentId: number, equipmentName: string) => {
-    if (gold !== null && gold < 50) {
-      alert('Not enough gold to buy this item.');
-      return;
-    }
-
-    try {
-      if (!userId) {
-        alert('User ID is required.');
-        return;
-      }
-
-      const response = await axios.post(`/store/buy`, { userId, equipmentId, equipmentName });
-
-      const updatedEquipment = equipment.map(item =>
-        item.id === equipmentId ? { ...item, owned: item.owned + 1 } : item
-      );
-
-      setEquipment(updatedEquipment);
-      await fetchGold();
-      alert(response.data.message);
-    } catch (error) {
-      console.error('Error buying equipment:', error);
-    }
-  };
-
-  const handleSell = async (equipmentId: number) => {
-    try {
-      const response = await axios.post(`/store/sell`, { userId, equipmentId });
-      
-      const updatedEquipment = equipment.map(item => 
-        item.id === equipmentId && item.owned > 0 
-        ? { ...item, owned: item.owned - 1 } 
-        : item
-      );
-      
-      setEquipment(updatedEquipment);
-      await fetchGold();
-      alert(response.data.message);
-    } catch (error) {
-      console.error('Error selling equipment:', error);
     }
   };
   
@@ -165,7 +168,7 @@ const Store: FC<StoreProps> = ({ userId }) => {
             <Button
               onClick={(e) => {
                 e.stopPropagation();
-                handleBuy(item.id, item.name);
+                handleBuy(item.name);
               }}
               colorScheme="green"
               size="sm"
@@ -176,7 +179,7 @@ const Store: FC<StoreProps> = ({ userId }) => {
             <Button
               onClick={(e) => {
                 e.stopPropagation();
-                handleSell(item.id);
+                handleSell(item.name);
               }}
               colorScheme="red"
               size="sm"

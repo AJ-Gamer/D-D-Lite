@@ -63,7 +63,7 @@ const HomePage: FC = () => {
         try {
           const charObj = chars.find((char) => char.id === selectedChar);
           if (charObj) {
-            const response = await axios.get<{ startingEquipment: Equipment[] }>(`/inventory/${charObj.class}`);
+            const response = await axios.get<{ startingEquipment: Equipment[] }>(`/inventory/startingEquipment/${charObj.class}`);
             setEquipment(response.data.startingEquipment);
           }
         } catch (error) {

@@ -53,7 +53,11 @@ const CharCreation: FC<CharCreationProps> = ({ profile }) => {
   useEffect(() => {
     const fetchChars = async () => {
       try {
-        const response = await axios.get<{ characters: Character[] }>('/character/all');
+        const response = await axios.get<{ characters: Character[] }>('/character/all', {
+          params: {
+            userId: profile?.id,
+          },
+        });
         setChars(response.data.characters);
         setLoading(false);
 
@@ -67,7 +71,7 @@ const CharCreation: FC<CharCreationProps> = ({ profile }) => {
       }
     };
     fetchChars();
-  }, []);
+  }, [profile]);
 
   const handleSelectChar = (id: number) => {
     setSelectedChar(id);

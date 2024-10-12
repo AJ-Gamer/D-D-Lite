@@ -10,6 +10,17 @@ import axios from 'axios';
 import CharCards from './CharCards';
 import RedirectModal from './homePageComps/RedirectModal';
 
+interface Profile {
+  id: number;
+  googleId: string;
+  email: string;
+  name: string;
+}
+
+interface HomePageProps {
+  profile: Profile | null;
+}
+
 interface Character {
   id: number;
   name: string;
@@ -28,7 +39,7 @@ interface Equipment {
   };
 }
 
-const HomePage: FC = () => {
+const HomePage: FC<HomePageProps> = ({ profile }) => {
   const [chars, setChars] = useState<Character[]>([]);
   const [selectedChar, setSelectedChar] = useState<number | null>(null);
   const [equipment, setEquipment] = useState<Equipment[]>([]);
@@ -38,7 +49,11 @@ const HomePage: FC = () => {
   useEffect(() => {
     const fetchChars = async () => {
       try {
-        const response = await axios.get<{ characters: Character[] }>('/character/all');
+        const response = await axios.get<{ characters: Character[] }>('/character/all', {
+          params: {
+            userId: profile?.id,
+          },
+        });
         setChars(response.data.characters);
 
         if (response.data.characters.length === 0) {
@@ -54,7 +69,7 @@ const HomePage: FC = () => {
       }
     };
     fetchChars();
-  }, [onOpen]);
+  }, [onOpen, profile]);
 
   useEffect(() => {
     const fetchEquipment = async () => {

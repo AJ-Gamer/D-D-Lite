@@ -33,11 +33,11 @@ character.get('/all', async (
   req: Request<object, object, FetchUserId>,
   res: Response,
 ) => {
-  const { userId } = req.body;
+  const { userId } = req.query;
   try {
     const characters = await prisma.character.findMany({
       where: {
-        userId,
+        userId: Number(userId),
       },
     });
     return res.json({ characters });

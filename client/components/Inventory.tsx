@@ -23,29 +23,57 @@ const Inventory: FC<{ userId?: number }> = ({ userId }) => {
         console.error('Error deleting zero-quantity equipment:', error);
       }
     };
-  
-    const fetchCharactersAndEquipment = async () => {
+
+    const insertStartingItems = async () => {
       try {
         const response = await axios.get('/character/all', { params: { userId } });
         const characters: Character[] = response.data.characters;
-  
-        const equipmentPromises = characters.map(async (character) => {
-          const res = await axios.get(`/inventory/${character.class}`, { params: { userId } });
-          return res.data.allEquipment;
-        });
-  
-        const equipmentArrays = await Promise.all(equipmentPromises);
-        const allEquipment = equipmentArrays.flat();
-        setEquipment(allEquipment);
+    
+        console.log('Characters:', characters);
+    
+        const validClasses = ['sorcerer', 'rogue', 'barbarian'];
+
+        const equipmentPromises = characters
+          .filter((character) => {
+            if (!validClasses.includes(character.class)) {
+              console.warn(`Skipping invalid class: ${character.class}`);
+              return false;
+            }
+            return true;
+          })
+          .map((character) =>
+            axios.get(`/inventory/${character.class}`, { params: { userId } })
+          );
+    
+        await Promise.all(equipmentPromises);
+        console.log('Starting equipment loaded for all characters.');
+      } catch (err) {
+        console.error('Error loading starting equipment:', err);
+        setError('Failed to load starting equipment');
+      }
+    };    
+
+    const fetchAllEquipment = async () => {
+      try {
+        const response = await axios.get('/inventory/allEquipment', { params: { userId } });
+        console.log('All Equipment:', response.data.allEquipment);
+        setEquipment(response.data.allEquipment);
         setLoading(false);
       } catch (err) {
-        setError('Failed to load characters or equipment');
+        console.error('Error fetching all equipment:', err);
+        setError('Failed to load all equipment');
         setLoading(false);
       }
     };
-  
-    deleteSoldEquipment();
-    fetchCharactersAndEquipment();
+
+    const initializeInventory = async () => {
+      setLoading(true);
+      await deleteSoldEquipment();
+      await insertStartingItems();
+      await fetchAllEquipment();
+    };
+
+    initializeInventory();
   }, [userId]);
 
   if (loading) return <Spinner alignContent="center" />;

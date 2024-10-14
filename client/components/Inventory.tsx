@@ -15,28 +15,65 @@ const Inventory: FC<{ userId?: number }> = ({ userId }) => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchCharactersAndEquipment = async () => {
+    const deleteSoldEquipment = async () => {
+      try {
+        await axios.delete('/inventory/deleteSold', { params: { userId } });
+        console.log('Deleted equipment with zero quantity');
+      } catch (error) {
+        console.error('Error deleting zero-quantity equipment:', error);
+      }
+    };
+
+    const insertStartingItems = async () => {
       try {
         const response = await axios.get('/character/all', { params: { userId } });
         const characters: Character[] = response.data.characters;
+    
+        console.log('Characters:', characters);
+    
+        const validClasses = ['sorcerer', 'rogue', 'barbarian'];
 
-        const equipmentPromises = characters.map(async (character) => {
-          const res = await axios.get(`/inventory/${character.class}`, { params: { userId } });
-          console.log('Response:', res.data.allEquipment);
-          return res.data.allEquipment;
-        });
+        const equipmentPromises = characters
+          .filter((character) => {
+            if (!validClasses.includes(character.class)) {
+              console.warn(`Skipping invalid class: ${character.class}`);
+              return false;
+            }
+            return true;
+          })
+          .map((character) =>
+            axios.get(`/inventory/${character.class}`, { params: { userId } })
+          );
+    
+        await Promise.all(equipmentPromises);
+        console.log('Starting equipment loaded for all characters.');
+      } catch (err) {
+        console.error('Error loading starting equipment:', err);
+        setError('Failed to load starting equipment');
+      }
+    };    
 
-        const equipmentArrays = await Promise.all(equipmentPromises);
-        const allEquipment = equipmentArrays.flat();
-        setEquipment(allEquipment);
+    const fetchAllEquipment = async () => {
+      try {
+        const response = await axios.get('/inventory/allEquipment', { params: { userId } });
+        console.log('All Equipment:', response.data.allEquipment);
+        setEquipment(response.data.allEquipment);
         setLoading(false);
       } catch (err) {
-        setError('Failed to load characters or equipment');
+        console.error('Error fetching all equipment:', err);
+        setError('Failed to load all equipment');
         setLoading(false);
       }
     };
 
-    fetchCharactersAndEquipment();
+    const initializeInventory = async () => {
+      setLoading(true);
+      await deleteSoldEquipment();
+      await insertStartingItems();
+      await fetchAllEquipment();
+    };
+
+    initializeInventory();
   }, [userId]);
 
   if (loading) return <Spinner alignContent="center" />;
@@ -44,7 +81,7 @@ const Inventory: FC<{ userId?: number }> = ({ userId }) => {
 
   return (
     <Box p={4} mt={12}>
-      <Text fontSize="2xl">Equipment:</Text>
+      <Text fontSize="2xl" fontWeight="bold">Equipment:</Text>
       {equipment.length > 0 ? (
         <SimpleGrid columns={{ sm: 1, md: 2, lg: 3 }} spacing={4} mt={4}>
           {equipment.map((item, index) => (

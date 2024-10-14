@@ -25,21 +25,22 @@ model User {
 }
 
 model Character {
-  id           Int      @id @default(autoincrement())
-  name         String
-  description  String
-  class        String
-  race         String
-  constitution Int
-  strength     Int
-  dexterity    Int
-  charisma     Int
-  image        String?
-  userId       Int
-  user         User     @relation(fields: [userId], references: [id])
-  weapons      Weapon[] @relation("CharacterWeapons")
-  armor        Armor[]  @relation("CharacterArmor")
-  items        Item[]   @relation("CharacterItems")
+  id            Int            @id @default(autoincrement())
+  name          String
+  description   String
+  class         String
+  race          String
+  constitution  Int
+  strength      Int
+  dexterity     Int
+  charisma      Int
+  image         String?
+  userId        Int
+  user          User           @relation(fields: [userId], references: [id])
+  weapons       Weapon[]       @relation("CharacterWeapons")
+  armor         Armor[]        @relation("CharacterArmor")
+  items         Item[]         @relation("CharacterItems")
+  equippedItems EquippedItem[]
 }
 
 model Weapon {
@@ -72,13 +73,23 @@ model Inventory {
   equipment Equipment[]
 }
 
-model Equipment {
+model EquippedItem {
   id          Int       @id @default(autoincrement())
-  name        String
-  description String?
-  inventory   Inventory @relation(fields: [inventoryId], references: [id])
-  inventoryId Int
-  owned       Int       @default(0)
+  characterId Int
+  character   Character @relation(fields: [characterId], references: [id])
+  equipmentId Int
+  equipment   Equipment @relation(fields: [equipmentId], references: [id])
+}
+
+model Equipment {
+  id           Int            @id @default(autoincrement())
+  name         String
+  description  String?
+  inventory    Inventory      @relation(fields: [inventoryId], references: [id])
+  inventoryId  Int
+  owned        Int            @default(0)
+  equipped     Boolean        @default(false)
+  EquippedItem EquippedItem[]
 }
 
 model StoryNode {

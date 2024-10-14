@@ -2,8 +2,15 @@ import React, { FC, useEffect, useState } from 'react';
 import {
   Box,
   Button,
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
   Spinner,
   Text,
+  useDisclosure,
   useToast,
 } from '@chakra-ui/react';
 import axios from 'axios';
@@ -48,6 +55,7 @@ const CharCreation: FC<CharCreationProps> = ({ profile }) => {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
 
   useEffect(() => {
@@ -80,6 +88,7 @@ const CharCreation: FC<CharCreationProps> = ({ profile }) => {
 
   const handleSubmit = async () => {
     try {
+      onOpen();
       const response = await axios.post<CreateCharRes>('/character/create', {
         name: charName,
         description,
@@ -106,6 +115,7 @@ const CharCreation: FC<CharCreationProps> = ({ profile }) => {
         duration: 4000,
         isClosable: true,
       });
+      setTimeout(onClose, 20000);
     } catch (err) {
       toast({
         title: 'Failed to Generate Image.',
@@ -153,6 +163,7 @@ const CharCreation: FC<CharCreationProps> = ({ profile }) => {
         selectedChar={selectedChar}
         onDeleteChar={handleDeleteChar}
       />
+      <Text fontWeight="bold">{`Character Slots Used: ${chars.length}/4`}</Text>
       <Box
         p={6}
         alignContent="center"
@@ -171,7 +182,8 @@ const CharCreation: FC<CharCreationProps> = ({ profile }) => {
           setCharClass={setCharClass}
         />
         <Button
-          bg="#F6CC12"
+          bg="yellow.400"
+          color="black"
           mt={4}
           onClick={handleSubmit}
           isDisabled={!charName || !race || !charClass}
@@ -182,6 +194,21 @@ const CharCreation: FC<CharCreationProps> = ({ profile }) => {
       <Box flex={1} ml="2rem">
         <CharGen imageUrl={imageUrl} />
       </Box>
+      <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Generating Character Image</ModalHeader>
+          <ModalBody>
+            <Spinner size="xl" />
+            <Text mt={4}>Please wait while we generate your character's image...</Text>
+          </ModalBody>
+          <ModalFooter>
+            <Button onClick={onClose}>
+              Close
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Box>
   );
 };

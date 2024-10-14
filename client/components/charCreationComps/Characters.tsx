@@ -28,7 +28,7 @@ const Characters: FC<CharsProps> = ({
   const emptySlots = charSlots - characters.length;
 
   return (
-    <Flex justifyContent="space-between" mb={4} mt={12} p={4} borderRadius="md" boxShadow="md">
+    <Flex justifyContent="space-between" mb={4} mt={12} mx={24} p={4} borderRadius="md" boxShadow="md">
       {characters.map((char) => (
         <Box
           key={char.id}
@@ -59,7 +59,6 @@ const Characters: FC<CharsProps> = ({
       ))}
       {Array.from({ length: emptySlots }).map((_, index) => (
         <Box
-          // eslint-disable-next-line react/no-array-index-key
           key={`empty-slot-${index}`}
           border="1px dotted"
           borderColor="gray.300"

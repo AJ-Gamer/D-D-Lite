@@ -41,7 +41,7 @@ interface Character {
   id: number;
   name: string;
   class: string;
-  characterImage?: string;
+  image?: string;
   strength: number;
   dexterity: number;
   constitution: number;
@@ -195,7 +195,7 @@ const Encounters: FC<EncountersProps> = ({ profile }) => {
           <Image
             boxSize="200px"
             objectFit="cover"
-            src={selectedCharacter.characterImage ?? DEFAULT_IMAGE_URL}
+            src={selectedCharacter.image ?? DEFAULT_IMAGE_URL}
             alt={`${selectedCharacter.name} Image`}
             fallbackSrc={DEFAULT_IMAGE_URL}
           />

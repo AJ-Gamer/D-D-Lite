@@ -39,7 +39,7 @@ interface Character {
 
 const DEFAULT_IMAGE_URL = 'https://logos-world.net/wp-content/uploads/2021/12/DnD-Emblem.png';
 
-const Encounters: FC = () => {
+const Encounters: FC<{ userId?: number }> = ({ userId }) => {
   const [characters, setCharacters] = useState<Character[]>([]);
   const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null);
   const [currentNode, setCurrentNode] = useState<StoryNode | null>(null);
@@ -51,7 +51,7 @@ const Encounters: FC = () => {
   const fetchCharacters = async () => {
     setLoading(true);
     try {
-      const { data } = await axios.get('/character/all');
+      const { data } = await axios.get('/character/all', { params: { userId } });
       setCharacters(data.characters);
     } catch (error) {
       console.error('Error fetching characters:', error);

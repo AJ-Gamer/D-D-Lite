@@ -1,5 +1,8 @@
 -- AlterTable
-ALTER TABLE `equipment` ADD COLUMN `equipped` BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE `Equipment` ADD COLUMN `equipped` BOOLEAN NOT NULL DEFAULT false;
+
+-- AlterTable
+ALTER TABLE `StoryNode` MODIFY `prompt` TEXT NOT NULL;
 
 -- CreateTable
 CREATE TABLE `EquippedItem` (

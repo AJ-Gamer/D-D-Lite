@@ -8,7 +8,7 @@ const validClasses = ['sorcerer', 'rogue', 'barbarian'];
 
 inventory.get('/allEquipment', async (req: Request, res: Response) => {
   const userId = Number(req.query.userId);
-  console.log('User Id:', userId);
+
   if (!userId) {
     console.log('Id Error Value:', userId);
     return res.status(400).json({ error: 'User ID is required' });
@@ -18,7 +18,7 @@ inventory.get('/allEquipment', async (req: Request, res: Response) => {
    let inventory = await prisma.inventory.findFirst({
       where: { userId: userId },
     });
-    console.log('Full Inventory:', inventory);
+
     const allEquipment = await prisma.equipment.findMany({
       where: {
         inventoryId: inventory?.id,

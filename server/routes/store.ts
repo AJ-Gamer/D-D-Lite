@@ -13,6 +13,18 @@ storeRouter.get('/equipment', async (req: Request, res: Response) => {
   }
 });
 
+storeRouter.get('/store/magic-items', async (req: Request, res: Response) => {
+  console.log('MI Request:', req);
+  try {
+    const response = await axios.get('https://www.dnd5eapi.co/api/magic-items/');
+    console.log('Magical Equipment:', response.data.results);
+    res.json(response.data.results);
+  } catch (error) {
+    console.error('Error fetching magic items:', error);
+    res.status(500).send('Error fetching magic items');
+  }
+});
+
 storeRouter.get('/equipment/:index', async (req: Request, res: Response) => {
   const { index } = req.params;
   try {
@@ -158,18 +170,6 @@ storeRouter.post('/sell', async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Error selling equipment:', error);
     res.status(500).json({ message: 'Error processing the sale' });
-  }
-});
-
-storeRouter.get('/store/magic-items', async (req: Request, res: Response) => {
-  console.log('MI Request:', req);
-  try {
-    const response = await axios.get('https://www.dnd5eapi.co/api/magic-items/');
-    console.log('Magical Equipment:', response.data.results);
-    res.json(response.data.results);
-  } catch (error) {
-    console.error('Error fetching magic items:', error);
-    res.status(500).send('Error fetching magic items');
   }
 });
 

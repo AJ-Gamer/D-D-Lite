@@ -67,7 +67,7 @@ const Store: FC<StoreProps> = ({ userId }) => {
     fetchMagicItems();
     fetchGold();
   }, []);
-  
+
   const handleBuy = async (equipmentName: string) => {
     console.log('Equipment Name:', equipmentName);
     if (gold !== null && gold < 50) {
@@ -82,7 +82,7 @@ const Store: FC<StoreProps> = ({ userId }) => {
       }
 
       const response = await axios.post(`/store/buy`, { userId, equipmentName });
-      
+
       const updatedEquipment = equipment.map(item =>
         item.name === equipmentName ? { ...item, owned: item.owned + 1 } : item
       );
@@ -94,17 +94,17 @@ const Store: FC<StoreProps> = ({ userId }) => {
       console.error('Error buying equipment:', error);
     }
   };
-  
+
   const handleSell = async (equipmentName: string) => {
     try {
       const response = await axios.post(`/store/sell`, { userId, equipmentName });
-      
-      const updatedEquipment = equipment.map(item => 
-        item.name === equipmentName && item.owned > 0 
-        ? { ...item, owned: item.owned - 1 } 
+
+      const updatedEquipment = equipment.map(item =>
+        item.name === equipmentName && item.owned > 0
+        ? { ...item, owned: item.owned - 1 }
         : item
       );
-      
+
       setEquipment(updatedEquipment);
       await fetchGold();
       alert(response.data.message);
@@ -135,7 +135,7 @@ const Store: FC<StoreProps> = ({ userId }) => {
       }
     }
   };
-  
+
   const totalPages = Math.ceil(filteredEquipment.length / itemsPerPage);
   const paginatedItems = filteredEquipment.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
@@ -146,9 +146,10 @@ const Store: FC<StoreProps> = ({ userId }) => {
           key={item.index}
           onClick={() => handleCardClick(item.index)}
           p={5}
-          bg="#F49004"
+          bg="yellow.400"
+          color="black"
           cursor="pointer"
-          height={selectedIndex === item.index ? 'auto' : '100px'}
+          height={selectedIndex === item.index ? 'auto' : '150px'}
           _hover={{ transform: selectedIndex === item.index ? 'none' : 'scale(1.05)', transition: '0.3s' }}
           position="relative"
         >
@@ -184,6 +185,7 @@ const Store: FC<StoreProps> = ({ userId }) => {
               colorScheme="red"
               size="sm"
               mt={2}
+              ml={2}
               isDisabled={item.owned === 0}
             >
               Sell
@@ -202,7 +204,6 @@ const Store: FC<StoreProps> = ({ userId }) => {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           mt={8}
-          bg="white"
           width="50%"
           boxShadow="md"
         />

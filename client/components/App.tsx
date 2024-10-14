@@ -91,7 +91,7 @@ const App: FC = () => {
             path="/encounters"
             element={(
               <ProtectedRoute>
-                <Encounters userId={profile?.id} />
+                <Encounters profile={profile} />
               </ProtectedRoute>
             )}
           />

@@ -41,16 +41,26 @@ interface Character {
   id: number;
   name: string;
   class: string;
-  image?: string;
-  strength?: number;
-  dexterity?: number;
-  constitution?: number;
-  charisma?: number;
+  characterImage?: string;
+  strength: number;
+  dexterity: number;
+  constitution: number;
+  charisma: number;
+}
+
+interface CharRes {
+  characters: Character[];
+}
+
+interface StoryNodeRes {
+  id: number;
+  prompt: string;
+  options: Option[];
 }
 
 const DEFAULT_IMAGE_URL = 'https://logos-world.net/wp-content/uploads/2021/12/DnD-Emblem.png';
 
-const Encounters: FC<{ userId?: number }> = ({ userId }) => {
+const Encounters: FC<EncountersProps> = ({ profile }) => {
   const [characters, setCharacters] = useState<Character[]>([]);
   const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null);
   const [currentNode, setCurrentNode] = useState<StoryNode | null>(null);
@@ -59,17 +69,42 @@ const Encounters: FC<{ userId?: number }> = ({ userId }) => {
   const [startCampaign, setStartCampaign] = useState<boolean>(false);
   const [isTTSActive, setIsTTSActive] = useState<boolean>(false);
 
-  const fetchCharacters = async () => {
-    setLoading(true);
-    try {
-      const { data } = await axios.get('/character/all', { params: { userId } });
-      setCharacters(data.characters);
-    } catch (error) {
-      console.error('Error fetching characters:', error);
-    } finally {
-      setLoading(false);
+  const speakText = (text: string) => {
+    if (isTTSActive && selectedCharacter) {
+      const utterance = new SpeechSynthesisUtterance(text);
+      window.speechSynthesis.speak(utterance);
     }
   };
+
+  const replacePlaceholders = (prompt: string, character: Character) => prompt
+    .replace('{name}', character.name)
+    .replace('{class}', character.class);
+
+  const toggleTextToSpeech = () => {
+    setIsTTSActive(!isTTSActive);
+    if (!isTTSActive && currentNode && selectedCharacter) {
+      speakText(replacePlaceholders(currentNode.prompt, selectedCharacter));
+    }
+  };
+
+  useEffect(() => {
+    const fetchCharacters = async () => {
+      setLoading(true);
+      try {
+        const { data }: { data: CharRes } = await axios.get('/character/all', {
+          params: {
+            userId: profile?.id,
+          },
+        });
+        setCharacters(data.characters);
+      } catch (error) {
+        console.error('Error fetching characters:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCharacters();
+  }, [profile?.id]);
 
   const fetchStoryNode = async (id: number) => {
     setLoading(true);
@@ -160,7 +195,7 @@ const Encounters: FC<{ userId?: number }> = ({ userId }) => {
           <Image
             boxSize="200px"
             objectFit="cover"
-            src={selectedCharacter.image || DEFAULT_IMAGE_URL}
+            src={selectedCharacter.characterImage ?? DEFAULT_IMAGE_URL}
             alt={`${selectedCharacter.name} Image`}
             fallbackSrc={DEFAULT_IMAGE_URL}
           />

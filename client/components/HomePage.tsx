@@ -90,7 +90,7 @@ const HomePage: FC<HomePageProps> = ({ profile }) => {
     };
 
     fetchEquipment();
-  }, [selectedChar, chars]);
+  }, [selectedChar, chars, profile?.id]);
 
   const handleSelectChar = (id: number) => {
     setSelectedChar(id);
@@ -174,6 +174,7 @@ const HomePage: FC<HomePageProps> = ({ profile }) => {
             boxShadow="xl"
           >
             <Text fontSize="lg" fontWeight="bold"> Current Character:</Text>
+            <Divider my={2} borderColor="gray.600" />
             <Image
               src={charObj?.image}
               alt={charObj?.name}
@@ -182,7 +183,7 @@ const HomePage: FC<HomePageProps> = ({ profile }) => {
               borderRadius="lg"
               mx={8}
             />
-            <Text fontSize="xl" fontWeight="bold" mt={2}>{charObj?.name}</Text>
+            <Text fontSize="xl" fontWeight="bold">{charObj?.name}</Text>
           </Box>
 
           {/* Equipment Box */}

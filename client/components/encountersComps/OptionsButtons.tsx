@@ -24,6 +24,8 @@ const OptionsButtons: FC<OptionsButtonsProps> = ({ options, onOptionClick }) => 
         onClick={() => onOptionClick(option.nextNodeId, option.result)}
         bg="#F49004"
         _hover={{ bg: '#FDCE5C' }}
+        whiteSpace="normal"
+        wordBreak="break-word"
       >
         {option.text}
       </Button>

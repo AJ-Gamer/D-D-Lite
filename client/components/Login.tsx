@@ -43,9 +43,9 @@ const Login: FC = () => {
       >
         <VStack spacing={6}>
           <Heading as="h1" size="xl" color="gray.700" textAlign="center">
-            DnD Lite
+            Legendspire
           </Heading>
-          <Text>Your adventure begins here</Text>
+          <Text color="gray.700">Your adventure begins here</Text>
           <Button
             colorScheme="blue"
             size="lg"

@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 import React, { FC, useEffect, useState } from 'react';
 import {
   Box,
@@ -21,6 +22,9 @@ import CharGen from './charCreationComps/CharGen';
 interface Character {
   id: number;
   name: string;
+  image: string;
+  class: string;
+  race: string;
 }
 
 interface Profile {
@@ -38,6 +42,9 @@ interface CreateCharRes {
   newChar: {
     id: number;
     name: string;
+    image: string;
+    class: string;
+    race: string;
   }
 }
 
@@ -58,28 +65,30 @@ const CharCreation: FC<CharCreationProps> = ({ profile }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const toast = useToast();
 
-  useEffect(() => {
-    const fetchChars = async () => {
-      try {
-        const response = await axios.get<{ characters: Character[] }>('/character/all', {
-          params: {
-            userId: profile?.id,
-          },
-        });
-        setChars(response.data.characters);
-        setLoading(false);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const fetchChars = async () => {
+    try {
+      const response = await axios.get<{ characters: Character[] }>('/character/all', {
+        params: {
+          userId: profile?.id,
+        },
+      });
+      setChars(response.data.characters);
+      setLoading(false);
 
-        const savedCharId = localStorage.getItem('selectedChar');
-        if (savedCharId) {
-          setSelectedChar(parseInt(savedCharId, 10));
-        }
-      } catch (err) {
-        setError('Failed to load Characters');
-        setLoading(false);
+      const savedCharId = localStorage.getItem('selectedChar');
+      if (savedCharId) {
+        setSelectedChar(parseInt(savedCharId, 10));
       }
-    };
+    } catch (err) {
+      setError('Failed to load Characters');
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchChars();
-  }, [profile]);
+  }, [fetchChars, profile]);
 
   const handleSelectChar = (id: number) => {
     setSelectedChar(id);
@@ -115,6 +124,12 @@ const CharCreation: FC<CharCreationProps> = ({ profile }) => {
         duration: 4000,
         isClosable: true,
       });
+
+      setCharName('');
+      setDescription('');
+      setRace('');
+      setCharClass('');
+      fetchChars();
       setTimeout(onClose, 20000);
     } catch (err) {
       toast({
@@ -124,6 +139,11 @@ const CharCreation: FC<CharCreationProps> = ({ profile }) => {
         duration: 4000,
         isClosable: true,
       });
+
+      setCharName('');
+      setDescription('');
+      setRace('');
+      setCharClass('');
     }
   };
 

@@ -1,7 +1,6 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
 const TerserPlugin = require('terser-webpack-plugin');
-const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 const dotenv = require('dotenv')
 
 const path = require('path');
@@ -49,7 +48,6 @@ module.exports = {
       filename: './index.html',
     }),
     new ForkTsCheckerWebpackPlugin(),
-    new BundleAnalyzerPlugin(),
   ],
   optimization: {
     minimize: true,

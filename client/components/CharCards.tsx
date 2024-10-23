@@ -38,7 +38,7 @@ const CharCards: FC<CharCardsProps> = ({
           borderRadius="lg"
           padding="1rem"
           margin="0 1rem"
-          bg={selectedChar === char.id ? 'yellow.400' : 'gray.500'}
+          bg={selectedChar === char.id ? 'yellow.400' : 'gray.400'}
           boxShadow="2xl"
         >
           <Image

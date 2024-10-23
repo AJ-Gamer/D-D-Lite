@@ -3,12 +3,16 @@ import {
   Box,
   Button,
   Flex,
+  Image,
   Text,
 } from '@chakra-ui/react';
 
 interface Character {
   id: number;
   name: string;
+  image: string;
+  class: string;
+  race: string;
 }
 
 interface CharsProps {
@@ -43,7 +47,17 @@ const Characters: FC<CharsProps> = ({
           width="150px"
           textAlign="center"
         >
+          <Image
+            src={char.image}
+            alt={`${char.name}'s image`}
+            borderRadius="full"
+            boxSize="50px"
+            objectFit="cover"
+            mx="auto"
+            mb={2}
+          />
           <Text fontWeight="bold" color="black">{char.name}</Text>
+          <Text fontSize="sm" color="gray.700">{char.race} {char.class}</Text>
           <Button
             size="sm"
             colorScheme="red"

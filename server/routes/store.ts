@@ -5,10 +5,38 @@ import prisma from './prisma';
 const storeRouter = express.Router();
 
 storeRouter.get('/equipment', async (req: Request, res: Response) => {
+  const userId = parseInt(req.query.userId as string, 10);
+
+  if (!userId) {
+    return res.status(400).json({ message: 'User ID is required' });
+  }
+
   try {
     const response = await axios.get('https://www.dnd5eapi.co/api/equipment');
-    res.json(response.data.results);
+    const allEquipment = response.data.results;
+
+    const inventory = await prisma.inventory.findFirst({
+      where: { userId: userId },
+      include: { equipment: true },
+    });
+
+    const ownedItems: { [key: string]: number } = {};
+    if (inventory) {
+      inventory.equipment.forEach(item => {
+        ownedItems[item.name] = item.owned;
+      });
+    }
+
+    const equipmentWithOwnership = allEquipment.map((item: any) => {
+      return {
+        ...item,
+        owned: ownedItems[item.name] || 0,
+      };
+    });
+
+    res.json(equipmentWithOwnership);
   } catch (error) {
+    console.error('Error fetching equipment data:', error);
     res.status(500).json({ message: 'Error fetching equipment data' });
   }
 });

@@ -45,7 +45,7 @@ const Store: FC<StoreProps> = ({ userId }) => {
   useEffect(() => {
     const fetchEquipment = async () => {
       try {
-        const response = await axios.get('/store/equipment');
+        const response = await axios.get('/store/equipment', { params: { userId } });
         setEquipment(response.data);
         setFilteredEquipment(response.data);
       } catch (error) {
@@ -66,7 +66,7 @@ const Store: FC<StoreProps> = ({ userId }) => {
     fetchEquipment();
     fetchMagicItems();
     fetchGold();
-  }, []);
+  }, [userId]);
 
   const handleBuy = async (equipmentName: string) => {
     console.log('Equipment Name:', equipmentName);
@@ -155,7 +155,7 @@ const Store: FC<StoreProps> = ({ userId }) => {
         >
           <Flex justify="space-between" align="center">
             <Text fontWeight="bold">{item.name}</Text>
-            <Text fontWeight="bold" color="gray.600">Owned: {item.owned}</Text>
+            <Text fontWeight="bold">Owned: {item.owned}</Text>
           </Flex>
           {selectedIndex === item.index && selectedEquipmentDetails && (
             <Box mt={2}>

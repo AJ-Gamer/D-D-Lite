@@ -176,6 +176,8 @@ const CharCreation: FC<CharCreationProps> = ({ profile }) => {
       display="flex"
       flexDirection="column"
       padding="2rem"
+      maxWidth="1000px"
+      mx="auto"
     >
       <Characters
         characters={chars}

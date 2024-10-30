@@ -29,13 +29,18 @@ const CharCards: FC<CharCardsProps> = ({
   onDeleteChar,
 }) => (
   <>
-    <Heading mt={20}>Choose Your Adventurer</Heading>
+    { characters.length > 0 ? (
+      <Heading mt={20}>Choose Your Adventurer</Heading>
+    ) : (
+      <Heading mt={20}>No Adventurers Available</Heading>
+    )}
     <Box display="flex" padding="1rem">
       {characters.map((char) => (
         <Box
           key={char.id}
           borderWidth="2px"
           borderRadius="lg"
+          justifyItems="center"
           padding="1rem"
           margin="0 1rem"
           bg={selectedChar === char.id ? 'yellow.400' : 'gray.400'}
@@ -48,9 +53,16 @@ const CharCards: FC<CharCardsProps> = ({
             boxSize="150px"
             objectFit="cover"
           />
-          <Text mt={2} fontSize="xl" fontWeight="bold" color="black">{char.name}</Text>
-          <Text mt={1} fontSize="lg" color="black">
-            {char.race} {char.class}
+          <Text mt={2} fontSize="xl" fontWeight="bold" color="black">
+            {
+              `${char.name.charAt(0).toUpperCase() + char.name.slice(1)}`
+            }
+          </Text>
+          <Text mt={1} fontSize="lg" color="black" justifyItems="center">
+            {
+              `${char.race.charAt(0).toUpperCase() + char.race.slice(1)}
+              ${char.class.charAt(0).toUpperCase() + char.class.slice(1)}`
+            }
           </Text>
           {selectedChar !== char.id && (
             <>
@@ -59,16 +71,19 @@ const CharCards: FC<CharCardsProps> = ({
                 color="black"
                 onClick={() => onSelectChar(char.id)}
                 mt={2}
-                mr={4}
+                width="100%"
               >
                 Play as
                 {' '}
                 {char.name}
               </Button>
               <Button
-                colorScheme="red"
+                variant="ghost"
+                size="sm"
                 onClick={() => onDeleteChar(char.id)}
+                color="gray.800"
                 mt={2}
+                width="100%"
               >
                 Delete
               </Button>

@@ -32,7 +32,14 @@ const Characters: FC<CharsProps> = ({
   const emptySlots = charSlots - characters.length;
 
   return (
-    <Flex justifyContent="space-between" mb={4} mt={12} mx={24} p={4} borderRadius="md" boxShadow="md">
+    <Flex
+      justifyContent="space-between"
+      mb={4}
+      mt={12}
+      p={4}
+      borderRadius="md"
+      boxShadow="md"
+    >
       {characters.map((char) => (
         <Box
           key={char.id}
@@ -42,25 +49,31 @@ const Characters: FC<CharsProps> = ({
           borderRadius="md"
           cursor="pointer"
           onClick={() => onSelectChar(char.id)}
-          bg={selectedChar === char.id ? 'yellow.200' : 'gray.300'}
+          bg={selectedChar === char.id ? 'yellow.400' : 'gray.300'}
           transition="background-color 0.3s ease"
-          width="150px"
+          width="200px"
           textAlign="center"
         >
           <Image
             src={char.image}
             alt={`${char.name}'s image`}
             borderRadius="full"
-            boxSize="50px"
+            boxSize="130px"
             objectFit="cover"
             mx="auto"
             mb={2}
           />
           <Text fontWeight="bold" color="black">{char.name}</Text>
-          <Text fontSize="sm" color="gray.700">{char.race} {char.class}</Text>
+          <Text fontSize="sm" color="gray.700">{
+              `${char.race.charAt(0).toUpperCase() + char.race.slice(1)}
+              ${char.class.charAt(0).toUpperCase() + char.class.slice(1)}`
+            }
+          </Text>
           <Button
             size="sm"
-            colorScheme="red"
+            variant="ghost"
+            width="100%"
+            color="black"
             mt={2}
             onClick={(e) => {
               e.stopPropagation();
@@ -78,7 +91,7 @@ const Characters: FC<CharsProps> = ({
           borderColor="gray.300"
           p={4}
           borderRadius="md"
-          width="150px"
+          width="200px"
           textAlign="center"
           bg="gray.600"
           color="gray.400"

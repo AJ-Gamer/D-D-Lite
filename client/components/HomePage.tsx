@@ -2,11 +2,14 @@ import React, { FC, useEffect, useState } from 'react';
 import {
   Box,
   Divider,
+  HStack,
   Image,
   Text,
   useDisclosure,
 } from '@chakra-ui/react';
 import axios from 'axios';
+import { GiStarFormation, GiLeatherBoot } from 'react-icons/gi';
+import { FaFistRaised, FaHeart } from 'react-icons/fa';
 import CharCards from './CharCards';
 import RedirectModal from './homePageComps/RedirectModal';
 
@@ -122,6 +125,7 @@ const HomePage: FC<HomePageProps> = ({ profile }) => {
       {charObj && (
         <Box
           mt={8}
+          p={4}
           display="flex"
           flexDirection="row"
           justifyContent="center"
@@ -140,25 +144,37 @@ const HomePage: FC<HomePageProps> = ({ profile }) => {
               Character Stats:
             </Text>
             <Divider my={2} borderColor="gray.600" />
-            <Box ml={4} mt={4}>
-              <Text fontSize="lg">Strength:</Text>
-              <Text fontSize="lg" fontWeight="bold">{charObj.strength}</Text>
-            </Box>
+            <HStack>
+              <Box ml={4} mt={4}><FaFistRaised size={36} /></Box>
+              <Box ml={4} mt={4}>
+                <Text fontSize="lg">Strength:</Text>
+                <Text fontSize="lg" fontWeight="bold">{charObj.strength}</Text>
+              </Box>
+            </HStack>
             <Divider my={2} borderColor="gray.600" />
-            <Box ml={4} mt={4}>
-              <Text fontSize="lg">Dexterity:</Text>
-              <Text fontSize="lg" fontWeight="bold">{charObj.dexterity}</Text>
-            </Box>
+            <HStack>
+              <Box ml={4} mt={4}><GiLeatherBoot size={36} /></Box>
+              <Box ml={4} mt={4}>
+                <Text fontSize="lg">Dexterity:</Text>
+                <Text fontSize="lg" fontWeight="bold">{charObj.dexterity}</Text>
+              </Box>
+            </HStack>
             <Divider my={2} borderColor="gray.600" />
-            <Box ml={4} mt={4}>
-              <Text fontSize="lg">Constitution:</Text>
-              <Text fontSize="lg" fontWeight="bold">{charObj.constitution}</Text>
-            </Box>
+            <HStack>
+              <Box ml={4} mt={4}><FaHeart size={36} /></Box>
+              <Box ml={4} mt={4}>
+                <Text fontSize="lg">Constitution:</Text>
+                <Text fontSize="lg" fontWeight="bold">{charObj.constitution}</Text>
+              </Box>
+            </HStack>
             <Divider my={2} borderColor="gray.600" />
-            <Box ml={4} mt={4} mb={4}>
-              <Text fontSize="lg">Charisma:</Text>
-              <Text fontSize="lg" fontWeight="bold">{charObj.charisma}</Text>
-            </Box>
+            <HStack>
+              <Box ml={4} my={4}><GiStarFormation size={36} /></Box>
+              <Box ml={4} my={4}>
+                <Text fontSize="lg">Charisma:</Text>
+                <Text fontSize="lg" fontWeight="bold">{charObj.charisma}</Text>
+              </Box>
+            </HStack>
           </Box>
           {/* Character Image */}
           <Box
@@ -173,8 +189,21 @@ const HomePage: FC<HomePageProps> = ({ profile }) => {
             overflow="hidden"
             boxShadow="xl"
           >
-            <Text fontSize="lg" fontWeight="bold"> Current Character:</Text>
+            <Text
+              fontSize="lg"
+              fontWeight="bold"
+              ml={4}
+              mt={4}
+              textAlign="left"
+            >
+              Current Character:
+            </Text>
             <Divider my={2} borderColor="gray.600" />
+            <Text fontSize="xl" fontWeight="bold">
+              {
+                `${charObj.name.charAt(0).toUpperCase() + charObj.name.slice(1)}`
+              }
+            </Text>
             <Image
               src={charObj?.image}
               alt={charObj?.name}
@@ -183,7 +212,6 @@ const HomePage: FC<HomePageProps> = ({ profile }) => {
               borderRadius="lg"
               mx={8}
             />
-            <Text fontSize="xl" fontWeight="bold">{charObj?.name}</Text>
           </Box>
 
           {/* Equipment Box */}

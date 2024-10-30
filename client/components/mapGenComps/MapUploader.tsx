@@ -86,10 +86,10 @@ const MapUploader: FC<MapUploaderProps> = ({ imgDataUrl, userId }) => {
       <Box mt={4} w="full">
         <Text fontSize="lg" fontWeight="bold" color="#E6AD28">Your Saved Maps</Text>
         {maps.length > 0 ? (
-          <HStack spacing={2} mt={2} align="start">
+          <HStack spacing={2} mt={2} wrap="wrap" align="start">
             {maps.map((map) => (
-              <Box key={map.key} p={2} borderWidth={1} borderRadius="md" w="33%" bg="#E6AD28">
-                <Text>
+              <Box key={map.key} p={2} borderWidth={1} borderRadius="md" w="calc(33.33% - 16px)" bg="#E6AD28" color="black">
+                <Text align="center">
                   <a href={map.url} target="_blank" rel="noopener noreferrer">{map.key}</a>
                 </Text>
                 <img src={map.url} alt={map.key} style={{ width: '100%', height: 'auto', borderRadius: '4px' }} />

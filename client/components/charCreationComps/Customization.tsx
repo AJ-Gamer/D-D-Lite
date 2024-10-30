@@ -45,11 +45,15 @@ const Customization: FC<CustomizationProps> = ({
       <Box>
         <Text fontSize="lg" mb={2} as="b">Name Your Adventurer</Text>
         <Input
+          isInvalid={!charName}
           placeholder="Name..."
           value={charName}
           onChange={(e) => setCharName(e.target.value)}
           sx={{ '::placeholder': { color: 'gray.700' } }}
         />
+        {!charName && (
+          <Text color="red.500" fontSize="sm">Required</Text>
+        )}
       </Box>
       <Box>
         <Text fontSize="lg" mb={2} as="b">
@@ -59,12 +63,16 @@ const Customization: FC<CustomizationProps> = ({
           </Tooltip>
         </Text>
         <Textarea
+          isInvalid={!description}
           placeholder="Details (hair, eyes, etc)..."
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           sx={{ '::placeholder': { color: 'gray.700' } }}
           size="lg"
         />
+        {!description && (
+          <Text color="red.500" fontSize="sm">Required</Text>
+        )}
       </Box>
       <Box>
         <Text fontSize="lg" mb={2} as="b">Select Race</Text>

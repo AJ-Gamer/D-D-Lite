@@ -150,7 +150,7 @@ const Encounters: FC<EncountersProps> = ({ profile }) => {
         <Text fontSize="3xl">
           {ending === 'good' ? 'You achieved the good ending!' : 'You met an unfortunate end.'}
         </Text>
-        <Button mt={4} onClick={restartAdventure} bg="#F49004" _hover={{ bg: '#FDCE5C' }}>
+        <Button mt={4} onClick={restartAdventure} bg="yellow.400" _hover={{ bg: 'orange.300' }}>
           Restart the Adventure
         </Button>
       </Box>
@@ -166,8 +166,8 @@ const Encounters: FC<EncountersProps> = ({ profile }) => {
             <Button
               key={char.id}
               onClick={() => setSelectedCharacter(char)}
-              bg="#F49004"
-              _hover={{ bg: '#FDCE5C' }}
+              bg="yellow.400"
+              _hover={{ bg: 'orange.300' }}
             >
               {char.name} ({char.class})
             </Button>
@@ -181,7 +181,7 @@ const Encounters: FC<EncountersProps> = ({ profile }) => {
     return (
       <Box textAlign="center" mt={16}>
         <Text fontSize="2xl">Hello {selectedCharacter.name}, are you ready to start your campaign?</Text>
-        <Button mt={4} onClick={handleStartCampaign} bg="#F49004" _hover={{ bg: '#FDCE5C' }}>
+        <Button mt={4} onClick={handleStartCampaign} bg="yellow.400" _hover={{ bg: 'orange.300' }}>
           Start your campaign
         </Button>
       </Box>

@@ -5,10 +5,11 @@ import {
   Box,
   Button,
   Center,
-  Heading,
+  Image,
   Text,
   VStack,
 } from '@chakra-ui/react';
+import logo from '../assets/legendspireLogo.png';
 
 interface AuthCheck {
   isAuthenticated: boolean
@@ -34,23 +35,34 @@ const Login: FC = () => {
   return (
     <Center minHeight="100vh">
       <Box
-        p={8}
+        // p={8}
         maxWidth="400px"
         borderWidth="1px"
         borderRadius="lg"
-        boxShadow="lg"
+        boxShadow="xl"
         bg="yellow.400"
       >
         <VStack spacing={6}>
-          <Heading as="h1" size="xl" color="gray.700" textAlign="center">
-            Legendspire
-          </Heading>
-          <Text color="gray.700">Your adventure begins here</Text>
+          <Image
+            src={logo}
+            alt="Legendspire Logo"
+            borderWidth="1px"
+            borderRadius="lg"
+            // boxSize="300px"
+            width="100%"
+            objectFit="cover"
+          />
+          <Text color="gray.800">Your adventure begins here</Text>
           <Button
-            colorScheme="blue"
+            color="black"
+            variant="ghost"
             size="lg"
+            fontWeight="bold"
             onClick={handleGoogleLogin}
-            width="full"
+            _hover={{
+              bg: 'yellow.500',
+            }}
+            mb={2}
           >
             Login with Google
           </Button>

@@ -71,7 +71,7 @@ inventory.get('/:class', async (req: Request, res: Response) => {
         await prisma.equipment.create({
           data: {
             name: equipmentItem.name,
-            description: item.description || null,
+            description: item.desc || null,
             inventoryId: inventory.id,
             owned: item.quantity || 1,
           },

@@ -13,7 +13,7 @@ const Inventory: FC<{ userId?: number }> = ({ userId }) => {
   const [equipment, setEquipment] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedItem, setSelectedItem] = useState<any | null>(null); // New state for selected item
+  const [selectedItem, setSelectedItem] = useState<any | null>(null);
 
   useEffect(() => {
     const deleteSoldEquipment = async () => {
@@ -35,13 +35,7 @@ const Inventory: FC<{ userId?: number }> = ({ userId }) => {
         const validClasses = ['sorcerer', 'rogue', 'barbarian'];
 
         const equipmentPromises = characters
-          .filter((character) => {
-            if (!validClasses.includes(character.class)) {
-              console.warn(`Skipping invalid class: ${character.class}`);
-              return false;
-            }
-            return true;
-          })
+          .filter((character) => validClasses.includes(character.class))
           .map((character) =>
             axios.get(`/inventory/${character.class}`, { params: { userId } })
           );
@@ -77,6 +71,11 @@ const Inventory: FC<{ userId?: number }> = ({ userId }) => {
     initializeInventory();
   }, [userId]);
 
+  const handleCardClick = (item: any) => {
+    // Toggle selection: deselect if the same item is clicked again
+    setSelectedItem((prev: { name: any; }) => (prev?.name === item.name ? null : item));
+  };
+
   if (loading) return <Spinner alignContent="center" />;
   if (error) return <Text>{error}</Text>;
 
@@ -86,11 +85,11 @@ const Inventory: FC<{ userId?: number }> = ({ userId }) => {
         Equipment:
       </Text>
       {equipment.length > 0 ? (
-        <SimpleGrid columns={5} spacing={5} mt={4}>
+        <SimpleGrid columns={{ base: 2, md: 3, lg: 5 }} spacing={5} mt={4}>
           {equipment.map((item, index) => (
             <Card
               key={index}
-              onClick={() => setSelectedItem(item)}
+              onClick={() => handleCardClick(item)}
               p={5}
               bg="yellow.400"
               color="black"
@@ -98,6 +97,7 @@ const Inventory: FC<{ userId?: number }> = ({ userId }) => {
               height="100px"
               _hover={{ transform: 'scale(1.05)', transition: '0.3s' }}
               position="relative"
+              shadow={selectedItem?.name === item.name ? 'xl' : 'md'} // Highlight selected card
             >
               <Flex justify="space-between" align="center">
                 <Text fontWeight="bold">{item.name}</Text>
@@ -123,9 +123,8 @@ const Inventory: FC<{ userId?: number }> = ({ userId }) => {
         <Text>No equipment found.</Text>
       )}
 
-      {/* Display selected item description below the grid */}
       {selectedItem && (
-        <Box mt={6} p={4} bg="yellow.400" borderRadius="md">
+        <Box mt={6} p={4} bg="yellow.300" borderRadius="md" shadow="md">
           <Text fontSize="lg" fontWeight="bold">
             {selectedItem.name}
           </Text>

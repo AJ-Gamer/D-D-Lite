@@ -4,7 +4,7 @@ import {
   Text,
   IconButton,
 } from '@chakra-ui/react';
-import { LiaMicrophoneSolid, LiaMicrophoneSlashSolid } from 'react-icons/lia';
+import { HiSpeakerWave, HiSpeakerXMark } from "react-icons/hi2";
 
 interface TTSProps {
   prompt: string;
@@ -20,7 +20,7 @@ const TTS: FC<TTSProps> = ({ prompt, isTTSActive, toggleTextToSpeech }) => (
     <IconButton
       aria-label="Text to speech"
       onClick={toggleTextToSpeech}
-      icon={isTTSActive ? <LiaMicrophoneSlashSolid /> : <LiaMicrophoneSolid />}
+      icon={isTTSActive ? <HiSpeakerWave /> : <HiSpeakerXMark />}
       variant="ghost"
     >
       {isTTSActive ? 'Stop Speaking' : 'Start Speaking'}

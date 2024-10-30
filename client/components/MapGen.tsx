@@ -163,7 +163,7 @@ const MapGen: FC<MapGenProps> = ({ userId }) => {
   };
 
   return (
-    <Box justifyContent="center" p={5}>
+    <Box justifyContent="center" p={5} maxWidth="1000px" mx="auto">
       <HStack spacing={4} justify="center" mt={16} mb={4}>
         <Button onClick={() => genNewMap(400)}>
           Generate a Small Map

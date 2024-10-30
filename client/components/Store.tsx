@@ -22,6 +22,7 @@ const Store: FC<StoreProps> = ({ userId }) => {
   const [equipment, setEquipment] = useState<Equipment[]>([]);
   const [filteredEquipment, setFilteredEquipment] = useState<Equipment[]>([]);
   const [magicItems, setMagicItems] = useState<Equipment[]>([]);
+  const [filteredMagicItems, setFilteredMagicItems] = useState<Equipment[]>([]);
   const [selectedIndex, setSelectedIndex] = useState<string | null>(null);
   const [selectedEquipmentDetails, setSelectedEquipmentDetails] = useState<EquipmentDetail | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>('');
@@ -36,7 +37,6 @@ const Store: FC<StoreProps> = ({ userId }) => {
   const fetchGold = async () => {
     try {
       const response = await axios.get('/store/gold', { params: { userId } });
-      console.log('User Gold:', response.data.gold);
       setGold(response.data.gold);
     } catch (err) {
       setError('Failed to load gold amount');
@@ -64,9 +64,9 @@ const Store: FC<StoreProps> = ({ userId }) => {
 
     const fetchMagicItems = async () => {
       try {
-        const response = await axios.get('/store/magic-items');
-        console.log('Magical Items:', response.data.results);
-        setMagicItems(response.data.results);
+        const response = await axios.get('/store/magic-items', { params: { userId } });
+        setMagicItems(response.data);
+        setFilteredMagicItems(response.data);
       } catch (error) {
         console.error('Error fetching magic items:', error);
       }
@@ -75,10 +75,9 @@ const Store: FC<StoreProps> = ({ userId }) => {
     fetchEquipment();
     fetchMagicItems();
     fetchGold();
-  }, [userId]);
+  }, [userId, currentPage]);
 
   const handleBuy = async (equipmentName: string) => {
-    console.log('Equipment Name:', equipmentName);
     if (gold !== null && gold < 50) {
       toast({
         title: 'Insufficient Gold',
@@ -87,6 +86,7 @@ const Store: FC<StoreProps> = ({ userId }) => {
         duration: 3000,
         isClosable: true,
       });
+      return;
     }
 
     try {
@@ -98,10 +98,10 @@ const Store: FC<StoreProps> = ({ userId }) => {
           duration: 3000,
           isClosable: true,
         });
+        return;
       }
 
       const response = await axios.post(`/store/buy`, { userId, equipmentName });
-
       const updatedEquipment = equipment.map(item =>
         item.name === equipmentName ? { ...item, owned: item.owned + 1 } : item
       );
@@ -126,8 +126,8 @@ const Store: FC<StoreProps> = ({ userId }) => {
 
       const updatedEquipment = equipment.map(item =>
         item.name === equipmentName && item.owned > 0
-        ? { ...item, owned: item.owned - 1 }
-        : item
+          ? { ...item, owned: item.owned - 1 }
+          : item
       );
 
       setEquipment(updatedEquipment);

@@ -20,15 +20,16 @@ const OptionsButtons: FC<OptionsButtonsProps> = ({ options, onOptionClick }) => 
   <SimpleGrid columns={3} mt={64} spacing={4}>
     {options.map((option) => (
       <Button
-        key={option.id}
-        onClick={() => onOptionClick(option.nextNodeId, option.result)}
-        bg="yellow.400"
-        _hover={{ bg: 'orange.300' }}
-        whiteSpace="normal"
-        wordBreak="break-word"
-      >
-        {option.text}
-      </Button>
+      key={option.id}
+      onClick={() => onOptionClick(option.nextNodeId, option.result)}
+      bg="yellow.400"
+      _hover={{ bg: 'orange.300' }}
+      whiteSpace="normal"
+      wordBreak="break-word"
+      aria-label={`Option ${option.id}`}
+    >
+      {option.text}
+    </Button>
     ))}
   </SimpleGrid>
 );

@@ -188,8 +188,9 @@ const Store: FC<StoreProps> = ({ userId }) => {
           color="black"
           cursor="pointer"
           height={selectedIndex === item.index ? 'auto' : '150px'}
-          _hover={{ transform: selectedIndex === item.index ? 'none' : 'scale(1.05)', transition: '0.3s' }}
+          _hover={{ transform: selectedIndex === item.index ? 'none' : 'scale(1.05)', transition: '0.3s', boxShadow: 'lg' }}
           position="relative"
+          boxShadow="md"
         >
           <Flex justify="space-between" align="center">
             <Text fontWeight="bold">{item.name}</Text>
@@ -298,8 +299,8 @@ const Store: FC<StoreProps> = ({ userId }) => {
             onClick={() => setCurrentPage(page)}
             size="xs"
             mx={1}
-            bg={page === currentPage ? "#F49004" : "#E6AD28"}
-            _hover={{ bg: "#F49004" }}
+            bg={page === currentPage ? "orange.300" : "yellow.400"}
+            _hover={{ bg: "orange.300" }}
             disabled={page === currentPage}
             border="none"
           >

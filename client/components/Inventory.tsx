@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useState } from 'react';
-import { Box, Text, Spinner, SimpleGrid, Card, CardHeader, CardBody } from '@chakra-ui/react';
+import { Box, Text, Spinner, SimpleGrid, Card, Flex, Button } from '@chakra-ui/react';
 import axios from 'axios';
 
 interface Character {
@@ -13,6 +13,7 @@ const Inventory: FC<{ userId?: number }> = ({ userId }) => {
   const [equipment, setEquipment] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedItem, setSelectedItem] = useState<any | null>(null); // New state for selected item
 
   useEffect(() => {
     const deleteSoldEquipment = async () => {
@@ -28,9 +29,9 @@ const Inventory: FC<{ userId?: number }> = ({ userId }) => {
       try {
         const response = await axios.get('/character/all', { params: { userId } });
         const characters: Character[] = response.data.characters;
-    
+
         console.log('Characters:', characters);
-    
+
         const validClasses = ['sorcerer', 'rogue', 'barbarian'];
 
         const equipmentPromises = characters
@@ -44,14 +45,14 @@ const Inventory: FC<{ userId?: number }> = ({ userId }) => {
           .map((character) =>
             axios.get(`/inventory/${character.class}`, { params: { userId } })
           );
-    
+
         await Promise.all(equipmentPromises);
         console.log('Starting equipment loaded for all characters.');
       } catch (err) {
         console.error('Error loading starting equipment:', err);
         setError('Failed to load starting equipment');
       }
-    };    
+    };
 
     const fetchAllEquipment = async () => {
       try {
@@ -81,23 +82,55 @@ const Inventory: FC<{ userId?: number }> = ({ userId }) => {
 
   return (
     <Box p={4} mt={12}>
-      <Text fontSize="2xl" fontWeight="bold">Equipment:</Text>
+      <Text fontSize="2xl" fontWeight="bold" align="center">
+        Equipment:
+      </Text>
       {equipment.length > 0 ? (
-        <SimpleGrid columns={{ sm: 1, md: 2, lg: 3 }} spacing={4} mt={4}>
+        <SimpleGrid columns={5} spacing={5} mt={4}>
           {equipment.map((item, index) => (
-            <Card key={index} variant="outline" bg="#F49004">
-              <CardHeader>
+            <Card
+              key={index}
+              onClick={() => setSelectedItem(item)}
+              p={5}
+              bg="yellow.400"
+              color="black"
+              cursor="pointer"
+              height="100px"
+              _hover={{ transform: 'scale(1.05)', transition: '0.3s' }}
+              position="relative"
+            >
+              <Flex justify="space-between" align="center">
                 <Text fontWeight="bold">{item.name}</Text>
-              </CardHeader>
-              <CardBody>
-                <Text fontWeight="bold" mt={2}>Quantity: {item.owned}</Text>
-                <Text>{item.description || 'No description available'}</Text>
-              </CardBody>
+                <Text fontWeight="bold">Owned: {item.owned}</Text>
+              </Flex>
+
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  console.log(`Equipped ${item.name}`);
+                }}
+                colorScheme="blue"
+                size="sm"
+                width="fit-content"
+                mt={2}
+              >
+                Equip
+              </Button>
             </Card>
           ))}
         </SimpleGrid>
       ) : (
         <Text>No equipment found.</Text>
+      )}
+
+      {/* Display selected item description below the grid */}
+      {selectedItem && (
+        <Box mt={6} p={4} bg="yellow.400" borderRadius="md">
+          <Text fontSize="lg" fontWeight="bold">
+            {selectedItem.name}
+          </Text>
+          <Text mt={2}>{selectedItem.description || 'No description available.'}</Text>
+        </Box>
       )}
     </Box>
   );

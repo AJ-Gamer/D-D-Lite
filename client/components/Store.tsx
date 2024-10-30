@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useState } from 'react';
-import { Box, SimpleGrid, Card, Text, Input, Button, Flex, Tabs, TabList, Tab, TabPanels, TabPanel } from '@chakra-ui/react';
+import { Box, SimpleGrid, Card, Text, Input, Button, Flex, Tabs, TabList, Tab, TabPanels, TabPanel, useToast} from '@chakra-ui/react';
 import axios from 'axios';
 
 interface Equipment {
@@ -31,6 +31,8 @@ const Store: FC<StoreProps> = ({ userId }) => {
   const [activeTab, setActiveTab] = useState<string>('equipment');
   const itemsPerPage = 20;
 
+  const toast = useToast();
+
   const fetchGold = async () => {
     try {
       const response = await axios.get('/store/gold', { params: { userId } });
@@ -39,6 +41,13 @@ const Store: FC<StoreProps> = ({ userId }) => {
     } catch (err) {
       setError('Failed to load gold amount');
       console.error(err);
+      toast({
+        title: 'Error',
+        description: 'Failed to load your gold amount.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
     }
   };
 
@@ -71,14 +80,24 @@ const Store: FC<StoreProps> = ({ userId }) => {
   const handleBuy = async (equipmentName: string) => {
     console.log('Equipment Name:', equipmentName);
     if (gold !== null && gold < 50) {
-      alert('Not enough gold to buy this item.');
-      return;
+      toast({
+        title: 'Insufficient Gold',
+        description: 'Not enough gold to buy this item.',
+        status: 'warning',
+        duration: 3000,
+        isClosable: true,
+      });
     }
 
     try {
       if (!userId) {
-        alert('User ID is required.');
-        return;
+        toast({
+          title: 'Error',
+          description: 'User ID is required to make a purchase.',
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+        });
       }
 
       const response = await axios.post(`/store/buy`, { userId, equipmentName });
@@ -89,7 +108,13 @@ const Store: FC<StoreProps> = ({ userId }) => {
 
       setEquipment(updatedEquipment);
       await fetchGold();
-      alert(response.data.message);
+      toast({
+        title: 'Purchase Successful',
+        description: response.data.message,
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
     } catch (error) {
       console.error('Error buying equipment:', error);
     }
@@ -107,9 +132,22 @@ const Store: FC<StoreProps> = ({ userId }) => {
 
       setEquipment(updatedEquipment);
       await fetchGold();
-      alert(response.data.message);
+      toast({
+        title: 'Sell Successful',
+        description: response.data.message,
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
     } catch (error) {
       console.error('Error selling equipment:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to sell the item.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
     }
   };
 

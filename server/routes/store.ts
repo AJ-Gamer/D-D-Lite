@@ -41,15 +41,40 @@ storeRouter.get('/equipment', async (req: Request, res: Response) => {
   }
 });
 
-storeRouter.get('/store/magic-items', async (req: Request, res: Response) => {
-  console.log('MI Request:', req);
+storeRouter.get('/magic-items', async (req: Request, res: Response) => {
+  const userId = parseInt(req.query.userId as string, 10);
+
+  if (!userId) {
+    return res.status(400).json({ message: 'User ID is required' });
+  }
+
   try {
     const response = await axios.get('https://www.dnd5eapi.co/api/magic-items/');
-    console.log('Magical Equipment:', response.data.results);
-    res.json(response.data.results);
+    const allEquipment = response.data.results;
+
+    const inventory = await prisma.inventory.findFirst({
+      where: { userId: userId },
+      include: { equipment: true },
+    });
+
+    const ownedItems: { [key: string]: number } = {};
+    if (inventory) {
+      inventory.equipment.forEach(item => {
+        ownedItems[item.name] = item.owned;
+      });
+    }
+
+    const equipmentWithOwnership = allEquipment.map((item: any) => {
+      return {
+        ...item,
+        owned: ownedItems[item.name] || 0,
+      };
+    });
+
+    res.json(equipmentWithOwnership);
   } catch (error) {
-    console.error('Error fetching magic items:', error);
-    res.status(500).send('Error fetching magic items');
+    console.error('Error fetching equipment data:', error);
+    res.status(500).json({ message: 'Error fetching magical equipment data' });
   }
 });
 

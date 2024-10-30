@@ -67,24 +67,13 @@ const Encounters: FC<EncountersProps> = ({ profile }) => {
   const [ending, setEnding] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [startCampaign, setStartCampaign] = useState<boolean>(false);
-  const [isTTSActive, setIsTTSActive] = useState<boolean>(false);
+
+  const replacePlaceholders = (prompt: string, character: Character) => 
+    prompt.replace('{name}', character.name).replace('{class}', character.class);
 
   const speakText = (text: string) => {
-    if (isTTSActive && selectedCharacter) {
-      const utterance = new SpeechSynthesisUtterance(text);
-      window.speechSynthesis.speak(utterance);
-    }
-  };
-
-  const replacePlaceholders = (prompt: string, character: Character) => prompt
-    .replace('{name}', character.name)
-    .replace('{class}', character.class);
-
-  const toggleTextToSpeech = () => {
-    setIsTTSActive(!isTTSActive);
-    if (!isTTSActive && currentNode && selectedCharacter) {
-      speakText(replacePlaceholders(currentNode.prompt, selectedCharacter));
-    }
+    const utterance = new SpeechSynthesisUtterance(text);
+    window.speechSynthesis.speak(utterance);
   };
 
   useEffect(() => {
@@ -111,7 +100,7 @@ const Encounters: FC<EncountersProps> = ({ profile }) => {
     try {
       const { data }: { data: StoryNodeRes } = await axios.get(`/encounters/story/${id}`);
       setCurrentNode(data);
-      speakText(data.prompt);
+      speakText(data.prompt); // Speak the prompt when fetched
     } catch (error) {
       console.error('Error fetching story node:', error);
     } finally {
@@ -150,7 +139,7 @@ const Encounters: FC<EncountersProps> = ({ profile }) => {
         <Text fontSize="3xl">
           {ending === 'good' ? 'You achieved the good ending!' : 'You met an unfortunate end.'}
         </Text>
-        <Button mt={4} onClick={restartAdventure} bg="#F49004" _hover={{ bg: '#FDCE5C' }}>
+        <Button mt={4} onClick={restartAdventure} bg="yellow.400" _hover={{ bg: 'orange.300' }}>
           Restart the Adventure
         </Button>
       </Box>
@@ -166,8 +155,8 @@ const Encounters: FC<EncountersProps> = ({ profile }) => {
             <Button
               key={char.id}
               onClick={() => setSelectedCharacter(char)}
-              bg="#F49004"
-              _hover={{ bg: '#FDCE5C' }}
+              bg="yellow.400"
+              _hover={{ bg: 'orange.300' }}
             >
               {char.name} ({char.class})
             </Button>
@@ -181,7 +170,7 @@ const Encounters: FC<EncountersProps> = ({ profile }) => {
     return (
       <Box textAlign="center" mt={16}>
         <Text fontSize="2xl">Hello {selectedCharacter.name}, are you ready to start your campaign?</Text>
-        <Button mt={4} onClick={handleStartCampaign} bg="#F49004" _hover={{ bg: '#FDCE5C' }}>
+        <Button mt={4} onClick={handleStartCampaign} bg="yellow.400" _hover={{ bg: 'orange.300' }}>
           Start your campaign
         </Button>
       </Box>
@@ -204,8 +193,6 @@ const Encounters: FC<EncountersProps> = ({ profile }) => {
         <Box display="flex" flexDirection="column" alignItems="center" mt={4} flex={1}>
           <TTS
             prompt={replacePlaceholders(currentNode.prompt, selectedCharacter)}
-            isTTSActive={isTTSActive}
-            toggleTextToSpeech={toggleTextToSpeech}
           />
           <OptionsButtons options={currentNode.options} onOptionClick={handleOptionClick} />
         </Box>

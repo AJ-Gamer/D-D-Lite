@@ -6,10 +6,47 @@ const character = Router();
 
 const allowedClasses = ['barbarian', 'rogue', 'sorcerer'];
 type CharacterClass = typeof allowedClasses[number];
+
 const startingWeapons: Record<CharacterClass, string> = {
-  barbarian: 'warhammer', // starting weapon equipment
+  barbarian: 'warhammer',
   rogue: 'crossbow-light',
   sorcerer: 'quarterstaff',
+};
+
+// Define valid stat keys
+type StatKey = 'constitution' | 'strength' | 'dexterity' | 'charisma';
+
+interface CharacterStats {
+  constitution: number;
+  strength: number;
+  dexterity: number;
+  charisma: number;
+}
+
+// Race bonuses
+const raceBonuses: Record<string, Partial<CharacterStats>> = {
+  human: { charisma: 2 },
+  elf: { dexterity: 2 },
+  dragonborn: { constitution: 2 },
+};
+
+// Class bonuses
+const classBonuses: Record<CharacterClass, Partial<CharacterStats>> = {
+  barbarian: { strength: 3, constitution: 2 },
+  rogue: { dexterity: 2, charisma: 3 },
+  sorcerer: { constitution: 3, charisma: 2 },
+};
+
+// Utility function to apply stat bonuses
+const applyBonus = (
+  currentStats: CharacterStats,
+  bonus: Partial<CharacterStats>
+): CharacterStats => {
+  return Object.entries(bonus).reduce((acc, [key, value]) => {
+    const statKey = key as StatKey; // Ensure TypeScript knows this is a valid key
+    acc[statKey] += value ?? 0;
+    return acc;
+  }, { ...currentStats });
 };
 
 interface CreateCharReq {
@@ -58,7 +95,7 @@ character.post('/create', async (
     image,
     userId,
   } = req.body;
-  const startingWeaponName = startingWeapons[characterClass];
+  const startingWeaponName = startingWeapons[characterClass as CharacterClass];
 
   try {
     const characterCount = await prisma.character.count({
@@ -69,20 +106,35 @@ character.post('/create', async (
       return res.status(403).json({ error: 'Character Limit Reached' });
     }
 
+    // Initialize base stats (all 10)
+    let stats: CharacterStats = {
+      constitution: 10,
+      strength: 10,
+      dexterity: 10,
+      charisma: 10,
+    };
+
+    // Apply race bonus
+    const raceBonus = raceBonuses[race.toLowerCase()];
+    if (raceBonus) stats = applyBonus(stats, raceBonus);
+
+    // Apply class bonus
+    const classBonus = classBonuses[characterClass as CharacterClass];
+    stats = applyBonus(stats, classBonus);
+
+    // Create character with calculated stats
     const newChar: Character = await prisma.character.create({
       data: {
         name,
         description,
         class: characterClass,
         race,
-        constitution: 10,
-        strength: 10,
-        dexterity: 10,
-        charisma: 10,
+        constitution: stats.constitution,
+        strength: stats.strength,
+        dexterity: stats.dexterity,
+        charisma: stats.charisma,
         image,
-        user: {
-          connect: { id: userId },
-        },
+        user: { connect: { id: userId } },
       },
     });
 
@@ -98,6 +150,7 @@ character.post('/create', async (
     });
     return res.status(201).json({ newChar, startingWeapon });
   } catch (error) {
+    console.error('Error creating character:', error);
     return res.status(500).json({ error: 'Failed to create character' });
   }
 });

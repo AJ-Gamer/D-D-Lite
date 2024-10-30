@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useState } from 'react';
-import { Box, SimpleGrid, Card, Text, Input, Button, Flex, Tabs, TabList, Tab, TabPanels, TabPanel } from '@chakra-ui/react';
+import { Box, SimpleGrid, Card, Text, Input, Button, Flex, Tabs, TabList, Tab, TabPanels, TabPanel, useToast} from '@chakra-ui/react';
 import axios from 'axios';
 
 interface Equipment {
@@ -22,6 +22,7 @@ const Store: FC<StoreProps> = ({ userId }) => {
   const [equipment, setEquipment] = useState<Equipment[]>([]);
   const [filteredEquipment, setFilteredEquipment] = useState<Equipment[]>([]);
   const [magicItems, setMagicItems] = useState<Equipment[]>([]);
+  const [filteredMagicItems, setFilteredMagicItems] = useState<Equipment[]>([]);
   const [selectedIndex, setSelectedIndex] = useState<string | null>(null);
   const [selectedEquipmentDetails, setSelectedEquipmentDetails] = useState<EquipmentDetail | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>('');
@@ -31,14 +32,22 @@ const Store: FC<StoreProps> = ({ userId }) => {
   const [activeTab, setActiveTab] = useState<string>('equipment');
   const itemsPerPage = 20;
 
+  const toast = useToast();
+
   const fetchGold = async () => {
     try {
       const response = await axios.get('/store/gold', { params: { userId } });
-      console.log('User Gold:', response.data.gold);
       setGold(response.data.gold);
     } catch (err) {
       setError('Failed to load gold amount');
       console.error(err);
+      toast({
+        title: 'Error',
+        description: 'Failed to load your gold amount.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
     }
   };
 
@@ -55,9 +64,9 @@ const Store: FC<StoreProps> = ({ userId }) => {
 
     const fetchMagicItems = async () => {
       try {
-        const response = await axios.get('/store/magic-items');
-        console.log('Magical Items:', response.data.results);
-        setMagicItems(response.data.results);
+        const response = await axios.get('/store/magic-items', { params: { userId } });
+        setMagicItems(response.data);
+        setFilteredMagicItems(response.data);
       } catch (error) {
         console.error('Error fetching magic items:', error);
       }
@@ -66,30 +75,46 @@ const Store: FC<StoreProps> = ({ userId }) => {
     fetchEquipment();
     fetchMagicItems();
     fetchGold();
-  }, [userId]);
+  }, [userId, currentPage]);
 
   const handleBuy = async (equipmentName: string) => {
-    console.log('Equipment Name:', equipmentName);
     if (gold !== null && gold < 50) {
-      alert('Not enough gold to buy this item.');
+      toast({
+        title: 'Insufficient Gold',
+        description: 'Not enough gold to buy this item.',
+        status: 'warning',
+        duration: 3000,
+        isClosable: true,
+      });
       return;
     }
 
     try {
       if (!userId) {
-        alert('User ID is required.');
+        toast({
+          title: 'Error',
+          description: 'User ID is required to make a purchase.',
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+        });
         return;
       }
 
       const response = await axios.post(`/store/buy`, { userId, equipmentName });
-
       const updatedEquipment = equipment.map(item =>
         item.name === equipmentName ? { ...item, owned: item.owned + 1 } : item
       );
 
       setEquipment(updatedEquipment);
       await fetchGold();
-      alert(response.data.message);
+      toast({
+        title: 'Purchase Successful',
+        description: response.data.message,
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
     } catch (error) {
       console.error('Error buying equipment:', error);
     }
@@ -101,15 +126,28 @@ const Store: FC<StoreProps> = ({ userId }) => {
 
       const updatedEquipment = equipment.map(item =>
         item.name === equipmentName && item.owned > 0
-        ? { ...item, owned: item.owned - 1 }
-        : item
+          ? { ...item, owned: item.owned - 1 }
+          : item
       );
 
       setEquipment(updatedEquipment);
       await fetchGold();
-      alert(response.data.message);
+      toast({
+        title: 'Sell Successful',
+        description: response.data.message,
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
     } catch (error) {
       console.error('Error selling equipment:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to sell the item.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
     }
   };
 
@@ -150,8 +188,9 @@ const Store: FC<StoreProps> = ({ userId }) => {
           color="black"
           cursor="pointer"
           height={selectedIndex === item.index ? 'auto' : '150px'}
-          _hover={{ transform: selectedIndex === item.index ? 'none' : 'scale(1.05)', transition: '0.3s' }}
+          _hover={{ transform: selectedIndex === item.index ? 'none' : 'scale(1.05)', transition: '0.3s', boxShadow: 'lg' }}
           position="relative"
+          boxShadow="md"
         >
           <Flex justify="space-between" align="center">
             <Text fontWeight="bold">{item.name}</Text>
@@ -234,8 +273,8 @@ const Store: FC<StoreProps> = ({ userId }) => {
           onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
           disabled={currentPage === 1}
           mr={2}
-          bg="#E6AD28"
-          _hover={{ bg: "#E6AD28" }}
+          bg="orange.300"
+          _hover={{ bg: "orange.300" }}
         >
           Previous
         </Button>
@@ -246,8 +285,8 @@ const Store: FC<StoreProps> = ({ userId }) => {
           onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
           disabled={currentPage === totalPages}
           ml={2}
-          bg="#E6AD28"
-          _hover={{ bg: "#E6AD28" }}
+          bg="orange.300"
+          _hover={{ bg: "orange.300" }}
         >
           Next
         </Button>
@@ -260,8 +299,8 @@ const Store: FC<StoreProps> = ({ userId }) => {
             onClick={() => setCurrentPage(page)}
             size="xs"
             mx={1}
-            bg={page === currentPage ? "#F49004" : "#E6AD28"}
-            _hover={{ bg: "#F49004" }}
+            bg={page === currentPage ? "orange.300" : "yellow.400"}
+            _hover={{ bg: "orange.300" }}
             disabled={page === currentPage}
             border="none"
           >

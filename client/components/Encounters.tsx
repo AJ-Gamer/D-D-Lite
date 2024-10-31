@@ -8,6 +8,8 @@ import {
   Spinner,
   Image,
   Flex,
+  HStack,
+  Center,
 } from '@chakra-ui/react';
 import StatsBox from './encountersComps/StatsBox';
 import TTS from './encountersComps/TTS';
@@ -41,6 +43,7 @@ interface Character {
   id: number;
   name: string;
   class: string;
+  race: string;
   image?: string;
   strength: number;
   dexterity: number;
@@ -57,8 +60,6 @@ interface StoryNodeRes {
   prompt: string;
   options: Option[];
 }
-
-const DEFAULT_IMAGE_URL = 'https://logos-world.net/wp-content/uploads/2021/12/DnD-Emblem.png';
 
 const Encounters: FC<EncountersProps> = ({ profile }) => {
   const [characters, setCharacters] = useState<Character[]>([]);
@@ -81,9 +82,7 @@ const Encounters: FC<EncountersProps> = ({ profile }) => {
       setLoading(true);
       try {
         const { data }: { data: CharRes } = await axios.get('/character/all', {
-          params: {
-            userId: profile?.id,
-          },
+          params: { userId: profile?.id },
         });
         setCharacters(data.characters);
       } catch (error) {
@@ -130,77 +129,115 @@ const Encounters: FC<EncountersProps> = ({ profile }) => {
   };
 
   if (loading) {
-    return <Spinner size="xl" mt="20%" />;
+    return <Spinner size="xl" mt="20%" color="teal.500" />;
   }
 
   if (ending) {
     return (
-      <Box textAlign="center" mt={16}>
-        <Text fontSize="3xl">
-          {ending === 'good' ? 'You achieved the good ending!' : 'You met an unfortunate end.'}
-        </Text>
-        <Button mt={4} onClick={restartAdventure} bg="yellow.400" _hover={{ bg: 'orange.300' }}>
-          Restart the Adventure
-        </Button>
-      </Box>
+      <Center>
+        <Box textAlign="center" mt={16}>
+          <Text fontSize="3xl" color="teal.600">
+            {ending === 'good' ? 'You achieved the good ending!' : 'You met an unfortunate end.'}
+          </Text>
+          <Button mt={4} onClick={restartAdventure} bg="teal.400" _hover={{ bg: 'teal.300' }}>
+            Restart the Adventure
+          </Button>
+        </Box>
+      </Center>
     );
   }
 
   if (!selectedCharacter && !startCampaign) {
     return (
-      <Box textAlign="center" mt={16}>
-        <VStack spacing={4} mt={4}>
-          <Text fontSize="xl">Select a character to start your campaign:</Text>
-          {characters.map((char) => (
-            <Button
-              key={char.id}
-              onClick={() => setSelectedCharacter(char)}
-              bg="yellow.400"
-              _hover={{ bg: 'orange.300' }}
-            >
-              {char.name} ({char.class})
-            </Button>
-          ))}
-        </VStack>
-      </Box>
+      <Center>
+        <Box textAlign="center" mt={16}>
+          <Text fontSize="xl" mb={4}>Select a character to start your campaign:</Text>
+          <HStack spacing={6} mt={4} alignItems="center">
+            {characters.map((char) => (
+              <VStack
+                key={char.id}
+                p={4}
+                borderWidth="1px"
+                borderRadius="md"
+                bg="yellow.400"
+                shadow="md"
+                textAlign="center"
+                alignItems="center"
+                cursor="pointer"
+                _hover={{ bg: "orange.300" }}
+                onClick={() => setSelectedCharacter(char)}
+              >
+                <Image
+                  boxSize="150px"
+                  objectFit="cover"
+                  src={char.image}
+                  alt={`${char.name} Image`}
+                  borderRadius="md"
+                />
+                <Text fontSize="xl" fontWeight="bold">{char.name}</Text>
+                <VStack spacing={1}>
+                  <Text fontWeight="bold">Strength: {char.strength}</Text>
+                  <Text fontWeight="bold">Dexterity: {char.dexterity}</Text>
+                  <Text fontWeight="bold">Constitution: {char.constitution}</Text>
+                  <Text fontWeight="bold">Charisma: {char.charisma}</Text>
+                </VStack>
+                <Button 
+                  mt={2} 
+                  size="sm" 
+                  onClick={() => setSelectedCharacter(char)} 
+                  bg="yellow.400" 
+                  _hover={{ bg: 'orange.300' }}
+                >
+                  Play as {char.name}
+                </Button>
+              </VStack>
+            ))}
+          </HStack>
+        </Box>
+      </Center>
     );
-  }
+  }  
 
   if (selectedCharacter && !startCampaign) {
     return (
-      <Box textAlign="center" mt={16}>
-        <Text fontSize="2xl">Hello {selectedCharacter.name}, are you ready to start your campaign?</Text>
-        <Button mt={4} onClick={handleStartCampaign} bg="yellow.400" _hover={{ bg: 'orange.300' }}>
-          Start your campaign
-        </Button>
-      </Box>
+      <Center>
+        <Box textAlign="center" mt={16}>
+          <Text fontSize="2xl">Greetings {selectedCharacter.name}, are you ready to start your campaign?</Text>
+          <Button mt={4} onClick={handleStartCampaign} bg="yellow.400" _hover={{ bg: 'orange.300' }}>
+            Start your campaign
+          </Button>
+        </Box>
+      </Center>
     );
   }
 
   if (startCampaign && currentNode && selectedCharacter) {
     return (
-      <Flex direction="row" justify="center" mt={16} mx={4} align="flex-start">
-        <Box display="flex" flexDirection="column" alignItems="center" mt={4} mr={8}>
-          <Image
-            boxSize="200px"
-            objectFit="cover"
-            src={selectedCharacter.image ?? DEFAULT_IMAGE_URL}
-            alt={`${selectedCharacter.name} Image`}
-            fallbackSrc={DEFAULT_IMAGE_URL}
-          />
-          <StatsBox stats={selectedCharacter} />
-        </Box>
-        <Box display="flex" flexDirection="column" alignItems="center" mt={4} flex={1}>
-          <TTS
-            prompt={replacePlaceholders(currentNode.prompt, selectedCharacter)}
-          />
-          <OptionsButtons options={currentNode.options} onOptionClick={handleOptionClick} />
-        </Box>
-      </Flex>
+      <Center>
+        <Flex direction="row" justify="center" mt={16} mx={4} align="flex-start">
+          <Box display="flex" flexDirection="column" alignItems="center" mt={4} mr={8}>
+            <Image
+              boxSize="200px"
+              objectFit="cover"
+              src={selectedCharacter.image}
+              alt={`${selectedCharacter.name} Image`}
+              borderRadius="md"
+            />
+            <Text fontSize="xl" fontWeight="bold" mt={2} color="teal.600">{selectedCharacter.name}</Text>
+            <StatsBox stats={selectedCharacter} />
+          </Box>
+          <Box display="flex" flexDirection="column" alignItems="center" mt={4} flex={1}>
+            <TTS
+              prompt={replacePlaceholders(currentNode.prompt, selectedCharacter)}
+            />
+            <OptionsButtons options={currentNode.options} onOptionClick={handleOptionClick} />
+          </Box>
+        </Flex>
+      </Center>
     );
   }
 
-  return <Text>Failed to load story node.</Text>;
+  return <Text color="red.500">Failed to load story node.</Text>;
 };
 
 export default Encounters;

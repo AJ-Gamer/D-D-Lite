@@ -174,7 +174,7 @@ const Encounters: FC<EncountersProps> = ({ profile }) => {
                   alt={`${char.name} Image`}
                   borderRadius="md"
                 />
-                <Text fontSize="xl" fontWeight="bold">{char.name}</Text>
+                <Text fontSize="xl" fontWeight="bold" color="black">{char.name}</Text>
                 <VStack spacing={1}>
                   <Text fontWeight="bold">Strength: {char.strength}</Text>
                   <Text fontWeight="bold">Dexterity: {char.dexterity}</Text>
@@ -185,7 +185,7 @@ const Encounters: FC<EncountersProps> = ({ profile }) => {
                   mt={2} 
                   size="sm" 
                   onClick={() => setSelectedCharacter(char)} 
-                  bg="yellow.400" 
+                  bg="yellow.500" 
                   _hover={{ bg: 'orange.300' }}
                 >
                   Play as {char.name}
@@ -223,7 +223,7 @@ const Encounters: FC<EncountersProps> = ({ profile }) => {
               alt={`${selectedCharacter.name} Image`}
               borderRadius="md"
             />
-            <Text fontSize="xl" fontWeight="bold" mt={2} color="teal.600">{selectedCharacter.name}</Text>
+            <Text fontSize="xl" fontWeight="bold" mt={2} color="black">{selectedCharacter.name}</Text>
             <StatsBox stats={selectedCharacter} />
           </Box>
           <Box display="flex" flexDirection="column" alignItems="center" mt={4} flex={1}>

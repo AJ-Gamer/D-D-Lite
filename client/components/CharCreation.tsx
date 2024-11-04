@@ -17,7 +17,6 @@ import {
 import axios from 'axios';
 import Characters from './charCreationComps/Characters';
 import Customization from './charCreationComps/Customization';
-import CharGen from './charCreationComps/CharGen';
 
 interface Character {
   id: number;
@@ -53,13 +52,18 @@ interface ReplRes {
 }
 
 const CharCreation: FC<CharCreationProps> = ({ profile }) => {
+  const races = ['Human', 'Elf', 'Dragonborn'];
+  const classes = ['Barbarian', 'Rogue', 'Sorcerer'];
+
+  const getRandomOption = (options: string[]) => options[
+    Math.floor(Math.random() * options.length)];
+
   const [chars, setChars] = useState<Character[]>([]);
   const [selectedChar, setSelectedChar] = useState<number | null>(null);
   const [charName, setCharName] = useState<string>('');
   const [description, setDescription] = useState<string>('');
-  const [race, setRace] = useState<string>('');
-  const [charClass, setCharClass] = useState<string>('');
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [race, setRace] = useState<string>(getRandomOption(races));
+  const [charClass, setCharClass] = useState<string>(getRandomOption(classes));
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -116,7 +120,6 @@ const CharCreation: FC<CharCreationProps> = ({ profile }) => {
       const { imgUrl } = replResponse.data;
 
       await axios.put(`/character/${newCharacter.id}/update`, { image: imgUrl });
-      setImageUrl(imgUrl);
 
       toast({
         title: 'Adventurer Created!',
@@ -208,13 +211,10 @@ const CharCreation: FC<CharCreationProps> = ({ profile }) => {
           color="black"
           mt={4}
           onClick={handleSubmit}
-          isDisabled={!charName || !race || !charClass}
+          isDisabled={!charName || !race || !charClass || !description}
         >
           Create Character
         </Button>
-      </Box>
-      <Box flex={1} ml="2rem">
-        <CharGen imageUrl={imageUrl} />
       </Box>
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />

@@ -112,10 +112,9 @@ storeRouter.get('/gold', async (req: Request, res: Response) => {
 });
 
 storeRouter.post('/buy', async (req: Request, res: Response) => {
-  console.log('Buy Request:', req.body);
-  const { userId, equipmentName } = req.body;
-  if (!userId || !equipmentName) {
-    return res.status(400).json({ message: 'User ID, Equipment ID, and Equipment Name are required' });
+  const { userId, equipmentName, equipmentType } = req.body; // Make sure to include type in the request body
+  if (!userId || !equipmentName || !equipmentType) {
+    return res.status(400).json({ message: 'User ID, Equipment Name, and Equipment Type are required' });
   }
 
   try {
@@ -163,6 +162,7 @@ storeRouter.post('/buy', async (req: Request, res: Response) => {
           name: equipmentName,
           inventoryId: inventory.id,
           owned: 1,
+          type: equipmentType,
         },
       });
     }
@@ -176,8 +176,8 @@ storeRouter.post('/buy', async (req: Request, res: Response) => {
 
 storeRouter.post('/sell', async (req: Request, res: Response) => {
   const { userId, equipmentName } = req.body;
-  if (!userId) {
-    return res.status(400).json({ message: 'User ID and Equipment ID are required' });
+  if (!userId || !equipmentName) {
+    return res.status(400).json({ message: 'User ID and Equipment Name are required' });
   }
 
   try {

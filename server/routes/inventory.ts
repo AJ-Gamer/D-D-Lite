@@ -63,6 +63,8 @@ inventory.get('/:class', async (req: Request, res: Response) => {
 
     for (const item of startingEquipment) {
       const equipmentItem = item.equipment;
+      const categoryResponse = await axios.get(`https://www.dnd5eapi.co/api/equipment/${equipmentItem.index}`);
+      const equipmentCategory = categoryResponse.data.equipment_category.index;
       const existingItem = await prisma.equipment.findFirst({
         where: { name: equipmentItem.name, inventoryId: inventory.id },
       });
@@ -74,6 +76,7 @@ inventory.get('/:class', async (req: Request, res: Response) => {
             description: item.desc || null,
             inventoryId: inventory.id,
             owned: item.quantity || 1,
+            type: equipmentCategory,
           },
         });
       }

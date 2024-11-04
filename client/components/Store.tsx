@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useState } from 'react';
-import { Box, SimpleGrid, Card, Text, Input, Button, Flex, Tabs, TabList, Tab, TabPanels, TabPanel, useToast} from '@chakra-ui/react';
+import { Box, SimpleGrid, Card, Text, Input, Button, Flex, Tabs, TabList, Tab, TabPanels, TabPanel, useToast, Tooltip} from '@chakra-ui/react';
 import axios from 'axios';
 
 interface Equipment {
@@ -196,14 +196,24 @@ const Store: FC<StoreProps> = ({ userId }) => {
           color="black"
           cursor="pointer"
           height={selectedIndex === item.index ? 'auto' : '150px'}
-          _hover={{ transform: selectedIndex === item.index ? 'none' : 'scale(1.05)', transition: '0.3s', boxShadow: 'lg' }}
+          _hover={{
+            transform: selectedIndex === item.index ? 'none' : 'scale(1.05)',
+            transition: '0.3s',
+            boxShadow: 'lg',
+          }}
           position="relative"
           boxShadow="md"
         >
           <Flex justify="space-between" align="center">
-            <Text fontWeight="bold">{item.name}</Text>
-            <Text fontWeight="bold">Owned: {item.owned}</Text>
+            {/* Tooltip for the full item name */}
+            <Tooltip label={item.name} placement="top" hasArrow>
+              <Text fontWeight="bold" isTruncated maxWidth="200px">
+                {item.name}
+              </Text>
+            </Tooltip>
           </Flex>
+  
+          {/* Display item details if selected */}
           {selectedIndex === item.index && selectedEquipmentDetails && (
             <Box mt={2}>
               <Text mt={2} color="gray.600">
@@ -211,37 +221,43 @@ const Store: FC<StoreProps> = ({ userId }) => {
               </Text>
             </Box>
           )}
-          <Box mt={2}>
-            <Text>Cost: 50 gold</Text>
-            <Button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleBuy(item.name);
-              }}
-              colorScheme="green"
-              size="sm"
-              mt={2}
-            >
-              Buy
-            </Button>
+  
+          {/* Cost and Owned Text in the same row */}
+          <Flex justify="space-between" mt={4}>
+            <Text fontWeight="bold">Cost: 50 gold</Text>
+            <Text fontWeight="bold">Owned: {item.owned}</Text>
+          </Flex>
+  
+          {/* Full-width Buy and Sell buttons */}
+          <Flex gap={4} mt={4}>
             <Button
               onClick={(e) => {
                 e.stopPropagation();
                 handleSell(item.name);
               }}
               colorScheme="red"
-              size="sm"
-              mt={2}
-              ml={2}
+              size="md"
+              width="100%"
               isDisabled={item.owned === 0}
             >
               Sell
             </Button>
-          </Box>
+            <Button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleBuy(item.name);
+              }}
+              colorScheme="green"
+              size="md"
+              width="100%"
+            >
+              Buy
+            </Button>
+          </Flex>
         </Card>
       ))}
     </SimpleGrid>
-  );
+  );   
 
   return (
     <Box mt={10} px={4} maxWidth="100%" overflow="hidden">

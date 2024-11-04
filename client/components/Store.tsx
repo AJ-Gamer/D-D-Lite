@@ -102,11 +102,13 @@ const Store: FC<StoreProps> = ({ userId }) => {
       }
 
       const response = await axios.post(`/store/buy`, { userId, equipmentName });
-      const updatedEquipment = equipment.map(item =>
+      const updatedEquipment = (activeTab === 'equipment' ? equipment : magicItems).map(item =>
         item.name === equipmentName ? { ...item, owned: item.owned + 1 } : item
       );
 
-      setEquipment(updatedEquipment);
+      if (activeTab === 'equipment') setEquipment(updatedEquipment);
+      else setMagicItems(updatedEquipment);
+      
       await fetchGold();
       toast({
         title: 'Purchase Successful',
@@ -124,13 +126,15 @@ const Store: FC<StoreProps> = ({ userId }) => {
     try {
       const response = await axios.post(`/store/sell`, { userId, equipmentName });
 
-      const updatedEquipment = equipment.map(item =>
+      const updatedEquipment = (activeTab === 'equipment' ? equipment : magicItems).map(item =>
         item.name === equipmentName && item.owned > 0
           ? { ...item, owned: item.owned - 1 }
           : item
       );
 
-      setEquipment(updatedEquipment);
+      if (activeTab === 'equipment') setEquipment(updatedEquipment);
+      else setMagicItems(updatedEquipment);
+
       await fetchGold();
       toast({
         title: 'Sell Successful',
@@ -152,12 +156,13 @@ const Store: FC<StoreProps> = ({ userId }) => {
   };
 
   useEffect(() => {
-    const filtered = equipment.filter(item =>
+    const filtered = (activeTab === 'equipment' ? equipment : magicItems).filter(item =>
       item.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
-    setFilteredEquipment(filtered);
+    if (activeTab === 'equipment') setFilteredEquipment(filtered);
+    else setFilteredMagicItems(filtered);
     setCurrentPage(1);
-  }, [searchTerm, equipment]);
+  }, [searchTerm, equipment, magicItems, activeTab]);
 
   const handleCardClick = async (index: string) => {
     if (selectedIndex === index) {
@@ -174,8 +179,12 @@ const Store: FC<StoreProps> = ({ userId }) => {
     }
   };
 
-  const totalPages = Math.ceil(filteredEquipment.length / itemsPerPage);
-  const paginatedItems = filteredEquipment.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const totalPages = Math.ceil(
+    (activeTab === 'equipment' ? filteredEquipment : filteredMagicItems).length / itemsPerPage
+  );
+  
+  const paginatedItems = (activeTab === 'equipment' ? filteredEquipment : filteredMagicItems)
+    .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const renderCards = (items: Equipment[]) => (
     <SimpleGrid columns={5} spacing={5}>
@@ -263,7 +272,7 @@ const Store: FC<StoreProps> = ({ userId }) => {
             {renderCards(paginatedItems)}
           </TabPanel>
           <TabPanel>
-            {renderCards(magicItems)}
+            {renderCards(paginatedItems)}
           </TabPanel>
         </TabPanels>
       </Tabs>

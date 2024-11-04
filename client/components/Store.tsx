@@ -75,7 +75,7 @@ const Store: FC<StoreProps> = ({ userId }) => {
     fetchEquipment();
     fetchMagicItems();
     fetchGold();
-  }, [userId, currentPage]);
+  }, [userId]);
 
   const handleBuy = async (equipmentName: string) => {
     if (gold !== null && gold < 50) {
@@ -161,7 +161,6 @@ const Store: FC<StoreProps> = ({ userId }) => {
     );
     if (activeTab === 'equipment') setFilteredEquipment(filtered);
     else setFilteredMagicItems(filtered);
-    setCurrentPage(1);
   }, [searchTerm, equipment, magicItems, activeTab]);
 
   const handleCardClick = async (index: string) => {
@@ -262,7 +261,10 @@ const Store: FC<StoreProps> = ({ userId }) => {
         )}
       </Flex>
 
-      <Tabs onChange={(index) => setActiveTab(index === 0 ? 'equipment' : 'magicItems')} variant="enclosed">
+      <Tabs onChange={(index) => {
+        setActiveTab(index === 0 ? 'equipment' : 'magicItems');
+        setCurrentPage(1); // Reset to the first page only when changing tabs
+      }} variant="enclosed">
         <TabList>
           <Tab>Equipment</Tab>
           <Tab>Magic Items</Tab>

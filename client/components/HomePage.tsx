@@ -140,10 +140,12 @@ const HomePage: FC<HomePageProps> = ({ profile }) => {
             width="20%"
             mr={4}
           >
-            <Text fontSize="lg" fontWeight="bold" ml={4} mt={4}>
-              Character Stats:
-            </Text>
-            <Divider my={2} borderColor="gray.600" />
+            <Box bg="gray.700" p={2} borderTopRadius="lg">
+              <Text fontSize="lg" fontWeight="bold" color="white" align="center">
+                Character Stats
+              </Text>
+            </Box>
+            <Divider mb={2} borderColor="gray.600" />
             <HStack>
               <Box ml={4} mt={4}><FaFistRaised size={36} /></Box>
               <Box ml={4} mt={4}>
@@ -189,16 +191,12 @@ const HomePage: FC<HomePageProps> = ({ profile }) => {
             overflow="hidden"
             boxShadow="xl"
           >
-            <Text
-              fontSize="lg"
-              fontWeight="bold"
-              ml={4}
-              mt={4}
-              textAlign="left"
-            >
-              Current Character:
-            </Text>
-            <Divider my={2} borderColor="gray.600" />
+            <Box bg="gray.700" p={2} borderTopRadius="lg">
+              <Text fontSize="lg" fontWeight="bold" color="white" align="center">
+                Current Character
+              </Text>
+            </Box>
+            <Divider mb={2} borderColor="gray.600" />
             <Text fontSize="xl" fontWeight="bold">
               {
                 `${charObj.name.charAt(0).toUpperCase() + charObj.name.slice(1)}`
@@ -209,7 +207,6 @@ const HomePage: FC<HomePageProps> = ({ profile }) => {
               alt={charObj?.name}
               boxSize="80%"
               objectFit="contain"
-              borderRadius="lg"
               mx={8}
             />
           </Box>
@@ -223,19 +220,24 @@ const HomePage: FC<HomePageProps> = ({ profile }) => {
             width="20%"
             boxShadow="xl"
           >
-            <Text fontSize="lg" fontWeight="bold" ml={4} mt={4}>
-              Equipment:
-            </Text>
-            <Divider my={2} borderColor="gray.600" />
+            <Box bg="gray.700" p={2} borderTopRadius="lg">
+              <Text fontSize="lg" fontWeight="bold" color="white" align="center">
+                Equipment
+              </Text>
+            </Box>
+            <Divider mb={2} borderColor="gray.600" />
             {loading ? (
               <Text>Loading equipment...</Text>
             ) : (
-              <Box ml={4} mt={4} mb={4}>
+              <Box my={4}>
                 {equipment.length > 0 ? (
                   equipment.map((item, index) => (
-                    <Text key={index} fontSize="lg" fontWeight="bold">
-                      {item.equipment.name}
-                    </Text>
+                    <>
+                      <Text key={index} fontSize="lg" fontWeight="bold" ml={4}>
+                        {item.equipment.name}
+                      </Text>
+                      <Divider my={4} borderColor="gray.600" />
+                    </>
                   ))
                 ) : (
                   <Text>No equipment available.</Text>

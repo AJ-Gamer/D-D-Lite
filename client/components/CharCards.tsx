@@ -50,6 +50,7 @@ const CharCards: FC<CharCardsProps> = ({
             src={char.image}
             alt={char.name}
             borderRadius="lg"
+            border="1px solid black"
             boxSize="150px"
             objectFit="cover"
           />
@@ -83,7 +84,8 @@ const CharCards: FC<CharCardsProps> = ({
                 onClick={() => onDeleteChar(char.id)}
                 color="gray.800"
                 mt={2}
-                width="100%"
+                top="1.2rem"
+                left="8.4rem"
               >
                 Delete
               </Button>

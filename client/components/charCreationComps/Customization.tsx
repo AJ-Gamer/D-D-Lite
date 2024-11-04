@@ -34,8 +34,16 @@ const Customization: FC<CustomizationProps> = ({
   charClass,
   setCharClass,
 }) => {
-  const races = ['Human', 'Elf', 'Dragonborn'];
-  const classes = ['Barbarian', 'Rogue', 'Sorcerer'];
+  const races = [
+    { name: 'Human', tooltip: '+2 Charisma' },
+    { name: 'Elf', tooltip: '+2 Dexterity' },
+    { name: 'Dragonborn', tooltip: '+2 Constitution' },
+  ];
+  const classes = [
+    { name: 'Barbarian', tooltip: '+3 Strength, +2 Constitution' },
+    { name: 'Rogue', tooltip: '+2 Dexterity, +3 Charisma' },
+    { name: 'Sorcerer', tooltip: '+3 Constitution, +2 Charisma' },
+  ];
 
   return (
     <VStack spacing={4} align="stretch">
@@ -49,11 +57,8 @@ const Customization: FC<CustomizationProps> = ({
           placeholder="Name..."
           value={charName}
           onChange={(e) => setCharName(e.target.value)}
-          sx={{ '::placeholder': { color: 'gray.700' } }}
+          sx={{ '::placeholder': { color: 'gray.500' } }}
         />
-        {!charName && (
-          <Text color="red.500" fontSize="sm">Required</Text>
-        )}
       </Box>
       <Box>
         <Text fontSize="lg" mb={2} as="b">
@@ -67,21 +72,20 @@ const Customization: FC<CustomizationProps> = ({
           placeholder="Details (hair, eyes, etc)..."
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          sx={{ '::placeholder': { color: 'gray.700' } }}
+          sx={{ '::placeholder': { color: 'gray.500' } }}
           size="lg"
         />
-        {!description && (
-          <Text color="red.500" fontSize="sm">Required</Text>
-        )}
       </Box>
       <Box>
         <Text fontSize="lg" mb={2} as="b">Select Race</Text>
         <RadioGroup onChange={setRace} value={race}>
           <Stack direction="row">
-            {races.map((r) => (
-              <Radio key={r} value={r}>
-                {r}
-              </Radio>
+            {races.map(({ name, tooltip }) => (
+              <Tooltip key={name} label={tooltip}>
+                <Box>
+                  <Radio value={name}>{name}</Radio>
+                </Box>
+              </Tooltip>
             ))}
           </Stack>
         </RadioGroup>
@@ -90,10 +94,12 @@ const Customization: FC<CustomizationProps> = ({
         <Text fontSize="lg" mb={2} as="b">Select Class</Text>
         <RadioGroup onChange={setCharClass} value={charClass}>
           <Stack direction="row">
-            {classes.map((cls) => (
-              <Radio key={cls} value={cls}>
-                {cls}
-              </Radio>
+            {classes.map(({ name, tooltip }) => (
+              <Tooltip key={name} label={tooltip}>
+                <Box>
+                  <Radio value={name}>{name}</Radio>
+                </Box>
+              </Tooltip>
             ))}
           </Stack>
         </RadioGroup>

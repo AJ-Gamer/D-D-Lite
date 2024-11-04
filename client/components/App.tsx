@@ -30,7 +30,7 @@ interface Profile {
 }
 
 const App: FC = () => {
-  const bg = useColorModeValue('gray.300', 'gray.900');
+  const bg = useColorModeValue('gray.300', 'gray.800');
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(false);
   const [profile, setProfile] = useState<Profile | null>(null);
 

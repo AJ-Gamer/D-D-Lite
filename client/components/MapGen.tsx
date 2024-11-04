@@ -13,9 +13,11 @@ import {
   Box,
   Button,
   HStack,
+  Text,
   useToast,
 } from '@chakra-ui/react';
 import MapUploader from './mapGenComps/MapUploader';
+import MapLegend from './mapGenComps/MapLegend';
 
 interface TT {
   minHeight: number;
@@ -105,6 +107,22 @@ const MapGen: FC<MapGenProps> = ({ userId }) => {
     p.updatePixels();
   }, [terrains]);
 
+  const capMapScreenshot = useCallback(() => {
+    const canvas = document.querySelector('canvas');
+
+    if (canvas) {
+      setImgDataUrl(canvas.toDataURL('image/png'));
+    } else {
+      toast({
+        title: 'Error capturing map.',
+        description: 'There was an issue capturing your map. Please try again.',
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+    }
+  }, [toast]);
+
   const genNewMap = useCallback((size: number) => {
     if (p5InstanceRef.current) {
       p5InstanceRef.current.remove();
@@ -122,12 +140,13 @@ const MapGen: FC<MapGenProps> = ({ userId }) => {
 
       p.draw = () => {
         drawMap(p);
+        capMapScreenshot();
       };
     };
     if (sketchRef.current) {
       p5InstanceRef.current = new p5(sketch, sketchRef.current);
     }
-  }, [drawMap, initTerrains]);
+  }, [capMapScreenshot, drawMap, initTerrains]);
 
   useEffect(() => {
     genNewMap(canvasSize);
@@ -139,46 +158,27 @@ const MapGen: FC<MapGenProps> = ({ userId }) => {
     };
   }, [canvasSize, genNewMap]);
 
-  const capMapScreenshot = () => {
-    const canvas = document.querySelector('canvas');
-
-    if (canvas) {
-      setImgDataUrl(canvas.toDataURL('image/png'));
-      toast({
-        title: 'Map screenshot captured.',
-        description: 'Your map has been successfully captured and is ready to be uploaded!',
-        status: 'success',
-        duration: 3000,
-        isClosable: true,
-      });
-    } else {
-      toast({
-        title: 'Error capturing map.',
-        description: 'There was an issue capturing your map. Please try again.',
-        status: 'error',
-        duration: 3000,
-        isClosable: true,
-      });
-    }
-  };
-
   return (
     <Box justifyContent="center" p={5} maxWidth="1000px" mx="auto">
-      <HStack spacing={4} justify="center" mt={16} mb={4}>
-        <Button onClick={() => genNewMap(400)}>
+      <Box mt={16} mx={24}>
+        <Text align="center" fontSize="xl">
+          Create immersive maps for your real-life Dungeons & Dragons adventures!
+          With our intuitive map generator, bring your campaigns to life.
+        </Text>
+      </Box>
+      <HStack spacing={4} justify="center" mt={8} mb={4}>
+        <Button bg="yellow.400" color="black" onClick={() => genNewMap(400)}>
           Generate a Small Map
         </Button>
-        <Button onClick={() => genNewMap(600)}>
+        <Button bg="yellow.400" color="black" onClick={() => genNewMap(600)}>
           Generate a Medium Map
         </Button>
-        <Button onClick={() => genNewMap(800)}>
+        <Button bg="yellow.400" color="black" onClick={() => genNewMap(800)}>
           Generate a Large Map
         </Button>
       </HStack>
+      <MapLegend />
       <Box ref={sketchRef} display="flex" justifyContent="center" m={4} />
-      <Button onClick={capMapScreenshot} mb={2}>
-        Send Map Data
-      </Button>
       <MapUploader userId={userId} imgDataUrl={imgDataUrl} />
     </Box>
   );

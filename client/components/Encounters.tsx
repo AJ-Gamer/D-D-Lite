@@ -151,30 +151,39 @@ const Encounters: FC<EncountersProps> = ({ profile }) => {
     return (
       <Center>
         <Box textAlign="center" mt={16}>
-          <Text fontSize="xl" mb={4}>Select a character to start your campaign:</Text>
+          <Text fontSize="2xl" mb={4} fontWeight={'bold'}>Select your character:</Text>
           <HStack spacing={6} mt={4} alignItems="center">
             {characters.map((char) => (
               <VStack
                 key={char.id}
-                p={4}
-                borderWidth="1px"
-                borderRadius="md"
-                bg="yellow.400"
-                shadow="md"
-                textAlign="center"
-                alignItems="center"
+                borderWidth="2px"
+                borderRadius="lg"
+                bg={selectedCharacter === char.id ? 'yellow.400' : 'gray.400'}
+                boxShadow="2x1"
+                justifyItems="center"
                 cursor="pointer"
-                _hover={{ bg: "orange.300" }}
-                onClick={() => setSelectedCharacter(char)}
+                padding="1rem"
+                margin="0 1rem"
+                _hover={{bg: "yellow.400"}}
               >
                 <Image
+                  src={char.image}
+                  alt={char.name}
+                  borderRadius="lg"
                   boxSize="150px"
                   objectFit="cover"
-                  src={char.image}
-                  alt={`${char.name} Image`}
-                  borderRadius="md"
                 />
-                <Text fontSize="xl" fontWeight="bold" color="black">{char.name}</Text>
+                <Text mt={2} fontSize="xl" fontWeight="bold" color="black">
+                  {
+                    `${char.name.charAt(0).toUpperCase() + char.name.slice(1)}`
+                  }
+                </Text>
+                <Text mt={1} fontSize="lg" color="black" justifyItems="center">
+                  {
+                    `${char.race.charAt(0).toUpperCase() + char.race.slice(1)}
+                    ${char.class.charAt(0).toUpperCase() + char.class.slice(1)}`
+                  }
+                </Text>
                 <VStack spacing={1}>
                   <Text fontWeight="bold">Strength: {char.strength}</Text>
                   <Text fontWeight="bold">Dexterity: {char.dexterity}</Text>
@@ -183,10 +192,10 @@ const Encounters: FC<EncountersProps> = ({ profile }) => {
                 </VStack>
                 <Button 
                   mt={2} 
-                  size="sm" 
+                  color="black"
                   onClick={() => setSelectedCharacter(char)} 
-                  bg="yellow.500" 
-                  _hover={{ bg: 'orange.300' }}
+                  bg="yellow.400" 
+                  width="100%"
                 >
                   Play as {char.name}
                 </Button>

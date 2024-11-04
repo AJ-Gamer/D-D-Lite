@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useState } from 'react';
-import { Box, SimpleGrid, Card, Text, Input, Button, Flex, Tabs, TabList, Tab, TabPanels, TabPanel, useToast} from '@chakra-ui/react';
+import { Box, SimpleGrid, Card, Text, Input, Button, Flex, Tabs, TabList, Tab, TabPanels, TabPanel, useToast, Tooltip, Progress } from '@chakra-ui/react';
 import axios from 'axios';
 
 interface Equipment {
@@ -30,6 +30,7 @@ const Store: FC<StoreProps> = ({ userId }) => {
   const [gold, setGold] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<string>('equipment');
+  const [loading, setLoading] = useState<boolean>(false); // New loading state
   const itemsPerPage = 20;
 
   const toast = useToast();
@@ -53,29 +54,35 @@ const Store: FC<StoreProps> = ({ userId }) => {
 
   useEffect(() => {
     const fetchEquipment = async () => {
+      setLoading(true);
       try {
         const response = await axios.get('/store/equipment', { params: { userId } });
         setEquipment(response.data);
         setFilteredEquipment(response.data);
       } catch (error) {
         console.error('Error fetching equipment:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
     const fetchMagicItems = async () => {
+      setLoading(true);
       try {
         const response = await axios.get('/store/magic-items', { params: { userId } });
         setMagicItems(response.data);
         setFilteredMagicItems(response.data);
       } catch (error) {
         console.error('Error fetching magic items:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchEquipment();
     fetchMagicItems();
     fetchGold();
-  }, [userId, currentPage]);
+  }, [userId]);
 
   const handleBuy = async (equipmentName: string) => {
     if (gold !== null && gold < 50) {
@@ -102,11 +109,13 @@ const Store: FC<StoreProps> = ({ userId }) => {
       }
 
       const response = await axios.post(`/store/buy`, { userId, equipmentName });
-      const updatedEquipment = equipment.map(item =>
+      const updatedEquipment = (activeTab === 'equipment' ? equipment : magicItems).map(item =>
         item.name === equipmentName ? { ...item, owned: item.owned + 1 } : item
       );
 
-      setEquipment(updatedEquipment);
+      if (activeTab === 'equipment') setEquipment(updatedEquipment);
+      else setMagicItems(updatedEquipment);
+      
       await fetchGold();
       toast({
         title: 'Purchase Successful',
@@ -124,13 +133,15 @@ const Store: FC<StoreProps> = ({ userId }) => {
     try {
       const response = await axios.post(`/store/sell`, { userId, equipmentName });
 
-      const updatedEquipment = equipment.map(item =>
+      const updatedEquipment = (activeTab === 'equipment' ? equipment : magicItems).map(item =>
         item.name === equipmentName && item.owned > 0
           ? { ...item, owned: item.owned - 1 }
           : item
       );
 
-      setEquipment(updatedEquipment);
+      if (activeTab === 'equipment') setEquipment(updatedEquipment);
+      else setMagicItems(updatedEquipment);
+
       await fetchGold();
       toast({
         title: 'Sell Successful',
@@ -152,12 +163,12 @@ const Store: FC<StoreProps> = ({ userId }) => {
   };
 
   useEffect(() => {
-    const filtered = equipment.filter(item =>
+    const filtered = (activeTab === 'equipment' ? equipment : magicItems).filter(item =>
       item.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
-    setFilteredEquipment(filtered);
-    setCurrentPage(1);
-  }, [searchTerm, equipment]);
+    if (activeTab === 'equipment') setFilteredEquipment(filtered);
+    else setFilteredMagicItems(filtered);
+  }, [searchTerm, equipment, magicItems, activeTab]);
 
   const handleCardClick = async (index: string) => {
     if (selectedIndex === index) {
@@ -174,8 +185,12 @@ const Store: FC<StoreProps> = ({ userId }) => {
     }
   };
 
-  const totalPages = Math.ceil(filteredEquipment.length / itemsPerPage);
-  const paginatedItems = filteredEquipment.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const totalPages = Math.ceil(
+    (activeTab === 'equipment' ? filteredEquipment : filteredMagicItems).length / itemsPerPage
+  );
+  
+  const paginatedItems = (activeTab === 'equipment' ? filteredEquipment : filteredMagicItems)
+    .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const renderCards = (items: Equipment[]) => (
     <SimpleGrid columns={5} spacing={5}>
@@ -188,14 +203,24 @@ const Store: FC<StoreProps> = ({ userId }) => {
           color="black"
           cursor="pointer"
           height={selectedIndex === item.index ? 'auto' : '150px'}
-          _hover={{ transform: selectedIndex === item.index ? 'none' : 'scale(1.05)', transition: '0.3s', boxShadow: 'lg' }}
+          _hover={{
+            transform: selectedIndex === item.index ? 'none' : 'scale(1.05)',
+            transition: '0.3s',
+            boxShadow: 'lg',
+          }}
           position="relative"
           boxShadow="md"
         >
           <Flex justify="space-between" align="center">
-            <Text fontWeight="bold">{item.name}</Text>
-            <Text fontWeight="bold">Owned: {item.owned}</Text>
+            {/* Tooltip for the full item name */}
+            <Tooltip label={item.name} placement="top" hasArrow>
+              <Text fontWeight="bold" isTruncated maxWidth="200px">
+                {item.name}
+              </Text>
+            </Tooltip>
           </Flex>
+  
+          {/* Display item details if selected */}
           {selectedIndex === item.index && selectedEquipmentDetails && (
             <Box mt={2}>
               <Text mt={2} color="gray.600">
@@ -203,37 +228,59 @@ const Store: FC<StoreProps> = ({ userId }) => {
               </Text>
             </Box>
           )}
-          <Box mt={2}>
-            <Text>Cost: 50 gold</Text>
-            <Button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleBuy(item.name);
-              }}
-              colorScheme="green"
-              size="sm"
-              mt={2}
-            >
-              Buy
-            </Button>
+  
+          {/* Cost and Owned Text in the same row */}
+          <Flex justify="space-between" mt={4}>
+            <Text fontWeight="bold">Cost: 50 gold</Text>
+            <Text fontWeight="bold">Owned: {item.owned}</Text>
+          </Flex>
+  
+          {/* Full-width Buy and Sell buttons */}
+          <Flex gap={4} mt={4}>
             <Button
               onClick={(e) => {
                 e.stopPropagation();
                 handleSell(item.name);
               }}
               colorScheme="red"
-              size="sm"
-              mt={2}
-              ml={2}
+              size="md"
+              width="100%"
               isDisabled={item.owned === 0}
             >
               Sell
             </Button>
-          </Box>
+            <Button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleBuy(item.name);
+              }}
+              colorScheme="green"
+              size="md"
+              width="100%"
+            >
+              Buy
+            </Button>
+          </Flex>
         </Card>
       ))}
+
+      {/* Display loading bar if loading */}
+      {loading && (
+        <Flex
+          position="fixed"
+          top={0}
+          left={0}
+          right={0}
+          bottom={0}
+          alignItems="center"
+          justifyContent="center"
+          zIndex={1000}
+        >
+          <Progress size="lg" isIndeterminate colorScheme="orange" width="500px" height="25px"/>
+        </Flex>
+      )}
     </SimpleGrid>
-  );
+  );   
 
   return (
     <Box mt={10} px={4} maxWidth="100%" overflow="hidden">
@@ -253,7 +300,10 @@ const Store: FC<StoreProps> = ({ userId }) => {
         )}
       </Flex>
 
-      <Tabs onChange={(index) => setActiveTab(index === 0 ? 'equipment' : 'magicItems')} variant="enclosed">
+      <Tabs onChange={(index) => {
+        setActiveTab(index === 0 ? 'equipment' : 'magicItems');
+        setCurrentPage(1);
+      }} variant="enclosed">
         <TabList>
           <Tab>Equipment</Tab>
           <Tab>Magic Items</Tab>
@@ -263,50 +313,56 @@ const Store: FC<StoreProps> = ({ userId }) => {
             {renderCards(paginatedItems)}
           </TabPanel>
           <TabPanel>
-            {renderCards(magicItems)}
+            {renderCards(paginatedItems)}
           </TabPanel>
         </TabPanels>
       </Tabs>
 
       <Box mt={5} textAlign="center">
-        <Button
-          onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-          disabled={currentPage === 1}
-          mr={2}
-          bg="orange.300"
-          _hover={{ bg: "orange.300" }}
-        >
-          Previous
-        </Button>
-        <Text display="inline" fontWeight="bold">
-          Page {currentPage} of {totalPages}
-        </Text>
-        <Button
-          onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-          disabled={currentPage === totalPages}
-          ml={2}
-          bg="orange.300"
-          _hover={{ bg: "orange.300" }}
-        >
-          Next
-        </Button>
+        {!loading && (
+          <>
+            <Button
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              mr={2}
+              bg="orange.300"
+              _hover={{ bg: "orange.300" }}
+            >
+              Previous
+            </Button>
+            <Text display="inline" fontWeight="bold">
+              Page {currentPage} of {totalPages}
+            </Text>
+            <Button
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              ml={2}
+              bg="orange.300"
+              _hover={{ bg: "orange.300" }}
+            >
+              Next
+            </Button>
+          </>
+        )}
       </Box>
 
       <Flex justifyContent="center" mt={4}>
-        {Array.from({ length: totalPages }, (_, index) => index + 1).map(page => (
-          <Button
-            key={page}
-            onClick={() => setCurrentPage(page)}
-            size="xs"
-            mx={1}
-            bg={page === currentPage ? "orange.300" : "yellow.400"}
-            _hover={{ bg: "orange.300" }}
-            disabled={page === currentPage}
-            border="none"
-          >
-            {page}
-          </Button>
-        ))}
+        {!loading && (
+          Array.from({ length: totalPages }, (_, index) => index + 1).map(page => (
+            <Button
+              key={page}
+              onClick={() => setCurrentPage(page)}
+              size="xs"
+              mx={1}
+              bg={page === currentPage ? "orange.300" : "yellow.400"}
+              _hover={{ bg: "orange.300" }}
+              disabled={page === currentPage}
+              border="none"
+            >
+              {page}
+            </Button>
+          ))
+        )}
       </Flex>
     </Box>
   );

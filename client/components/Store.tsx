@@ -319,44 +319,50 @@ const Store: FC<StoreProps> = ({ userId }) => {
       </Tabs>
 
       <Box mt={5} textAlign="center">
-        <Button
-          onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-          disabled={currentPage === 1}
-          mr={2}
-          bg="orange.300"
-          _hover={{ bg: "orange.300" }}
-        >
-          Previous
-        </Button>
-        <Text display="inline" fontWeight="bold">
-          Page {currentPage} of {totalPages}
-        </Text>
-        <Button
-          onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-          disabled={currentPage === totalPages}
-          ml={2}
-          bg="orange.300"
-          _hover={{ bg: "orange.300" }}
-        >
-          Next
-        </Button>
+        {!loading && (
+          <>
+            <Button
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              mr={2}
+              bg="orange.300"
+              _hover={{ bg: "orange.300" }}
+            >
+              Previous
+            </Button>
+            <Text display="inline" fontWeight="bold">
+              Page {currentPage} of {totalPages}
+            </Text>
+            <Button
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              ml={2}
+              bg="orange.300"
+              _hover={{ bg: "orange.300" }}
+            >
+              Next
+            </Button>
+          </>
+        )}
       </Box>
 
       <Flex justifyContent="center" mt={4}>
-        {Array.from({ length: totalPages }, (_, index) => index + 1).map(page => (
-          <Button
-            key={page}
-            onClick={() => setCurrentPage(page)}
-            size="xs"
-            mx={1}
-            bg={page === currentPage ? "orange.300" : "yellow.400"}
-            _hover={{ bg: "orange.300" }}
-            disabled={page === currentPage}
-            border="none"
-          >
-            {page}
-          </Button>
-        ))}
+        {!loading && (
+          Array.from({ length: totalPages }, (_, index) => index + 1).map(page => (
+            <Button
+              key={page}
+              onClick={() => setCurrentPage(page)}
+              size="xs"
+              mx={1}
+              bg={page === currentPage ? "orange.300" : "yellow.400"}
+              _hover={{ bg: "orange.300" }}
+              disabled={page === currentPage}
+              border="none"
+            >
+              {page}
+            </Button>
+          ))
+        )}
       </Flex>
     </Box>
   );

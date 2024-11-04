@@ -85,10 +85,11 @@ model Equipment {
   id           Int            @id @default(autoincrement())
   name         String
   description  String?
-  inventory    Inventory      @relation(fields: [inventoryId], references: [id])
+  type         String          // Type of equipment: armor, weapon, etc.
+  inventory    Inventory       @relation(fields: [inventoryId], references: [id])
   inventoryId  Int
-  owned        Int            @default(0)
-  equipped     Boolean        @default(false)
+  owned        Int             @default(0)
+  equipped     Boolean         @default(false)
   EquippedItem EquippedItem[]
 }
 

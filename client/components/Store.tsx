@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useState } from 'react';
-import { Box, SimpleGrid, Card, Text, Input, Button, Flex, Tabs, TabList, Tab, TabPanels, TabPanel, useToast, Tooltip} from '@chakra-ui/react';
+import { Box, SimpleGrid, Card, Text, Input, Button, Flex, Tabs, TabList, Tab, TabPanels, TabPanel, useToast, Tooltip, Progress } from '@chakra-ui/react';
 import axios from 'axios';
 
 interface Equipment {
@@ -30,6 +30,7 @@ const Store: FC<StoreProps> = ({ userId }) => {
   const [gold, setGold] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<string>('equipment');
+  const [loading, setLoading] = useState<boolean>(false); // New loading state
   const itemsPerPage = 20;
 
   const toast = useToast();
@@ -53,22 +54,28 @@ const Store: FC<StoreProps> = ({ userId }) => {
 
   useEffect(() => {
     const fetchEquipment = async () => {
+      setLoading(true);
       try {
         const response = await axios.get('/store/equipment', { params: { userId } });
         setEquipment(response.data);
         setFilteredEquipment(response.data);
       } catch (error) {
         console.error('Error fetching equipment:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
     const fetchMagicItems = async () => {
+      setLoading(true);
       try {
         const response = await axios.get('/store/magic-items', { params: { userId } });
         setMagicItems(response.data);
         setFilteredMagicItems(response.data);
       } catch (error) {
         console.error('Error fetching magic items:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -256,6 +263,22 @@ const Store: FC<StoreProps> = ({ userId }) => {
           </Flex>
         </Card>
       ))}
+
+      {/* Display loading bar if loading */}
+      {loading && (
+        <Flex
+          position="fixed"
+          top={0}
+          left={0}
+          right={0}
+          bottom={0}
+          alignItems="center"
+          justifyContent="center"
+          zIndex={1000}
+        >
+          <Progress size="lg" isIndeterminate colorScheme="orange" width="500px" height="25px"/>
+        </Flex>
+      )}
     </SimpleGrid>
   );   
 
@@ -279,7 +302,7 @@ const Store: FC<StoreProps> = ({ userId }) => {
 
       <Tabs onChange={(index) => {
         setActiveTab(index === 0 ? 'equipment' : 'magicItems');
-        setCurrentPage(1); // Reset to the first page only when changing tabs
+        setCurrentPage(1);
       }} variant="enclosed">
         <TabList>
           <Tab>Equipment</Tab>

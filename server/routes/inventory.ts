@@ -119,4 +119,46 @@ inventory.delete('/deleteSold', async (req: Request, res: Response) => {
   }
 });
 
+inventory.patch('/equip', async (req: Request, res: Response) => {
+  const { equipmentId, characterId, equip } = req.body;
+
+  if (!equipmentId || !characterId) {
+    return res.status(400).json({ error: 'Equipment ID and Character ID are required' });
+  }
+
+  try {
+    // Check if the equipped item exists by characterId and equipmentId
+    const existingEquippedItem = await prisma.equippedItem.findFirst({
+      where: {
+        characterId,
+        equipmentId,
+      },
+    });
+
+    if (existingEquippedItem) {
+      // If it exists, update the existing record (optional: add any specific fields to update)
+      await prisma.equippedItem.update({
+        where: { id: existingEquippedItem.id },
+        data: { characterId, equipmentId },
+      });
+    } else {
+      // Otherwise, create a new equipped item entry
+      await prisma.equippedItem.create({
+        data: { characterId, equipmentId },
+      });
+    }
+
+    // Update the equipment's `equipped` status in the Equipment model
+    await prisma.equipment.update({
+      where: { id: equipmentId },
+      data: { equipped: equip },
+    });
+
+    res.status(200).json({ message: `Equipment ${equip ? 'equipped' : 'unequipped'} successfully` });
+  } catch (error) {
+    console.error('Error equipping item:', error);
+    res.status(500).json({ error: 'Failed to equip item' });
+  }
+});
+
 export default inventory;

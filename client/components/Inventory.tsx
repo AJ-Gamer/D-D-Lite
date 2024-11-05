@@ -109,7 +109,7 @@ const Inventory: FC<{ userId?: number }> = ({ userId }) => {
                   e.stopPropagation();
                   console.log(`Equipped ${item.name}`);
                 }}
-                colorScheme="blue"
+                variant="ghost"
                 size="sm"
                 width="fit-content"
                 mt={2}

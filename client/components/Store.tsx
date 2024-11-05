@@ -7,6 +7,7 @@ interface Equipment {
   name: string;
   index: string;
   owned: number;
+  url: string;
 }
 
 interface EquipmentDetail {
@@ -84,7 +85,7 @@ const Store: FC<StoreProps> = ({ userId }) => {
     fetchGold();
   }, [userId]);
 
-  const handleBuy = async (equipmentName: string) => {
+  const handleBuy = async (equipmentName: string, equipmentIndex: string, equipmentUrl: string) => {
     if (gold !== null && gold < 50) {
       toast({
         title: 'Insufficient Gold',
@@ -108,7 +109,7 @@ const Store: FC<StoreProps> = ({ userId }) => {
         return;
       }
 
-      const response = await axios.post(`/store/buy`, { userId, equipmentName });
+      const response = await axios.post(`/store/buy`, { userId, equipmentName, equipmentIndex, equipmentUrl });
       const updatedEquipment = (activeTab === 'equipment' ? equipment : magicItems).map(item =>
         item.name === equipmentName ? { ...item, owned: item.owned + 1 } : item
       );
@@ -252,7 +253,8 @@ const Store: FC<StoreProps> = ({ userId }) => {
             <Button
               onClick={(e) => {
                 e.stopPropagation();
-                handleBuy(item.name);
+                console.log('Item:', item);
+                handleBuy(item.name, item.index, item.url);
               }}
               colorScheme="green"
               size="md"

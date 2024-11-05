@@ -49,7 +49,15 @@ const TTS: FC<TTSProps> = ({ prompt }) => {
 
   return (
     <VStack spacing={5} align="center">
-      <Text fontSize="2xl" textAlign="center" maxW="60%">
+      <Text 
+        fontSize="2xl" 
+        textAlign="center" 
+        outline="1px solid" 
+        bg="gray.400"
+        px={2}
+        fontWeight="bold"
+        fontFamily="'Cinzel', serif"
+      >
         {prompt}
       </Text>
       <IconButton

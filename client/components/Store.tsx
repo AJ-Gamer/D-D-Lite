@@ -227,7 +227,7 @@ const Store: FC<StoreProps> = ({ userId }) => {
             <Box mt={2}>
               <Flex justify="space-between" mt={4}>
                 <Text mt={2} fontWeight="bold"> Cost: {selectedEquipmentDetails.cost.quantity} </Text>
-                <Text fontWeight="bold"> Owned: {item.owned}</Text>
+                <Text mt={2} fontWeight="bold"> Owned: {item.owned}</Text>
               </Flex>
               <Text mt={2} color="gray.800"> {selectedEquipmentDetails.desc.join(' ')} </Text>
             </Box>

@@ -266,16 +266,28 @@ const Encounters: FC<EncountersProps> = ({ profile }) => {
     return (
       <Center>
         <Flex direction="row" justify="center" mt={16} mx={4} align="flex-start">
-          <Box display="flex" flexDirection="column" alignItems="center" mt={4} mr={8}>
-            <Image
-              boxSize="200px"
-              objectFit="cover"
-              src={selectedCharacter.image}
-              alt={`${selectedCharacter.name} Image`}
-              borderRadius="md"
-            />
-            <Text fontSize="xl" fontWeight="bold" mt={2} color="black">{selectedCharacter.name}</Text>
-            <StatsBox stats={selectedCharacter} />
+        <Box display="flex" flexDirection="column" alignItems="center" mt={4} mr={8}>
+          <Image
+            boxSize="200px"
+            objectFit="cover"
+            src={selectedCharacter.image}
+            alt={`${selectedCharacter.name} Image`}
+            borderRadius="md"
+          />
+          <Box 
+            w="200px"
+            border="2px solid black"
+            borderRadius="md"
+            mt={2}
+            mb={2}
+            textAlign="center"
+            bg="none"
+          >
+            <Text fontSize="xl" fontWeight="bold" color="black">
+              {selectedCharacter.name}
+            </Text>
+          </Box>
+          <StatsBox stats={selectedCharacter} />
           </Box>
           <Box display="flex" flexDirection="column" alignItems="center" mt={4} flex={1}>
             <TTS

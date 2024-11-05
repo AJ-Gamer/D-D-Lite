@@ -19,8 +19,8 @@ const storyline: StoryNode[] = [
     prompt: 'You are an adventurer, standing at the edge of a dark, whispering forest. Shadows loom and the air is thick with mystery. Three paths diverge before you, each shrouded in a different aura. The left path glimmers faintly with a strange light, the middle path is lined with eerie, twisted trees, and the right path is overgrown with thick vines. What will you do?',
     options: [
       { text: 'Take the left path, drawn by the glimmer', nextNodeId: 2 },
-      { text: 'Brave the middle path, intrigued by the twisted trees', nextNodeId: 3 },
-      { text: 'Venture down the right path, eager to discover what lies beneath the vines', nextNodeId: 4 },
+      { text: 'Brave the middle path, into the twisted trees', nextNodeId: 3 },
+      { text: 'Venture down the right path, beneath the vines', nextNodeId: 4 },
     ],
     storyId: 1,
   },

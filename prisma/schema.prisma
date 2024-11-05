@@ -118,10 +118,11 @@ model Option {
 model UserStoryProgress {
   id            Int       @id @default(autoincrement())
   userId        Int
+  characterId   Int
   user          User      @relation(fields: [userId], references: [id])
   currentNodeId Int
   currentNode   StoryNode @relation(fields: [currentNodeId], references: [id])
-  path          String?
+  @@unique([userId, characterId])
 }
 
 model Completion {

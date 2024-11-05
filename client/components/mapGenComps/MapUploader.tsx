@@ -45,6 +45,7 @@ const MapUploader: FC<MapUploaderProps> = ({ imgDataUrl, userId }) => {
         duration: 3000,
         isClosable: true,
       });
+      setMapName('');
     } catch (error) {
       console.error('Failed to upload', error);
 

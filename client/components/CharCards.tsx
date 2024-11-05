@@ -1,11 +1,11 @@
 import React, { FC } from 'react';
 import {
   Box,
-  Button,
   Heading,
   Image,
   Text,
 } from '@chakra-ui/react';
+import { DeleteIcon } from '@chakra-ui/icons';
 
 interface Character {
   id: number;
@@ -43,8 +43,12 @@ const CharCards: FC<CharCardsProps> = ({
           justifyItems="center"
           padding="1rem"
           margin="0 1rem"
+          width="214px"
           bg={selectedChar === char.id ? 'yellow.400' : 'gray.400'}
           boxShadow="2xl"
+          onClick={() => onSelectChar(char.id)}
+          cursor="pointer"
+          position="relative"
         >
           <Image
             src={char.image}
@@ -66,30 +70,18 @@ const CharCards: FC<CharCardsProps> = ({
             }
           </Text>
           {selectedChar !== char.id && (
-            <>
-              <Button
-                bg="yellow.400"
-                color="black"
-                onClick={() => onSelectChar(char.id)}
-                mt={2}
-                width="100%"
-              >
-                Play as
-                {' '}
-                {char.name}
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => onDeleteChar(char.id)}
-                color="gray.800"
-                mt={2}
-                top="1.2rem"
-                left="8.4rem"
-              >
-                Delete
-              </Button>
-            </>
+            <DeleteIcon
+              onClick={(e) => {
+                e.stopPropagation();
+                onDeleteChar(char.id);
+              }}
+              color="gray.800"
+              mt={2}
+              _hover={{ color: 'yellow.600' }}
+              position="absolute"
+              top="1px"
+              right="8px"
+            />
           )}
         </Box>
       ))}

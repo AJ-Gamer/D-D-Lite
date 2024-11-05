@@ -5,4 +5,4 @@
 
 */
 -- AlterTable
-ALTER TABLE `equipment` ADD COLUMN `type` VARCHAR(191) NOT NULL;
+ALTER TABLE `Equipment` ADD COLUMN `type` VARCHAR(191) NOT NULL;

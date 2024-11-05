@@ -11,7 +11,11 @@ interface TTSProps {
 }
 
 const TTS: FC<TTSProps> = ({ prompt }) => {
-  const [isTTSActive, setIsTTSActive] = useState(false);
+  const [isTTSActive, setIsTTSActive] = useState<boolean>(() => {
+    const storedState = localStorage.getItem("isTTSActive");
+    return storedState ? JSON.parse(storedState) : false;
+  });
+
   const [utterance, setUtterance] = useState<SpeechSynthesisUtterance | null>(null);
 
   const toggleTextToSpeech = () => {
@@ -34,6 +38,10 @@ const TTS: FC<TTSProps> = ({ prompt }) => {
   };
 
   useEffect(() => {
+    localStorage.setItem("isTTSActive", JSON.stringify(isTTSActive));
+  }, [isTTSActive]);
+
+  useEffect(() => {
     return () => {
       window.speechSynthesis.cancel();
     };
@@ -49,9 +57,10 @@ const TTS: FC<TTSProps> = ({ prompt }) => {
         onClick={toggleTextToSpeech}
         icon={isTTSActive ? <HiSpeakerWave /> : <HiSpeakerXMark />}
         variant="ghost"
-      >
-        {isTTSActive ? 'Stop Speaking' : 'Start Speaking'}
-      </IconButton>
+        outline="2px solid black" // Outline around the icon
+        bg={isTTSActive ? "yellow.400" : "transparent"} // Optional: background color when active
+        colorScheme={isTTSActive ? "yellow" : "gray"} // Optional: icon color when active
+      />
     </VStack>
   );
 };

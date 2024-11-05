@@ -7,11 +7,13 @@ interface Equipment {
   name: string;
   index: string;
   owned: number;
+  url: string;
 }
 
 interface EquipmentDetail {
   name: string;
   desc: string[];
+  cost: any;
 }
 
 interface StoreProps {
@@ -30,7 +32,7 @@ const Store: FC<StoreProps> = ({ userId }) => {
   const [gold, setGold] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<string>('equipment');
-  const [loading, setLoading] = useState<boolean>(false); // New loading state
+  const [loading, setLoading] = useState<boolean>(false);
   const itemsPerPage = 20;
 
   const toast = useToast();
@@ -84,7 +86,7 @@ const Store: FC<StoreProps> = ({ userId }) => {
     fetchGold();
   }, [userId]);
 
-  const handleBuy = async (equipmentName: string) => {
+  const handleBuy = async (equipmentName: string, equipmentIndex: string, equipmentUrl: string) => {
     if (gold !== null && gold < 50) {
       toast({
         title: 'Insufficient Gold',
@@ -108,7 +110,7 @@ const Store: FC<StoreProps> = ({ userId }) => {
         return;
       }
 
-      const response = await axios.post(`/store/buy`, { userId, equipmentName });
+      const response = await axios.post(`/store/buy`, { userId, equipmentName, equipmentIndex, equipmentUrl });
       const updatedEquipment = (activeTab === 'equipment' ? equipment : magicItems).map(item =>
         item.name === equipmentName ? { ...item, owned: item.owned + 1 } : item
       );
@@ -223,17 +225,19 @@ const Store: FC<StoreProps> = ({ userId }) => {
           {/* Display item details if selected */}
           {selectedIndex === item.index && selectedEquipmentDetails && (
             <Box mt={2}>
-              <Text mt={2} color="gray.600">
-                {selectedEquipmentDetails.desc.join(' ')}
-              </Text>
+              <Flex justify="space-between" mt={4}>
+                <Text mt={2} fontWeight="bold"> Cost: {selectedEquipmentDetails.cost.quantity} </Text>
+                <Text fontWeight="bold"> Owned: {item.owned}</Text>
+              </Flex>
+              <Text mt={2} color="gray.800"> {selectedEquipmentDetails.desc.join(' ')} </Text>
             </Box>
           )}
   
           {/* Cost and Owned Text in the same row */}
-          <Flex justify="space-between" mt={4}>
+          {/* <Flex justify="space-between" mt={4}>
             <Text fontWeight="bold">Cost: 50 gold</Text>
             <Text fontWeight="bold">Owned: {item.owned}</Text>
-          </Flex>
+          </Flex> */}
   
           {/* Full-width Buy and Sell buttons */}
           <Flex gap={4} mt={4}>
@@ -252,7 +256,8 @@ const Store: FC<StoreProps> = ({ userId }) => {
             <Button
               onClick={(e) => {
                 e.stopPropagation();
-                handleBuy(item.name);
+                console.log('Item:', item);
+                handleBuy(item.name, item.index, item.url);
               }}
               colorScheme="green"
               size="md"

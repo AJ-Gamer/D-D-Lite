@@ -19,9 +19,10 @@ model User {
   email         String
   name          String
   characters    Character[]
-  gold          Int                 @default(300)
+  gold          Int                 @default(100)
   inventory     Inventory[]
   storyProgress UserStoryProgress[]
+  Completion    Completion[]
 }
 
 model Character {
@@ -85,21 +86,23 @@ model Equipment {
   id           Int            @id @default(autoincrement())
   name         String
   description  String?
-  type         String          // Type of equipment: armor, weapon, etc.
-  inventory    Inventory       @relation(fields: [inventoryId], references: [id])
+  type         String // Type of equipment: armor, weapon, etc.
+  inventory    Inventory      @relation(fields: [inventoryId], references: [id])
   inventoryId  Int
-  owned        Int             @default(0)
-  equipped     Boolean         @default(false)
+  owned        Int            @default(0)
+  equipped     Boolean        @default(false)
   EquippedItem EquippedItem[]
 }
 
 model StoryNode {
   id          Int                 @id @default(autoincrement())
-  storyId     Int
+  storyId     Int                 @unique
   prompt      String              @db.Text
   options     Option[]            @relation("CurrentNode")
   nextOptions Option[]            @relation("NextNode")
   progress    UserStoryProgress[]
+  endingType  String?
+  goldReward  Int?
 }
 
 model Option {
@@ -115,8 +118,17 @@ model Option {
 model UserStoryProgress {
   id            Int       @id @default(autoincrement())
   userId        Int
+  characterId   Int
   user          User      @relation(fields: [userId], references: [id])
   currentNodeId Int
   currentNode   StoryNode @relation(fields: [currentNodeId], references: [id])
-  path          String?
+  @@unique([userId, characterId])
+}
+
+model Completion {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id])
+  endingType String
+  timestamp  DateTime @default(now())
 }

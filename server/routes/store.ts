@@ -112,8 +112,8 @@ storeRouter.get('/gold', async (req: Request, res: Response) => {
 });
 
 storeRouter.post('/buy', async (req: Request, res: Response) => {
-  const { userId, equipmentName, equipmentType } = req.body; // Make sure to include type in the request body
-  if (!userId || !equipmentName || !equipmentType) {
+  const { userId, equipmentName, equipmentIndex, equipmentUrl } = req.body;
+  if (!userId || !equipmentName) {
     return res.status(400).json({ message: 'User ID, Equipment Name, and Equipment Type are required' });
   }
 
@@ -142,6 +142,15 @@ storeRouter.post('/buy', async (req: Request, res: Response) => {
 
     if (!inventory) {
       return res.status(404).json({ message: 'Inventory not found' });
+    }
+
+    let equipmentType; 
+    if (equipmentUrl.includes('equipment')) {
+      const categoryResponse = await axios.get(`https://www.dnd5eapi.co/api/equipment/${equipmentIndex}`);
+      equipmentType = categoryResponse.data.equipment_category.index;
+    } else if (equipmentUrl.includes('magic-items')) {
+      const categoryResponse = await axios.get(`https://www.dnd5eapi.co/api/magic-items/${equipmentIndex}`);
+      equipmentType = categoryResponse.data.equipment_category.index;
     }
 
     const existingItem = await prisma.equipment.findFirst({

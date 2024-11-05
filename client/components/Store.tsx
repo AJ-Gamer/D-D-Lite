@@ -13,6 +13,7 @@ interface Equipment {
 interface EquipmentDetail {
   name: string;
   desc: string[];
+  cost: any;
 }
 
 interface StoreProps {
@@ -31,7 +32,7 @@ const Store: FC<StoreProps> = ({ userId }) => {
   const [gold, setGold] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<string>('equipment');
-  const [loading, setLoading] = useState<boolean>(false); // New loading state
+  const [loading, setLoading] = useState<boolean>(false);
   const itemsPerPage = 20;
 
   const toast = useToast();
@@ -224,17 +225,19 @@ const Store: FC<StoreProps> = ({ userId }) => {
           {/* Display item details if selected */}
           {selectedIndex === item.index && selectedEquipmentDetails && (
             <Box mt={2}>
-              <Text mt={2} color="gray.600">
-                {selectedEquipmentDetails.desc.join(' ')}
-              </Text>
+              <Flex justify="space-between" mt={4}>
+                <Text mt={2} fontWeight="bold"> Cost: {selectedEquipmentDetails.cost.quantity} </Text>
+                <Text fontWeight="bold"> Owned: {item.owned}</Text>
+              </Flex>
+              <Text mt={2} color="gray.800"> {selectedEquipmentDetails.desc.join(' ')} </Text>
             </Box>
           )}
   
           {/* Cost and Owned Text in the same row */}
-          <Flex justify="space-between" mt={4}>
+          {/* <Flex justify="space-between" mt={4}>
             <Text fontWeight="bold">Cost: 50 gold</Text>
             <Text fontWeight="bold">Owned: {item.owned}</Text>
-          </Flex>
+          </Flex> */}
   
           {/* Full-width Buy and Sell buttons */}
           <Flex gap={4} mt={4}>

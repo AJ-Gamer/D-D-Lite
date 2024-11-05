@@ -248,12 +248,12 @@ const Encounters: FC<EncountersProps> = ({ profile }) => {
     return (
       <Center>
         <Box textAlign="center" mt={16}>
-          <Text fontSize="2xl">Greetings {selectedCharacter.name}, are you ready to start your campaign?</Text>
-          <HStack spacing={6}>
-            <Button onClick={handleStartCampaign} bg="yellow.400" _hover={{ bg: 'orange.300' }}>
+          <Text textStyle="lg" fontWeight={"bold"} mt={20} textColor={"red"}>LEGENDSPIRE</Text>
+          <HStack spacing={6} mt={20}>
+            <Button onClick={handleStartCampaign} bg="yellow.400" _hover={{ bg: 'orange.300' }} width="60%">
               Start
             </Button>
-            <Button onClick={handleContinueCampaign} bg="yellow.400" _hover={{ bg: 'orange.300' }}>
+            <Button onClick={handleContinueCampaign} bg="yellow.400" _hover={{ bg: 'orange.300' }} width="60%">
               Continue
             </Button>
           </HStack>

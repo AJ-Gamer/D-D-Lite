@@ -10,6 +10,7 @@ import {
   Flex,
   HStack,
   Center,
+  useToast,
 } from '@chakra-ui/react';
 import StatsBox from './encountersComps/StatsBox';
 import TTS from './encountersComps/TTS';
@@ -69,7 +70,9 @@ const Encounters: FC<EncountersProps> = ({ profile }) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [startCampaign, setStartCampaign] = useState<boolean>(false);
 
-  const replacePlaceholders = (prompt: string, character: Character) => 
+  const toast = useToast();
+
+  const replacePlaceholders = (prompt: string, character: Character) =>
     prompt.replace('{name}', character.name).replace('{class}', character.class);
 
   const speakText = (text: string) => {
@@ -99,7 +102,7 @@ const Encounters: FC<EncountersProps> = ({ profile }) => {
     try {
       const { data }: { data: StoryNodeRes } = await axios.get(`/encounters/story/${id}`);
       setCurrentNode(data);
-      speakText(data.prompt); // Speak the prompt when fetched
+      speakText(data.prompt);
     } catch (error) {
       console.error('Error fetching story node:', error);
     } finally {
@@ -114,12 +117,46 @@ const Encounters: FC<EncountersProps> = ({ profile }) => {
     }
   };
 
-  const handleOptionClick = (nextNodeId: number | null, result?: string) => {
+  const handleContinueCampaign = async () => {
+    if (!selectedCharacter || !profile) return;
+
+    setLoading(true);
+    try {
+      const { data }: { data: StoryNodeRes } = await axios.get('/encounters/loadProgress', {
+        params: { userId: profile.id, characterId: selectedCharacter.id },
+      });
+      setCurrentNode(data);
+      speakText(data.prompt);
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        toast({
+          title: 'No saved progress found.',
+          description: 'You have not started this campaign yet.',
+          status: 'error',
+          duration: 4000,
+          isClosable: true,
+        });
+      } else {
+        console.error('Error loading progress:', error);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleOptionClick = async (nextNodeId: number | null, result?: string) => {
     if (result) {
       setEnding(result);
       speakText(result === 'good' ? 'You achieved the good ending!' : 'You met an unfortunate end.');
     } else if (nextNodeId !== null) {
-      fetchStoryNode(nextNodeId);
+      await fetchStoryNode(nextNodeId);
+      if (profile && selectedCharacter) {
+        await axios.post('/encounters/saveProgress', {
+          userId: profile.id,
+          characterId: selectedCharacter.id,
+          storyNodeId: nextNodeId,
+        });
+      }
     }
   };
 
@@ -212,9 +249,14 @@ const Encounters: FC<EncountersProps> = ({ profile }) => {
       <Center>
         <Box textAlign="center" mt={16}>
           <Text fontSize="2xl">Greetings {selectedCharacter.name}, are you ready to start your campaign?</Text>
-          <Button mt={4} onClick={handleStartCampaign} bg="yellow.400" _hover={{ bg: 'orange.300' }}>
-            Start your campaign
-          </Button>
+          <HStack spacing={6}>
+            <Button onClick={handleStartCampaign} bg="yellow.400" _hover={{ bg: 'orange.300' }}>
+              Start
+            </Button>
+            <Button onClick={handleContinueCampaign} bg="yellow.400" _hover={{ bg: 'orange.300' }}>
+              Continue
+            </Button>
+          </HStack>
         </Box>
       </Center>
     );

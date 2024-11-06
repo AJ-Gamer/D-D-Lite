@@ -17,15 +17,16 @@ interface OptionsButtonsProps {
 }
 
 const OptionsButtons: FC<OptionsButtonsProps> = ({ options, onOptionClick }) => (
-  <SimpleGrid columns={3} mt={32} spacing={2}>
+  <SimpleGrid columns={3} mt={32} spacing={4}>
     {options.map((option) => (
       <Button
         key={option.id}
         onClick={() => onOptionClick(option.nextNodeId, option.result)}
         bg="yellow.400"
-        _hover={{ bg: 'orange.300' }}
+        color="black"
+        _hover={{ bg: 'orange.400' }}
         size="lg"
-        width="75%"
+        width="100%"
         whiteSpace="normal"
         wordBreak="break-word"
         aria-label={`Option ${option.id}`}

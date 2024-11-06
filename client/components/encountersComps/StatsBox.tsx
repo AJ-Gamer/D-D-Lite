@@ -23,7 +23,7 @@ const StatsBox: FC<{ stats: CharacterStats }> = ({ stats }) => (
   <Box
     border="1px solid #ccc"
     p={4}
-    bg="#F6CC12"
+    bg="yellow.400"
     borderRadius="md"
     w="200px"
     textAlign="center"
@@ -31,8 +31,8 @@ const StatsBox: FC<{ stats: CharacterStats }> = ({ stats }) => (
     {statsLabels.map(({ label, key }, index) => (
       <React.Fragment key={key}>
         <Box mt={4}>
-          <Text fontSize="lg">{label}:</Text>
-          <Text fontSize="lg" fontWeight="bold">{stats[key]}</Text>
+          <Text fontSize="lg" color="black">{label}:</Text>
+          <Text fontSize="lg" fontWeight="bold" color="black">{stats[key]}</Text>
         </Box>
         {index < 3 && <Divider my={2} borderColor="gray.600" />}
       </React.Fragment>

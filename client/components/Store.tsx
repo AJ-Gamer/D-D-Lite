@@ -1,5 +1,21 @@
 import React, { FC, useEffect, useState } from 'react';
-import { Box, SimpleGrid, Card, Text, Input, Button, Flex, Tabs, TabList, Tab, TabPanels, TabPanel, useToast, Tooltip, Progress } from '@chakra-ui/react';
+import {
+  Box,
+  SimpleGrid,
+  Card,
+  Text,
+  Input,
+  Button,
+  Flex,
+  Tabs,
+  TabList,
+  Tab,
+  TabPanels,
+  TabPanel,
+  useToast,
+  Tooltip,
+  Progress,
+} from '@chakra-ui/react';
 import axios from 'axios';
 
 interface Equipment {
@@ -27,7 +43,10 @@ const Store: FC<StoreProps> = ({ userId }) => {
   const [magicItems, setMagicItems] = useState<Equipment[]>([]);
   const [filteredMagicItems, setFilteredMagicItems] = useState<Equipment[]>([]);
   const [selectedIndex, setSelectedIndex] = useState<string | null>(null);
-  const [selectedEquipmentDetails, setSelectedEquipmentDetails] = useState<EquipmentDetail | null>(null);
+  const [
+    selectedEquipmentDetails,
+    setSelectedEquipmentDetails,
+  ] = useState<EquipmentDetail | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [gold, setGold] = useState<number>(0);
@@ -139,10 +158,15 @@ const Store: FC<StoreProps> = ({ userId }) => {
         return;
       }
 
-      const response = await axios.post(`/store/buy`, { userId, equipmentName, equipmentIndex, equipmentUrl, cost });
-      const updatedEquipment = (activeTab === 'equipment' ? equipment : magicItems).map(item =>
-        item.name === equipmentName ? { ...item, owned: item.owned + 1 } : item
-      );
+      const response = await axios.post('/store/buy', {
+        userId,
+        equipmentName,
+        equipmentIndex,
+        equipmentUrl,
+      });
+      const updatedEquipment = (activeTab === 'equipment' ? equipment : magicItems).map((item) => (item.name === equipmentName
+        ? { ...item, owned: item.owned + 1 }
+        : item));
 
       if (activeTab === 'equipment') setEquipment(updatedEquipment);
       else setMagicItems(updatedEquipment);
@@ -155,20 +179,19 @@ const Store: FC<StoreProps> = ({ userId }) => {
         duration: 3000,
         isClosable: true,
       });
-    } catch (error) {
-      console.error('Error buying equipment:', error);
+    } catch (err) {
+      console.error('Error buying equipment:', err);
     }
   };
 
   const handleSell = async (equipmentName: string, cost: number) => {
     try {
+      const response = await axios.post('/store/sell', { userId, equipmentName });
       const response = await axios.post(`/store/sell`, { userId, equipmentName, cost });
 
-      const updatedEquipment = (activeTab === 'equipment' ? equipment : magicItems).map(item =>
-        item.name === equipmentName && item.owned > 0
-          ? { ...item, owned: item.owned - 1 }
-          : item
-      );
+      const updatedEquipment = (activeTab === 'equipment' ? equipment : magicItems).map((item) => (item.name === equipmentName && item.owned > 0
+        ? { ...item, owned: item.owned - 1 }
+        : item));
 
       if (activeTab === 'equipment') setEquipment(updatedEquipment);
       else setMagicItems(updatedEquipment);
@@ -181,8 +204,8 @@ const Store: FC<StoreProps> = ({ userId }) => {
         duration: 3000,
         isClosable: true,
       });
-    } catch (error) {
-      console.error('Error selling equipment:', error);
+    } catch (err) {
+      console.error('Error selling equipment:', err);
       toast({
         title: 'Error',
         description: 'Failed to sell the item.',
@@ -194,9 +217,8 @@ const Store: FC<StoreProps> = ({ userId }) => {
   };
 
   useEffect(() => {
-    const filtered = (activeTab === 'equipment' ? equipment : magicItems).filter(item =>
-      item.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filtered = (activeTab === 'equipment' ? equipment : magicItems)
+      .filter((item) => item.name.toLowerCase().includes(searchTerm.toLowerCase()));
     if (activeTab === 'equipment') setFilteredEquipment(filtered);
     else setFilteredMagicItems(filtered);
   }, [searchTerm, equipment, magicItems, activeTab]);
@@ -247,7 +269,7 @@ const Store: FC<StoreProps> = ({ userId }) => {
           bg="yellow.400"
           color="black"
           cursor="pointer"
-          height={selectedIndex === item.index ? 'auto' : '150px'}
+          height="150px"
           _hover={{
             transform: selectedIndex === item.index ? 'none' : 'scale(1.05)',
             transition: '0.3s',
@@ -255,6 +277,15 @@ const Store: FC<StoreProps> = ({ userId }) => {
           }}
           position="relative"
           boxShadow="md"
+          overflowY="scroll"
+          overflowX="hidden"
+          css={{
+            '&::-webkit-scrollbar': {
+              width: selectedIndex === item.index ? '8px' : '0px',
+              background: 'transparent',
+            },
+            scrollbarWidth: selectedIndex === item.index ? 'thin' : 'none',
+          }}
         >
           <Flex justify="space-between" align="center">
             {/* Tooltip for the full item name */}
@@ -264,24 +295,28 @@ const Store: FC<StoreProps> = ({ userId }) => {
               </Text>
             </Tooltip>
           </Flex>
-  
+
           {/* Display item details if selected */}
           {selectedIndex === item.index && selectedEquipmentDetails && (
             <Box mt={2}>
               <Flex justify="space-between" mt={4}>
-              <Text mt={2} fontWeight="bold">Cost: {itemCost}</Text>
-              <Text mt={2} fontWeight="bold">Owned: {item.owned}</Text>
+                <Text mt={2} fontWeight="bold">
+                  Cost: {selectedEquipmentDetails.cost.quantity}
+                </Text>
+                <Text mt={2} fontWeight="bold">
+                  Owned: {item.owned}
+                </Text>
               </Flex>
               <Text mt={2} color="gray.800"> {selectedEquipmentDetails.desc.join(' ')} </Text>
             </Box>
           )}
-  
+
           {/* Cost and Owned Text in the same row */}
           {/* <Flex justify="space-between" mt={4}>
             <Text fontWeight="bold">Cost: 50 gold</Text>
             <Text fontWeight="bold">Owned: {item.owned}</Text>
           </Flex> */}
-  
+
           {/* Full-width Buy and Sell buttons */}
           <Flex gap={4} mt={4}>
             <Button
@@ -324,11 +359,17 @@ const Store: FC<StoreProps> = ({ userId }) => {
           justifyContent="center"
           zIndex={1000}
         >
-          <Progress size="lg" isIndeterminate colorScheme="orange" width="500px" height="25px"/>
+          <Progress
+            size="lg"
+            isIndeterminate
+            colorScheme="orange"
+            width="500px"
+            height="25px"
+          />
         </Flex>
       )}
     </SimpleGrid>
-  );   
+  );
 
   return (
     <Box mt={10} px={4} maxWidth="100%" overflow="hidden">
@@ -348,10 +389,13 @@ const Store: FC<StoreProps> = ({ userId }) => {
         )}
       </Flex>
 
-      <Tabs onChange={(index) => {
-        setActiveTab(index === 0 ? 'equipment' : 'magicItems');
-        setCurrentPage(1);
-      }} variant="enclosed">
+      <Tabs
+        onChange={(index) => {
+          setActiveTab(index === 0 ? 'equipment' : 'magicItems');
+          setCurrentPage(1);
+        }}
+        variant="enclosed"
+      >
         <TabList>
           <Tab>Equipment</Tab>
           <Tab>Magic Items</Tab>
@@ -365,53 +409,56 @@ const Store: FC<StoreProps> = ({ userId }) => {
           </TabPanel>
         </TabPanels>
       </Tabs>
-
-      <Box mt={5} textAlign="center">
+      <Box textAlign="center">
+        <Text display="inline" fontWeight="bold">
+          Page {currentPage} of {totalPages}
+        </Text>
+      </Box>
+      <Box mt={2}>
         {!loading && (
-          <>
+          <Flex justifyContent="center" alignItems="center">
             <Button
-              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
               disabled={currentPage === 1}
               mr={2}
-              bg="orange.300"
-              _hover={{ bg: "orange.300" }}
+              bg="orange.400"
+              _hover={{ bg: 'orange.300' }}
+              color="black"
             >
               Previous
             </Button>
-            <Text display="inline" fontWeight="bold">
-              Page {currentPage} of {totalPages}
-            </Text>
+
+            <Flex>
+              {Array.from({ length: totalPages }, (_, index) => index + 1).map((page) => (
+                <Button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  size="xs"
+                  mx={1}
+                  bg={page === currentPage ? 'orange.400' : 'yellow.400'}
+                  _hover={{ bg: 'orange.400' }}
+                  disabled={page === currentPage}
+                  border="none"
+                  color="black"
+                >
+                  {page}
+                </Button>
+              ))}
+            </Flex>
+
             <Button
-              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
               disabled={currentPage === totalPages}
               ml={2}
-              bg="orange.300"
-              _hover={{ bg: "orange.300" }}
+              bg="orange.400"
+              _hover={{ bg: 'orange.300' }}
+              color="black"
             >
               Next
             </Button>
-          </>
+          </Flex>
         )}
       </Box>
-
-      <Flex justifyContent="center" mt={4}>
-        {!loading && (
-          Array.from({ length: totalPages }, (_, index) => index + 1).map(page => (
-            <Button
-              key={page}
-              onClick={() => setCurrentPage(page)}
-              size="xs"
-              mx={1}
-              bg={page === currentPage ? "orange.300" : "yellow.400"}
-              _hover={{ bg: "orange.300" }}
-              disabled={page === currentPage}
-              border="none"
-            >
-              {page}
-            </Button>
-          ))
-        )}
-      </Flex>
     </Box>
   );
 };

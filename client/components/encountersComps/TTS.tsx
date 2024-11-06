@@ -3,8 +3,9 @@ import {
   VStack,
   Text,
   IconButton,
+  useColorMode,
 } from '@chakra-ui/react';
-import { HiSpeakerWave, HiSpeakerXMark } from "react-icons/hi2";
+import { HiSpeakerWave, HiSpeakerXMark } from 'react-icons/hi2';
 
 interface TTSProps {
   prompt: string;
@@ -12,11 +13,12 @@ interface TTSProps {
 
 const TTS: FC<TTSProps> = ({ prompt }) => {
   const [isTTSActive, setIsTTSActive] = useState<boolean>(() => {
-    const storedState = localStorage.getItem("isTTSActive");
+    const storedState = localStorage.getItem('isTTSActive');
     return storedState ? JSON.parse(storedState) : false;
   });
-
   const [utterance, setUtterance] = useState<SpeechSynthesisUtterance | null>(null);
+
+  const { colorMode } = useColorMode();
 
   const toggleTextToSpeech = () => {
     if (isTTSActive) {
@@ -38,22 +40,20 @@ const TTS: FC<TTSProps> = ({ prompt }) => {
   };
 
   useEffect(() => {
-    localStorage.setItem("isTTSActive", JSON.stringify(isTTSActive));
+    localStorage.setItem('isTTSActive', JSON.stringify(isTTSActive));
   }, [isTTSActive]);
 
-  useEffect(() => {
-    return () => {
-      window.speechSynthesis.cancel();
-    };
+  useEffect(() => () => {
+    window.speechSynthesis.cancel();
   }, []);
 
   return (
     <VStack spacing={5} align="center">
-      <Text 
-        fontSize="2xl" 
-        textAlign="center" 
-        outline="1px solid" 
-        bg="gray.400"
+      <Text
+        fontSize="2xl"
+        textAlign="center"
+        outline="1px solid"
+        bg={colorMode === 'light' ? 'gray.400' : 'gray.600'}
         px={2}
         fontWeight="bold"
         fontFamily="'Cinzel', serif"
@@ -66,8 +66,8 @@ const TTS: FC<TTSProps> = ({ prompt }) => {
         icon={isTTSActive ? <HiSpeakerWave /> : <HiSpeakerXMark />}
         variant="ghost"
         outline="2px solid black" // Outline around the icon
-        bg={isTTSActive ? "yellow.400" : "transparent"} // Optional: background color when active
-        colorScheme={isTTSActive ? "yellow" : "gray"} // Optional: icon color when active
+        bg={isTTSActive ? 'yellow.400' : 'transparent'} // Optional: background color when active
+        colorScheme={isTTSActive ? 'yellow' : 'gray'} // Optional: icon color when active
       />
     </VStack>
   );

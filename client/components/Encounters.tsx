@@ -11,6 +11,7 @@ import {
   HStack,
   Center,
   useToast,
+  useColorMode,
 } from '@chakra-ui/react';
 import StatsBox from './encountersComps/StatsBox';
 import TTS from './encountersComps/TTS';
@@ -71,9 +72,10 @@ const Encounters: FC<EncountersProps> = ({ profile }) => {
   const [startCampaign, setStartCampaign] = useState<boolean>(false);
 
   const toast = useToast();
+  const { colorMode } = useColorMode();
 
-  const replacePlaceholders = (prompt: string, character: Character) =>
-    prompt.replace('{name}', character.name).replace('{class}', character.class);
+  const replacePlaceholders = (prompt: string, character: Character) => prompt
+    .replace('{name}', character.name).replace('{class}', character.class);
 
   const speakText = (text: string) => {
     const utterance = new SpeechSynthesisUtterance(text);
@@ -171,12 +173,18 @@ const Encounters: FC<EncountersProps> = ({ profile }) => {
 
   if (ending) {
     return (
-      <Center>
+      <Center minHeight="100vh">
         <Box textAlign="center" mt={16}>
-          <Text fontSize="3xl" color="teal.600">
+          <Text fontSize="3xl" color="red.600">
             {ending === 'good' ? 'You achieved the good ending!' : 'You met an unfortunate end.'}
           </Text>
-          <Button mt={4} onClick={restartAdventure} bg="teal.400" _hover={{ bg: 'teal.300' }}>
+          <Button
+            mt={4}
+            onClick={restartAdventure}
+            bg="yellow.400"
+            _hover={{ bg: 'orange.400' }}
+            color="black"
+          >
             Restart the Adventure
           </Button>
         </Box>
@@ -188,7 +196,7 @@ const Encounters: FC<EncountersProps> = ({ profile }) => {
     return (
       <Center>
         <Box textAlign="center" mt={16}>
-          <Text fontSize="2xl" mb={4} fontWeight={'bold'}>Select your character:</Text>
+          <Text fontSize="2xl" mb={4} fontWeight="bold">Select your character:</Text>
           <HStack spacing={6} mt={4} alignItems="center">
             {characters.map((char) => (
               <VStack
@@ -198,10 +206,9 @@ const Encounters: FC<EncountersProps> = ({ profile }) => {
                 bg={selectedCharacter === char.id ? 'yellow.400' : 'gray.400'}
                 boxShadow="2x1"
                 justifyItems="center"
-                cursor="pointer"
                 padding="1rem"
                 margin="0 1rem"
-                _hover={{bg: "yellow.400"}}
+                width="214px"
               >
                 <Image
                   src={char.image}
@@ -222,17 +229,18 @@ const Encounters: FC<EncountersProps> = ({ profile }) => {
                   }
                 </Text>
                 <VStack spacing={1}>
-                  <Text fontWeight="bold">Strength: {char.strength}</Text>
-                  <Text fontWeight="bold">Dexterity: {char.dexterity}</Text>
-                  <Text fontWeight="bold">Constitution: {char.constitution}</Text>
-                  <Text fontWeight="bold">Charisma: {char.charisma}</Text>
+                  <Text color="black">Strength: {char.strength}</Text>
+                  <Text color="black">Dexterity: {char.dexterity}</Text>
+                  <Text color="black">Constitution: {char.constitution}</Text>
+                  <Text color="black">Charisma: {char.charisma}</Text>
                 </VStack>
-                <Button 
-                  mt={2} 
+                <Button
+                  mt={2}
                   color="black"
-                  onClick={() => setSelectedCharacter(char)} 
-                  bg="yellow.400" 
+                  onClick={() => setSelectedCharacter(char)}
+                  bg="yellow.400"
                   width="100%"
+                  _hover={{ bg: 'orange.400' }}
                 >
                   Play as {char.name}
                 </Button>
@@ -242,18 +250,30 @@ const Encounters: FC<EncountersProps> = ({ profile }) => {
         </Box>
       </Center>
     );
-  }  
+  }
 
   if (selectedCharacter && !startCampaign) {
     return (
       <Center>
         <Box textAlign="center" mt={16}>
-          <Text fontSize='6xl' fontWeight={"bold"} mt={20} textColor={"red.600"}>LEGENDSPIRE</Text>
+          <Text fontSize="6xl" fontWeight="bold" mt={20} textColor="red.600">LEGENDSPIRE</Text>
           <HStack spacing={6} mt={20}>
-            <Button onClick={handleStartCampaign} bg="yellow.400" _hover={{ bg: 'orange.300' }} width="60%">
+            <Button
+              onClick={handleStartCampaign}
+              bg="yellow.400"
+              _hover={{ bg: 'orange.400' }}
+              width="60%"
+              color="black"
+            >
               Start
             </Button>
-            <Button onClick={handleContinueCampaign} bg="yellow.400" _hover={{ bg: 'orange.300' }} width="60%">
+            <Button
+              onClick={handleContinueCampaign}
+              bg="yellow.400"
+              _hover={{ bg: 'orange.400' }}
+              width="60%"
+              color="black"
+            >
               Continue
             </Button>
           </HStack>
@@ -265,29 +285,36 @@ const Encounters: FC<EncountersProps> = ({ profile }) => {
   if (startCampaign && currentNode && selectedCharacter) {
     return (
       <Center>
-        <Flex direction="row" justify="center" mt={16} mx={4} align="flex-start">
-        <Box display="flex" flexDirection="column" alignItems="center" mt={4} mr={8}>
-          <Image
-            boxSize="200px"
-            objectFit="cover"
-            src={selectedCharacter.image}
-            alt={`${selectedCharacter.name} Image`}
-            borderRadius="md"
-          />
-          <Box 
-            w="200px"
-            border="2px solid black"
-            borderRadius="md"
-            mt={2}
-            mb={2}
-            textAlign="center"
-            bg="none"
+        <Flex direction="row" justify="center" mt={16} mx={4} align="flex-start" maxWidth="1400px">
+          <Box
+            display="flex"
+            flexDirection="column"
+            alignItems="center"
+            mt={4}
+            mr={8}
           >
-            <Text fontSize="xl" fontWeight="bold" color="black">
-              {selectedCharacter.name}
-            </Text>
-          </Box>
-          <StatsBox stats={selectedCharacter} />
+            <Image
+              boxSize="200px"
+              objectFit="cover"
+              src={selectedCharacter.image}
+              alt={`${selectedCharacter.name} Image`}
+              borderRadius="md"
+            />
+            <Box
+              w="200px"
+              border="2px solid"
+              borderColor={colorMode === 'light' ? 'black' : 'white'}
+              borderRadius="md"
+              mt={2}
+              mb={2}
+              textAlign="center"
+              bg="none"
+            >
+              <Text fontSize="xl" fontWeight="bold" color={colorMode === 'light' ? 'black' : 'white'}>
+                {selectedCharacter.name}
+              </Text>
+            </Box>
+            <StatsBox stats={selectedCharacter} />
           </Box>
           <Box display="flex" flexDirection="column" alignItems="center" mt={4} flex={1}>
             <TTS

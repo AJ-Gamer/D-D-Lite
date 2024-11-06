@@ -33,6 +33,7 @@ const Store: FC<StoreProps> = ({ userId }) => {
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<string>('equipment');
   const [loading, setLoading] = useState<boolean>(false);
+  const [itemCost, setItemCost] = useState(0);
   const itemsPerPage = 20;
 
   const toast = useToast();
@@ -86,8 +87,16 @@ const Store: FC<StoreProps> = ({ userId }) => {
     fetchGold();
   }, [userId]);
 
+  const rarityCostMap = {
+    Common: 50,
+    Uncommon: 75,
+    Rare: 100,
+    Very_rare: 200,
+    Legendary: 300,
+  };
+
   const handleBuy = async (equipmentName: string, equipmentIndex: string, equipmentUrl: string) => {
-    if (gold !== null && gold < 50) {
+    if (gold !== null || gold === 0) {
       toast({
         title: 'Insufficient Gold',
         description: 'Not enough gold to buy this item.',
@@ -176,16 +185,30 @@ const Store: FC<StoreProps> = ({ userId }) => {
     if (selectedIndex === index) {
       setSelectedIndex(null);
       setSelectedEquipmentDetails(null);
+      setItemCost(0);
     } else {
       try {
-        const response = await axios.get(`/store/equipment/${index}`);
+        let response;
+        let itemCostValue = 0;
+  
+        if (activeTab === 'equipment') {
+          response = await axios.get(`/store/equipment/${index}`);
+          const { data } = response;
+          itemCostValue = data.cost?.quantity;
+        } else if (activeTab === 'magicItems') {
+          response = await axios.get(`/store/magic-items/${index}`);
+          const { data } = response;
+          itemCostValue = rarityCostMap[data.rarity.name as keyof typeof rarityCostMap];
+        }
+  
         setSelectedIndex(index);
-        setSelectedEquipmentDetails(response.data);
+        setSelectedEquipmentDetails(response?.data);
+        setItemCost(itemCostValue);
       } catch (error) {
-        console.error('Failed to fetch equipment details', error);
+        console.error('Failed to fetch item details', error);
       }
     }
-  };
+  };  
 
   const totalPages = Math.ceil(
     (activeTab === 'equipment' ? filteredEquipment : filteredMagicItems).length / itemsPerPage
@@ -226,8 +249,8 @@ const Store: FC<StoreProps> = ({ userId }) => {
           {selectedIndex === item.index && selectedEquipmentDetails && (
             <Box mt={2}>
               <Flex justify="space-between" mt={4}>
-                <Text mt={2} fontWeight="bold"> Cost: {selectedEquipmentDetails.cost.quantity} </Text>
-                <Text mt={2} fontWeight="bold"> Owned: {item.owned}</Text>
+              <Text mt={2} fontWeight="bold">Cost: {itemCost}</Text>
+              <Text mt={2} fontWeight="bold">Owned: {item.owned}</Text>
               </Flex>
               <Text mt={2} color="gray.800"> {selectedEquipmentDetails.desc.join(' ')} </Text>
             </Box>

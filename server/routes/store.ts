@@ -88,6 +88,16 @@ storeRouter.get('/equipment/:index', async (req: Request, res: Response) => {
   }
 });
 
+storeRouter.get('/magic-items/:index', async (req: Request, res: Response) => {
+  const { index } = req.params;
+  try {
+    const response = await axios.get(`https://www.dnd5eapi.co/api/magic-items/${index}`);
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to fetch specific magical item' });
+  }
+});
+
 storeRouter.get('/gold', async (req: Request, res: Response) => {
   const userId = parseInt(req.query.userId as string, 10);
 

@@ -121,49 +121,52 @@ const storyline: StoryNode[] = [
   },
 ];
 
-async function main() {
-  await prisma.option.deleteMany({});
-  console.log('Deleted all options.');
-
-  await prisma.storyNode.deleteMany({});
-  console.log('Deleted all story nodes.');
-
-  const createdStoryNodes: { [key: number]: number } = {};
-  await Promise.all(
-    storyline.map(async (node) => {
-      const createdNode = await prisma.storyNode.create({
-        data: {
+async function upsertWithRetry(node: StoryNode, retries = 5): Promise<void> {
+  for (let attempt = 0; attempt < retries; attempt++) {
+    try {
+      await prisma.storyNode.upsert({
+        where: { storyId: node.storyId },
+        update: {
+          prompt: node.prompt,
+          options: {
+            deleteMany: {},
+            create: node.options.map((option) => ({
+              text: option.text,
+              nextNodeId: option.nextNodeId !== null ? option.nextNodeId : null,
+              result: option.result,
+            })),
+          },
+        },
+        create: {
           prompt: node.prompt,
           storyId: node.storyId,
-        },
-      });
-      createdStoryNodes[node.storyId] = createdNode.id;
-    })
-  );
-  console.log('Created story nodes:', createdStoryNodes);
-
-  await Promise.all(
-    storyline.map(async (node) => {
-      const optionsData = node.options.map((option) => ({
-        text: option.text,
-        nextNodeId: option.nextNodeId !== null ? createdStoryNodes[option.nextNodeId] : null,
-        result: option.result,
-      }));
-
-      console.log(`Updating node with options:`, {
-        nodeId: createdStoryNodes[node.storyId],
-        optionsData,
-      });
-
-      await prisma.storyNode.update({
-        where: { id: createdStoryNodes[node.storyId] },
-        data: {
           options: {
-            create: optionsData,
+            create: node.options.map((option) => ({
+              text: option.text,
+              nextNodeId: option.nextNodeId !== null ? option.nextNodeId : null,
+              result: option.result,
+            })),
           },
         },
       });
-    })
+      console.log(`Upserted story node with storyId ${node.storyId}`);
+      return; // Success, exit the retry loop
+    } catch (error: any) { 
+      if (error.code === 'P2034') {
+        // Retry on deadlock or write conflict error
+        console.log(`Write conflict on storyId ${node.storyId}, retrying... (attempt ${attempt + 1})`);
+        await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait 1 second before retrying
+      } else {
+        throw error; // Rethrow other errors
+      }
+    }
+  }
+  console.error(`Failed to upsert story node with storyId ${node.storyId} after ${retries} attempts.`);
+}
+
+async function main() {
+  await Promise.all(
+    storyline.map((node) => upsertWithRetry(node))
   );
 
   console.log('All story nodes and options added to the database!');

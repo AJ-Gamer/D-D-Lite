@@ -5,12 +5,24 @@ const encounters = express.Router();
 
 encounters.get('/story/:id', async (req: Request, res: Response) => {
   const { id } = req.params;
-  console.log(`Fetching story node with ID: ${id}`);
   try {
     const storyNode = await prisma.storyNode.findUnique({
       where: { id: Number(id) },
       include: {
-        options: true,
+        options: {
+          select: {
+            id: true,
+            text: true,
+            nextNodeId: true,
+            result: true,
+            statCheck: { // Select statCheck details
+              select: {
+                stat: true,
+                difficulty: true,
+              },
+            },
+          },
+        },
       },
     });
 

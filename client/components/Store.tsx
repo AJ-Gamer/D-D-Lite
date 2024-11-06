@@ -8,6 +8,7 @@ interface Equipment {
   index: string;
   owned: number;
   url: string;
+  equipment_category: { index: string };
 }
 
 interface EquipmentDetail {
@@ -55,33 +56,52 @@ const Store: FC<StoreProps> = ({ userId }) => {
     }
   };
 
+  // Fetch and get the category for each item from their respective endpoints
+  const fetchItemCategories = async (items: Equipment[], isMagicItem: boolean) => {
+    const itemPromises = items.map(async (item) => {
+      try {
+        const endpoint = isMagicItem ? `/store/magic-items/${item.index}` : `/store/equipment/${item.index}`;
+        const response = await axios.get(endpoint);
+        return { ...item, equipment_category: { index: response.data.category } };
+      } catch (error) {
+        console.error(`Failed to fetch category for item ${item.index}:`, error);
+        return item;
+      }
+    });
+
+    const updatedItems = await Promise.all(itemPromises);
+    return updatedItems;
+  };
+
+  const fetchEquipment = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get('/store/equipment', { params: { userId } });
+      const equipmentWithCategories = await fetchItemCategories(response.data, false);
+      setEquipment(equipmentWithCategories);
+      setFilteredEquipment(equipmentWithCategories);
+    } catch (error) {
+      console.error('Error fetching equipment:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchMagicItems = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get('/store/magic-items', { params: { userId } });
+      const magicItemsWithCategories = await fetchItemCategories(response.data, true);
+      setMagicItems(magicItemsWithCategories);
+      setFilteredMagicItems(magicItemsWithCategories);
+    } catch (error) {
+      console.error('Error fetching magic items:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchEquipment = async () => {
-      setLoading(true);
-      try {
-        const response = await axios.get('/store/equipment', { params: { userId } });
-        setEquipment(response.data);
-        setFilteredEquipment(response.data);
-      } catch (error) {
-        console.error('Error fetching equipment:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const fetchMagicItems = async () => {
-      setLoading(true);
-      try {
-        const response = await axios.get('/store/magic-items', { params: { userId } });
-        setMagicItems(response.data);
-        setFilteredMagicItems(response.data);
-      } catch (error) {
-        console.error('Error fetching magic items:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchEquipment();
     fetchMagicItems();
     fetchGold();
@@ -126,7 +146,7 @@ const Store: FC<StoreProps> = ({ userId }) => {
 
       if (activeTab === 'equipment') setEquipment(updatedEquipment);
       else setMagicItems(updatedEquipment);
-      
+
       await fetchGold();
       toast({
         title: 'Purchase Successful',
@@ -190,7 +210,7 @@ const Store: FC<StoreProps> = ({ userId }) => {
       try {
         let response;
         let itemCostValue = 0;
-  
+
         if (activeTab === 'equipment') {
           response = await axios.get(`/store/equipment/${index}`);
           const { data } = response;
@@ -200,7 +220,7 @@ const Store: FC<StoreProps> = ({ userId }) => {
           const { data } = response;
           itemCostValue = rarityCostMap[data.rarity.name as keyof typeof rarityCostMap];
         }
-  
+
         setSelectedIndex(index);
         setSelectedEquipmentDetails(response?.data);
         setItemCost(itemCostValue);
@@ -208,12 +228,12 @@ const Store: FC<StoreProps> = ({ userId }) => {
         console.error('Failed to fetch item details', error);
       }
     }
-  };  
+  };
 
   const totalPages = Math.ceil(
     (activeTab === 'equipment' ? filteredEquipment : filteredMagicItems).length / itemsPerPage
   );
-  
+
   const paginatedItems = (activeTab === 'equipment' ? filteredEquipment : filteredMagicItems)
     .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 

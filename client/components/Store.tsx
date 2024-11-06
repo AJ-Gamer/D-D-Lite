@@ -29,7 +29,7 @@ const Store: FC<StoreProps> = ({ userId }) => {
   const [selectedEquipmentDetails, setSelectedEquipmentDetails] = useState<EquipmentDetail | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [gold, setGold] = useState<number | null>(null);
+  const [gold, setGold] = useState<number>(0);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<string>('equipment');
   const [loading, setLoading] = useState<boolean>(false);
@@ -95,8 +95,8 @@ const Store: FC<StoreProps> = ({ userId }) => {
     Legendary: 300,
   };
 
-  const handleBuy = async (equipmentName: string, equipmentIndex: string, equipmentUrl: string) => {
-    if (gold !== null || gold === 0) {
+  const handleBuy = async (equipmentName: string, equipmentIndex: string, equipmentUrl: string, cost: number) => {
+    if (gold === null || gold < itemCost) {
       toast({
         title: 'Insufficient Gold',
         description: 'Not enough gold to buy this item.',
@@ -119,7 +119,7 @@ const Store: FC<StoreProps> = ({ userId }) => {
         return;
       }
 
-      const response = await axios.post(`/store/buy`, { userId, equipmentName, equipmentIndex, equipmentUrl });
+      const response = await axios.post(`/store/buy`, { userId, equipmentName, equipmentIndex, equipmentUrl, cost });
       const updatedEquipment = (activeTab === 'equipment' ? equipment : magicItems).map(item =>
         item.name === equipmentName ? { ...item, owned: item.owned + 1 } : item
       );
@@ -140,9 +140,9 @@ const Store: FC<StoreProps> = ({ userId }) => {
     }
   };
 
-  const handleSell = async (equipmentName: string) => {
+  const handleSell = async (equipmentName: string, cost: number) => {
     try {
-      const response = await axios.post(`/store/sell`, { userId, equipmentName });
+      const response = await axios.post(`/store/sell`, { userId, equipmentName, cost });
 
       const updatedEquipment = (activeTab === 'equipment' ? equipment : magicItems).map(item =>
         item.name === equipmentName && item.owned > 0
@@ -267,7 +267,7 @@ const Store: FC<StoreProps> = ({ userId }) => {
             <Button
               onClick={(e) => {
                 e.stopPropagation();
-                handleSell(item.name);
+                handleSell(item.name, itemCost);
               }}
               colorScheme="red"
               size="md"
@@ -280,7 +280,7 @@ const Store: FC<StoreProps> = ({ userId }) => {
               onClick={(e) => {
                 e.stopPropagation();
                 console.log('Item:', item);
-                handleBuy(item.name, item.index, item.url);
+                handleBuy(item.name, item.index, item.url, itemCost);
               }}
               colorScheme="green"
               size="md"

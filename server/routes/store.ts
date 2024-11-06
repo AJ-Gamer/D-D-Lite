@@ -122,7 +122,7 @@ storeRouter.get('/gold', async (req: Request, res: Response) => {
 });
 
 storeRouter.post('/buy', async (req: Request, res: Response) => {
-  const { userId, equipmentName, equipmentIndex, equipmentUrl } = req.body;
+  const { userId, equipmentName, equipmentIndex, equipmentUrl, cost } = req.body;
   if (!userId || !equipmentName) {
     return res.status(400).json({ message: 'User ID, Equipment Name, and Equipment Type are required' });
   }
@@ -137,13 +137,13 @@ storeRouter.post('/buy', async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    if (user.gold < 50) {
+    if (user.gold < cost) {
       return res.status(400).json({ message: 'Not enough gold to buy this item' });
     }
 
     await prisma.user.update({
       where: { id: userId },
-      data: { gold: user.gold - 50 },
+      data: { gold: user.gold - cost },
     });
 
     const inventory = await prisma.inventory.findFirst({
@@ -194,7 +194,7 @@ storeRouter.post('/buy', async (req: Request, res: Response) => {
 });
 
 storeRouter.post('/sell', async (req: Request, res: Response) => {
-  const { userId, equipmentName } = req.body;
+  const { userId, equipmentName, cost } = req.body;
   if (!userId || !equipmentName) {
     return res.status(400).json({ message: 'User ID and Equipment Name are required' });
   }
@@ -230,7 +230,7 @@ storeRouter.post('/sell', async (req: Request, res: Response) => {
 
     await prisma.user.update({
       where: { id: userId },
-      data: { gold: user.gold + 50 },
+      data: { gold: user.gold + cost },
     });
 
     await prisma.equipment.update({

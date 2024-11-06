@@ -113,6 +113,15 @@ model Option {
   nextNodeId  Int?
   nextNode    StoryNode? @relation("NextNode", fields: [nextNodeId], references: [id])
   result      String?
+  statCheckId Int?       // Foreign key to StatCheck model
+  statCheck   StatCheck? @relation(fields: [statCheckId], references: [id]) // Relation to StatCheck model
+}
+
+model StatCheck {
+  id        Int     @id @default(autoincrement())
+  stat      String  // Stat to check (e.g., 'strength', 'dexterity')
+  difficulty Int    // Difficulty to beat
+  options   Option[] // List of options that reference this stat check
 }
 
 model UserStoryProgress {

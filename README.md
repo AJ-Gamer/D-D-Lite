@@ -1,6 +1,6 @@
-# D-D-Lite
+# Legendspire
 
-Welcome to D&D Lite, a choose your adventure style app for new adventurers, or experienced DnD veterans. Create your own personal character to start your adventure. Greedy fingers? Keep track of your things in your inventory. Buy something new at the shop. Need a map? We got you covered! Make a random map and download for your irl games!
+Welcome to Legendspire, a choose your adventure style app for new adventurers, or experienced DnD veterans. Create your own personal character to start your adventure. Greedy fingers? Keep track of your things in your inventory. Buy something new at the shop. Need a map? We got you covered! Make a random map and download for your irl games!
 
 **Features**
 - **Home Page**: Get a quick run down of your current character's stats and equipment.

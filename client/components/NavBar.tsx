@@ -68,7 +68,7 @@ const NavBar: FC<NavBarProps> = ({ setIsAuth }) => {
           <Flex w="100%" alignItems="center">
             <Flex alignItems="center" gap={4}>
               <Link as={RouterLink} to="/home" style={getActiveStyle('/home')} _hover={{ textDecoration: 'none', color: '#FBBE30' }}>
-                Legendspire
+                LEGENDSPIRE
               </Link>
               <Text mx={2}>|</Text>
               <Link as={RouterLink} to="/char-creation" style={getActiveStyle('/char-creation')} _hover={{ textDecoration: 'none', color: '#FBBE30' }}>

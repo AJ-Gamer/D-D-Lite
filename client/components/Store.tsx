@@ -186,8 +186,7 @@ const Store: FC<StoreProps> = ({ userId }) => {
 
   const handleSell = async (equipmentName: string, cost: number) => {
     try {
-      const response = await axios.post('/store/sell', { userId, equipmentName });
-      const response = await axios.post(`/store/sell`, { userId, equipmentName, cost });
+      const response = await axios.post('/store/sell', { userId, equipmentName, cost });
 
       const updatedEquipment = (activeTab === 'equipment' ? equipment : magicItems).map((item) => (item.name === equipmentName && item.owned > 0
         ? { ...item, owned: item.owned - 1 }
@@ -310,12 +309,6 @@ const Store: FC<StoreProps> = ({ userId }) => {
               <Text mt={2} color="gray.800"> {selectedEquipmentDetails.desc.join(' ')} </Text>
             </Box>
           )}
-
-          {/* Cost and Owned Text in the same row */}
-          {/* <Flex justify="space-between" mt={4}>
-            <Text fontWeight="bold">Cost: 50 gold</Text>
-            <Text fontWeight="bold">Owned: {item.owned}</Text>
-          </Flex> */}
 
           {/* Full-width Buy and Sell buttons */}
           <Flex gap={4} mt={4}>

@@ -27,7 +27,7 @@ storeRouter.get('/equipment', async (req: Request, res: Response) => {
 
     const detailedItems = (await Promise.all(itemPromises)).filter(Boolean);
 
-    const validCategories = ['weapon', 'armor', 'tools'];
+    const validCategories = ['weapon', 'armor'];
     const filteredItems = detailedItems.filter(item =>
       validCategories.includes(item.equipment_category.index)
     );
@@ -80,7 +80,7 @@ storeRouter.get('/magic-items', async (req: Request, res: Response) => {
 
     const detailedMagicItems = (await Promise.all(itemPromises)).filter(Boolean);
 
-    const validCategories = ['weapon', 'armor', 'tools'];
+    const validCategories = ['weapon', 'armor'];
     const filteredMagicItems = detailedMagicItems.filter(item =>
       validCategories.includes(item.equipment_category.index)
     );

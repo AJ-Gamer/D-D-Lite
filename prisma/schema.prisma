@@ -14,15 +14,14 @@ datasource db {
 }
 
 model User {
-  id            Int                 @id @default(autoincrement())
-  googleId      String              @unique
-  email         String
-  name          String
-  characters    Character[]
-  gold          Int                 @default(100)
-  inventory     Inventory[]
-  storyProgress UserStoryProgress[]
-  Completion    Completion[]
+  id         Int          @id @default(autoincrement())
+  googleId   String       @unique
+  email      String
+  name       String
+  characters Character[]
+  gold       Int          @default(100)
+  inventory  Inventory[]
+  Completion Completion[]
 }
 
 model Character {
@@ -38,26 +37,28 @@ model Character {
   image         String?
   userId        Int
   user          User           @relation(fields: [userId], references: [id])
-  weapons       Weapon[]       @relation("CharacterWeapons")
-  armor         Armor[]        @relation("CharacterArmor")
+  armor         Armor?         @relation(fields: [armorId], references: [id])
+  armorId       Int? // Foreign key for armor
+  weapon        Weapon?        @relation(fields: [weaponId], references: [id])
+  weaponId      Int? // Foreign key for weapon
   items         Item[]         @relation("CharacterItems")
-  equippedItems EquippedItem[]
+  equippedItems EquippedItem[] // Relation for equipped items
 }
 
 model Weapon {
-  id         Int         @id @default(autoincrement())
-  name       String
-  damage     Int
-  rarity     String
-  characters Character[] @relation("CharacterWeapons")
+  id        Int         @id @default(autoincrement())
+  name      String      @unique
+  // damage     Int
+  // rarity     String
+  Character Character[]
 }
 
 model Armor {
-  id         Int         @id @default(autoincrement())
-  name       String
-  defense    Int
-  rarity     String
-  characters Character[] @relation("CharacterArmor")
+  id        Int         @id @default(autoincrement())
+  name      String      @unique
+  // defense    Int
+  // rarity     String      
+  Character Character[]
 }
 
 model Item {
@@ -95,12 +96,11 @@ model Equipment {
 }
 
 model StoryNode {
-  id          Int                 @id @default(autoincrement())
-  storyId     Int                 @unique
-  prompt      String              @db.Text
-  options     Option[]            @relation("CurrentNode")
-  nextOptions Option[]            @relation("NextNode")
-  progress    UserStoryProgress[]
+  id          Int      @id @default(autoincrement())
+  storyId     Int      @unique
+  prompt      String   @db.Text
+  options     Option[] @relation("CurrentNode")
+  nextOptions Option[] @relation("NextNode")
   endingType  String?
   goldReward  Int?
 }
@@ -115,14 +115,10 @@ model Option {
   result      String?
 }
 
-model UserStoryProgress {
-  id            Int       @id @default(autoincrement())
-  userId        Int
-  characterId   Int
-  user          User      @relation(fields: [userId], references: [id])
-  currentNodeId Int
-  currentNode   StoryNode @relation(fields: [currentNodeId], references: [id])
-  @@unique([userId, characterId])
+model StatCheck {
+  id         Int    @id @default(autoincrement())
+  stat       String // Stat to check (e.g., 'strength', 'dexterity')
+  difficulty Int // Difficulty to beat
 }
 
 model Completion {

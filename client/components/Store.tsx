@@ -24,6 +24,7 @@ interface Equipment {
   index: string;
   owned: number;
   url: string;
+  equipment_category: { index: string };
 }
 
 interface EquipmentDetail {
@@ -48,10 +49,11 @@ const Store: FC<StoreProps> = ({ userId }) => {
   ] = useState<EquipmentDetail | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [gold, setGold] = useState<number | null>(null);
+  const [gold, setGold] = useState<number>(0);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<string>('equipment');
   const [loading, setLoading] = useState<boolean>(false);
+  const [itemCost, setItemCost] = useState<number>(0);
   const itemsPerPage = 20;
 
   const toast = useToast();
@@ -73,40 +75,67 @@ const Store: FC<StoreProps> = ({ userId }) => {
     }
   };
 
+  // Fetch and get the category for each item from their respective endpoints
+  const fetchItemCategories = async (items: Equipment[], isMagicItem: boolean) => {
+    const itemPromises = items.map(async (item) => {
+      try {
+        const endpoint = isMagicItem ? `/store/magic-items/${item.index}` : `/store/equipment/${item.index}`;
+        const response = await axios.get(endpoint);
+        return { ...item, equipment_category: { index: response.data.category } };
+      } catch (error) {
+        console.error(`Failed to fetch category for item ${item.index}:`, error);
+        return item;
+      }
+    });
+
+    const updatedItems = await Promise.all(itemPromises);
+    return updatedItems;
+  };
+
+  const fetchEquipment = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get('/store/equipment', { params: { userId } });
+      const equipmentWithCategories = await fetchItemCategories(response.data, false);
+      setEquipment(equipmentWithCategories);
+      setFilteredEquipment(equipmentWithCategories);
+    } catch (error) {
+      console.error('Error fetching equipment:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchMagicItems = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get('/store/magic-items', { params: { userId } });
+      const magicItemsWithCategories = await fetchItemCategories(response.data, true);
+      setMagicItems(magicItemsWithCategories);
+      setFilteredMagicItems(magicItemsWithCategories);
+    } catch (error) {
+      console.error('Error fetching magic items:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchEquipment = async () => {
-      setLoading(true);
-      try {
-        const response = await axios.get('/store/equipment', { params: { userId } });
-        setEquipment(response.data);
-        setFilteredEquipment(response.data);
-      } catch (err) {
-        console.error('Error fetching equipment:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const fetchMagicItems = async () => {
-      setLoading(true);
-      try {
-        const response = await axios.get('/store/magic-items', { params: { userId } });
-        setMagicItems(response.data);
-        setFilteredMagicItems(response.data);
-      } catch (err) {
-        console.error('Error fetching magic items:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchEquipment();
     fetchMagicItems();
     fetchGold();
   }, [userId]);
 
-  const handleBuy = async (equipmentName: string, equipmentIndex: string, equipmentUrl: string) => {
-    if (gold !== null && gold < 50) {
+  const rarityCostMap = {
+    Common: 50,
+    Uncommon: 75,
+    Rare: 100,
+    Very_rare: 200,
+    Legendary: 300,
+  };
+
+  const handleBuy = async (equipmentName: string, equipmentIndex: string, equipmentUrl: string, cost: number) => {
+    if (gold === null || gold < cost) {
       toast({
         title: 'Insufficient Gold',
         description: 'Not enough gold to buy this item.',
@@ -134,7 +163,9 @@ const Store: FC<StoreProps> = ({ userId }) => {
         equipmentName,
         equipmentIndex,
         equipmentUrl,
+        cost
       });
+
       const updatedEquipment = (activeTab === 'equipment' ? equipment : magicItems).map((item) => (item.name === equipmentName
         ? { ...item, owned: item.owned + 1 }
         : item));
@@ -155,9 +186,9 @@ const Store: FC<StoreProps> = ({ userId }) => {
     }
   };
 
-  const handleSell = async (equipmentName: string) => {
+  const handleSell = async (equipmentName: string, cost: number) => {
     try {
-      const response = await axios.post('/store/sell', { userId, equipmentName });
+      const response = await axios.post('/store/sell', { userId, equipmentName, cost });
 
       const updatedEquipment = (activeTab === 'equipment' ? equipment : magicItems).map((item) => (item.name === equipmentName && item.owned > 0
         ? { ...item, owned: item.owned - 1 }
@@ -197,13 +228,27 @@ const Store: FC<StoreProps> = ({ userId }) => {
     if (selectedIndex === index) {
       setSelectedIndex(null);
       setSelectedEquipmentDetails(null);
+      setItemCost(0);
     } else {
       try {
-        const response = await axios.get(`/store/equipment/${index}`);
+        let response;
+        let itemCostValue = 0;
+
+        if (activeTab === 'equipment') {
+          response = await axios.get(`/store/equipment/${index}`);
+          const { data } = response;
+          itemCostValue = data.cost?.quantity;
+        } else if (activeTab === 'magicItems') {
+          response = await axios.get(`/store/magic-items/${index}`);
+          const { data } = response;
+          itemCostValue = rarityCostMap[data.rarity.name as keyof typeof rarityCostMap];
+        }
+
         setSelectedIndex(index);
-        setSelectedEquipmentDetails(response.data);
-      } catch (err) {
-        console.error('Failed to fetch equipment details', err);
+        setSelectedEquipmentDetails(response?.data);
+        setItemCost(itemCostValue);
+      } catch (error) {
+        console.error('Failed to fetch item details', error);
       }
     }
   };
@@ -257,7 +302,7 @@ const Store: FC<StoreProps> = ({ userId }) => {
             <Box mt={2}>
               <Flex justify="space-between" mt={4}>
                 <Text mt={2} fontWeight="bold">
-                  Cost: {selectedEquipmentDetails.cost.quantity}
+                  Cost: {itemCost}
                 </Text>
                 <Text mt={2} fontWeight="bold">
                   Owned: {item.owned}
@@ -267,18 +312,12 @@ const Store: FC<StoreProps> = ({ userId }) => {
             </Box>
           )}
 
-          {/* Cost and Owned Text in the same row */}
-          {/* <Flex justify="space-between" mt={4}>
-            <Text fontWeight="bold">Cost: 50 gold</Text>
-            <Text fontWeight="bold">Owned: {item.owned}</Text>
-          </Flex> */}
-
           {/* Full-width Buy and Sell buttons */}
           <Flex gap={4} mt={4}>
             <Button
               onClick={(e) => {
                 e.stopPropagation();
-                handleSell(item.name);
+                handleSell(item.name, itemCost);
               }}
               colorScheme="red"
               size="md"
@@ -291,7 +330,7 @@ const Store: FC<StoreProps> = ({ userId }) => {
               onClick={(e) => {
                 e.stopPropagation();
                 console.log('Item:', item);
-                handleBuy(item.name, item.index, item.url);
+                handleBuy(item.name, item.index, item.url, itemCost);
               }}
               colorScheme="green"
               size="md"

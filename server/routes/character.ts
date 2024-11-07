@@ -141,14 +141,14 @@ character.post('/create', async (
     const startingWeapon: Weapon = await prisma.weapon.create({
       data: {
         name: startingWeaponName,
-        damage: 2,
-        rarity: 'common',
-        characters: {
-          connect: { id: newChar.id },
-        },
+        // damage: 2,
+        // rarity: 'common',
+        // characters: {
+        //   connect: { id: newChar.id },
+        // },
       },
     });
-    return res.status(201).json({ newChar, startingWeapon });
+    return res.status(201).json({ newChar });
   } catch (error) {
     console.error('Error creating character:', error);
     return res.status(500).json({ error: 'Failed to create character' });

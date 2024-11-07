@@ -1,8 +1,5 @@
 import React, { FC } from 'react';
-import {
-  SimpleGrid,
-  Button,
-} from '@chakra-ui/react';
+import { SimpleGrid, Button } from '@chakra-ui/react';
 
 interface Op {
   id: number;
@@ -13,7 +10,7 @@ interface Op {
 
 interface OptionsButtonsProps {
   options: Op[];
-  onOptionClick: (nextNodeId: number | null, result?: string) => void;
+  onOptionClick: (option: Op) => void;
 }
 
 const OptionsButtons: FC<OptionsButtonsProps> = ({ options, onOptionClick }) => (
@@ -21,7 +18,7 @@ const OptionsButtons: FC<OptionsButtonsProps> = ({ options, onOptionClick }) => 
     {options.map((option) => (
       <Button
         key={option.id}
-        onClick={() => onOptionClick(option.nextNodeId, option.result)}
+        onClick={() => onOptionClick(option)}
         bg="yellow.400"
         color="black"
         _hover={{ bg: 'orange.400' }}

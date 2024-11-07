@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useState } from 'react';
-import { Box, Text, Spinner, SimpleGrid, Card, Flex, Button } from '@chakra-ui/react';
+import { Box, Text, Spinner, SimpleGrid, Card, Flex, Button, Select, Image, VStack, HStack } from '@chakra-ui/react';
 import axios from 'axios';
 
 interface Character {
@@ -7,10 +7,18 @@ interface Character {
   name: string;
   class: string;
   race: string;
+  image?: string;
+  strength: number;
+  dexterity: number;
+  constitution: number;
+  charisma: number;
+  equippedItems?: any[];
 }
 
 const Inventory: FC<{ userId?: number }> = ({ userId }) => {
   const [equipment, setEquipment] = useState<any[]>([]);
+  const [characters, setCharacters] = useState<Character[]>([]);
+  const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<any | null>(null);
@@ -29,9 +37,6 @@ const Inventory: FC<{ userId?: number }> = ({ userId }) => {
       try {
         const response = await axios.get('/character/all', { params: { userId } });
         const characters: Character[] = response.data.characters;
-
-        console.log('Characters:', characters);
-
         const validClasses = ['sorcerer', 'rogue', 'barbarian'];
 
         const equipmentPromises = characters
@@ -48,10 +53,19 @@ const Inventory: FC<{ userId?: number }> = ({ userId }) => {
       }
     };
 
+    const fetchCharacters = async () => {
+      try {
+        const response = await axios.get('/character/all', { params: { userId } });
+        setCharacters(response.data.characters);
+      } catch (err) {
+        console.error('Error fetching characters:', err);
+        setError('Failed to load characters');
+      }
+    };
+
     const fetchAllEquipment = async () => {
       try {
         const response = await axios.get('/inventory/allEquipment', { params: { userId } });
-        console.log('All Equipment:', response.data.allEquipment);
         setEquipment(response.data.allEquipment);
         setLoading(false);
       } catch (err) {
@@ -64,6 +78,7 @@ const Inventory: FC<{ userId?: number }> = ({ userId }) => {
     const initializeInventory = async () => {
       setLoading(true);
       await deleteSoldEquipment();
+      await fetchCharacters();
       await insertStartingItems();
       await fetchAllEquipment();
     };
@@ -71,8 +86,33 @@ const Inventory: FC<{ userId?: number }> = ({ userId }) => {
     initializeInventory();
   }, [userId]);
 
+  const handleEquip = async (item: any) => {
+    if (!selectedCharacter) {
+      setError('Select a character to equip items.');
+      return;
+    }
+  
+    const equipEndpoint = item.type === 'weapon' ? '/inventory/equipWeapon' : '/inventory/equipArmor';
+    try {
+      const response = await axios.patch(equipEndpoint, {
+        itemName: item.name,
+        characterId: selectedCharacter.id,
+      });
+  
+      console.log(`Equipped ${item.name} for ${selectedCharacter.name}:`, response.data);
+  
+      // Fetch updated character details after equipping
+      const updatedCharacterResponse = await axios.get(`/character/${selectedCharacter.id}`);
+      setSelectedCharacter(updatedCharacterResponse.data);
+  
+      setSelectedItem(item);
+    } catch (err) {
+      console.error(`Error equipping item ${item.name}:`, err);
+      setError(`Failed to equip ${item.name}`);
+    }
+  };  
+
   const handleCardClick = (item: any) => {
-    // Toggle selection: deselect if the same item is clicked again
     setSelectedItem((prev: { name: any; }) => (prev?.name === item.name ? null : item));
   };
 
@@ -81,56 +121,112 @@ const Inventory: FC<{ userId?: number }> = ({ userId }) => {
 
   return (
     <Box p={4} mt={12}>
-      <Text fontSize="2xl" fontWeight="bold" align="center">
-        Equipment:
-      </Text>
-      {equipment.length > 0 ? (
-        <SimpleGrid columns={{ base: 2, md: 3, lg: 5 }} spacing={5} mt={4}>
-          {equipment.map((item, index) => (
-            <Card
-              key={index}
-              onClick={() => handleCardClick(item)}
-              p={5}
-              bg="yellow.400"
-              color="black"
-              cursor="pointer"
-              height="100px"
-              _hover={{ transform: 'scale(1.05)', transition: '0.3s' }}
-              position="relative"
-              shadow={selectedItem?.name === item.name ? 'xl' : 'md'} // Highlight selected card
-            >
-              <Flex justify="space-between" align="center">
-                <Text fontWeight="bold">{item.name}</Text>
-                <Text fontWeight="bold">Owned: {item.owned}</Text>
-              </Flex>
+      <Flex direction="row" justify="flex-start" align="flex-start">
+        {/* Character Selection Box (Left Side) */}
+        <Box width="300px" mr={6}>
+          <Text fontSize="2xl" fontWeight="bold" mb={4}>Select a character:</Text>
+          <Select
+            placeholder="Select a character"
+            onChange={(e) => {
+              const charId = Number(e.target.value);
+              const char = characters.find((c) => c.id === charId) || null;
+              setSelectedCharacter(char);
+            }}
+            mb={4}
+          >
+            {characters.map((char) => (
+              <option key={char.id} value={char.id}>
+                {char.name}
+              </option>
+            ))}
+          </Select>
 
-              <Button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  console.log(`Equipped ${item.name}`);
-                }}
-                variant="ghost"
-                size="sm"
-                width="fit-content"
-                mt={2}
-              >
-                Equip
-              </Button>
-            </Card>
-          ))}
-        </SimpleGrid>
-      ) : (
-        <Text>No equipment found.</Text>
-      )}
+          {selectedCharacter && (
+            <VStack spacing={4} align="flex-start">
+              <Image
+                src={selectedCharacter.image}
+                alt={selectedCharacter.name}
+                boxSize="150px"
+                objectFit="cover"
+                borderRadius="lg"
+              />
+              <Text fontSize="xl" fontWeight="bold">{selectedCharacter.name}</Text>
+              <Text>{`${selectedCharacter.race} ${selectedCharacter.class}`}</Text>
 
-      {selectedItem && (
-        <Box mt={6} p={4} bg="yellow.300" borderRadius="md" shadow="md">
-          <Text fontSize="lg" fontWeight="bold">
-            {selectedItem.name}
-          </Text>
-          <Text mt={2}>{selectedItem.description || 'No description available.'}</Text>
+              {/* Display current equipped items */}
+              <Box width="100%" borderTop="1px solid" borderColor="gray.300" pt={2}>
+                <Text fontWeight="bold" mb={2}>Equipped Items:</Text>
+                {selectedCharacter.equippedItems && selectedCharacter.equippedItems.length > 0 ? (
+                  <VStack spacing={2} align="flex-start">
+                    {selectedCharacter.equippedItems.map((item, index) => (
+                      <Text key={index}>{item.name}</Text>
+                    ))}
+                  </VStack>
+                ) : (
+                  <Text>No items equipped.</Text>
+                )}
+              </Box>
+            </VStack>
+          )}
         </Box>
-      )}
+
+        {/* Equipment Section (Right Side) */}
+        <Box flex="1">
+          <Text fontSize="2xl" fontWeight="bold" mb={4}>Equipment:</Text>
+          
+          {/* Weapons */}
+          <Text fontSize="xl" fontWeight="bold" mb={2}>Weapons:</Text>
+          <SimpleGrid columns={3} spacing={4}>
+            {equipment.filter(item => item.type === 'weapon').map((item) => (
+              <Card 
+                key={item.id}
+                // onClick={() => handleCardClick(item)}
+                p={4} borderWidth="1px"
+                borderRadius="md"
+              >
+                <Text fontSize="lg" fontWeight="bold">{item.name}</Text>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  width="fit-content"
+                  mt={2}
+                  onClick={() => handleEquip(item)}
+                >
+                  Equip
+                </Button>
+              </Card>
+            ))}
+          </SimpleGrid>
+
+          {/* Armor */}
+          <Text fontSize="xl" fontWeight="bold" mb={2}>Armor:</Text>
+          <SimpleGrid columns={3} spacing={4}>
+            {equipment.filter(item => item.type === 'armor').map((item) => (
+              <Card key={item.id} onClick={() => handleCardClick(item)} p={4} borderWidth="1px" borderRadius="md">
+                <Text fontSize="lg" fontWeight="bold">{item.name}</Text>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  width="fit-content"
+                  mt={2}
+                  onClick={() => handleEquip(item)}
+                >
+                  Equip
+                </Button>
+              </Card>
+            ))}
+          </SimpleGrid>
+
+          {selectedItem && (
+            <Box mt={6} p={4} bg="yellow.300" borderRadius="md" shadow="md">
+              <Text fontSize="lg" fontWeight="bold">
+                {selectedItem.name}
+              </Text>
+              <Text mt={2}>{selectedItem.description || 'No description available.'}</Text>
+            </Box>
+          )}
+        </Box>
+      </Flex>
     </Box>
   );
 };

@@ -138,7 +138,7 @@ inventory.patch('/equipWeapon', async (req: Request, res: Response) => {
     await prisma.character.update({
       where: { id: characterId },
       data: {
-        weapons: {
+        weapon: {
           connect: { id: weapon.id },
         },
       },

@@ -159,20 +159,20 @@ const Encounters: FC<EncountersProps> = ({ profile }) => {
       speakText(option.result === 'good' ? 'You achieved the good ending!' : 'You met an unfortunate end.');
     } else if (option.nextNodeId !== null) {
       // Implement statCheck validation here
-      if (option.statCheck && selectedCharacter) {
-        const charStat = selectedCharacter[option.statCheck.stat as keyof Character];
+      // if (option.statCheck && selectedCharacter) {
+      //   const charStat = selectedCharacter[option.statCheck.stat as keyof Character];
   
-        if (typeof charStat === 'number' && charStat < option.statCheck.difficulty) {
-          toast({
-            title: 'Stat check failed!',
-            description: `Your ${option.statCheck.stat} is too low.`,
-            status: 'error',
-            duration: 4000,
-            isClosable: true,
-          });
-          return; // Prevent moving to the next node
-        }
-      }
+      //   if (typeof charStat === 'number' && charStat < option.statCheck.difficulty) {
+      //     toast({
+      //       title: 'Stat check failed!',
+      //       description: `Your ${option.statCheck.stat} is too low.`,
+      //       status: 'error',
+      //       duration: 4000,
+      //       isClosable: true,
+      //     });
+      //     return; // Prevent moving to the next node
+      //   }
+      // }
   
       await fetchStoryNode(option.nextNodeId);
       if (profile && selectedCharacter) {

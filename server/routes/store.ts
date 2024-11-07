@@ -15,6 +15,23 @@ storeRouter.get('/equipment', async (req: Request, res: Response) => {
     const response = await axios.get('https://www.dnd5eapi.co/api/equipment');
     const allEquipment = response.data.results;
 
+    const itemPromises = allEquipment.map(async (item: any) => {
+      try {
+        const itemDetails = await axios.get(`https://www.dnd5eapi.co/api/equipment/${item.index}`);
+        return itemDetails.data;
+      } catch (error) {
+        console.error(`Error fetching details for ${item.index}:`, error);
+        return null;
+      }
+    });
+
+    const detailedItems = (await Promise.all(itemPromises)).filter(Boolean);
+
+    const validCategories = ['weapon', 'armor', 'tools'];
+    const filteredItems = detailedItems.filter(item =>
+      validCategories.includes(item.equipment_category.index)
+    );
+
     const inventory = await prisma.inventory.findFirst({
       where: { userId: userId },
       include: { equipment: true },
@@ -27,12 +44,11 @@ storeRouter.get('/equipment', async (req: Request, res: Response) => {
       });
     }
 
-    const equipmentWithOwnership = allEquipment.map((item: any) => {
-      return {
-        ...item,
-        owned: ownedItems[item.name] || 0,
-      };
-    });
+    const equipmentWithOwnership = filteredItems.map((item: any) => ({
+      ...item,
+      owned: ownedItems[item.name] || 0,
+    }
+  ));
 
     res.json(equipmentWithOwnership);
   } catch (error) {
@@ -49,8 +65,25 @@ storeRouter.get('/magic-items', async (req: Request, res: Response) => {
   }
 
   try {
-    const response = await axios.get('https://www.dnd5eapi.co/api/magic-items/');
-    const allEquipment = response.data.results;
+    const response = await axios.get('https://www.dnd5eapi.co/api/magic-items');
+    const allMagicItems = response.data.results;
+
+    const itemPromises = allMagicItems.map(async (item: any) => {
+      try {
+        const itemDetails = await axios.get(`https://www.dnd5eapi.co/api/magic-items/${item.index}`);
+        return itemDetails.data;
+      } catch (error) {
+        console.error(`Error fetching details for ${item.index}:`, error);
+        return null;
+      }
+    });
+
+    const detailedMagicItems = (await Promise.all(itemPromises)).filter(Boolean);
+
+    const validCategories = ['weapon', 'armor', 'tools'];
+    const filteredMagicItems = detailedMagicItems.filter(item =>
+      validCategories.includes(item.equipment_category.index)
+    );
 
     const inventory = await prisma.inventory.findFirst({
       where: { userId: userId },
@@ -64,17 +97,15 @@ storeRouter.get('/magic-items', async (req: Request, res: Response) => {
       });
     }
 
-    const equipmentWithOwnership = allEquipment.map((item: any) => {
-      return {
-        ...item,
-        owned: ownedItems[item.name] || 0,
-      };
-    });
+    const magicItemsWithOwnership = filteredMagicItems.map((item: any) => ({
+      ...item,
+      owned: ownedItems[item.name] || 0,
+    }));
 
-    res.json(equipmentWithOwnership);
+    res.json(magicItemsWithOwnership);
   } catch (error) {
-    console.error('Error fetching equipment data:', error);
-    res.status(500).json({ message: 'Error fetching magical equipment data' });
+    console.error('Error fetching magic item data:', error);
+    res.status(500).json({ message: 'Error fetching magic item data' });
   }
 });
 
@@ -180,7 +211,7 @@ storeRouter.post('/buy', async (req: Request, res: Response) => {
         },
       });
     }
-    console.log('Test:', cost, user.gold, user.gold - cost);
+
     await prisma.user.update({
       where: { id: userId },
       data: { gold: user.gold - cost },

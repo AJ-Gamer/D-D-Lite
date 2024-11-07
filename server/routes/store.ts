@@ -141,11 +141,6 @@ storeRouter.post('/buy', async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Not enough gold to buy this item' });
     }
 
-    await prisma.user.update({
-      where: { id: userId },
-      data: { gold: user.gold - cost },
-    });
-
     const inventory = await prisma.inventory.findFirst({
       where: { userId: userId },
     });
@@ -154,7 +149,7 @@ storeRouter.post('/buy', async (req: Request, res: Response) => {
       return res.status(404).json({ message: 'Inventory not found' });
     }
 
-    let equipmentType; 
+    let equipmentType;
     if (equipmentUrl.includes('equipment')) {
       const categoryResponse = await axios.get(`https://www.dnd5eapi.co/api/equipment/${equipmentIndex}`);
       equipmentType = categoryResponse.data.equipment_category.index;
@@ -185,6 +180,11 @@ storeRouter.post('/buy', async (req: Request, res: Response) => {
         },
       });
     }
+    console.log('Test:', cost, user.gold, user.gold - cost);
+    await prisma.user.update({
+      where: { id: userId },
+      data: { gold: user.gold - cost },
+    });
 
     res.json({ message: 'Equipment bought successfully' });
   } catch (error) {

@@ -53,7 +53,7 @@ const Store: FC<StoreProps> = ({ userId }) => {
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<string>('equipment');
   const [loading, setLoading] = useState<boolean>(false);
-  const [itemCost, setItemCost] = useState(0);
+  const [itemCost, setItemCost] = useState<number>(0);
   const itemsPerPage = 20;
 
   const toast = useToast();
@@ -135,7 +135,7 @@ const Store: FC<StoreProps> = ({ userId }) => {
   };
 
   const handleBuy = async (equipmentName: string, equipmentIndex: string, equipmentUrl: string, cost: number) => {
-    if (gold === null || gold < itemCost) {
+    if (gold === null || gold < cost) {
       toast({
         title: 'Insufficient Gold',
         description: 'Not enough gold to buy this item.',
@@ -163,7 +163,9 @@ const Store: FC<StoreProps> = ({ userId }) => {
         equipmentName,
         equipmentIndex,
         equipmentUrl,
+        cost
       });
+
       const updatedEquipment = (activeTab === 'equipment' ? equipment : magicItems).map((item) => (item.name === equipmentName
         ? { ...item, owned: item.owned + 1 }
         : item));
@@ -300,7 +302,7 @@ const Store: FC<StoreProps> = ({ userId }) => {
             <Box mt={2}>
               <Flex justify="space-between" mt={4}>
                 <Text mt={2} fontWeight="bold">
-                  Cost: {selectedEquipmentDetails.cost.quantity}
+                  Cost: {itemCost}
                 </Text>
                 <Text mt={2} fontWeight="bold">
                   Owned: {item.owned}

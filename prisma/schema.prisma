@@ -14,15 +14,14 @@ datasource db {
 }
 
 model User {
-  id            Int                 @id @default(autoincrement())
-  googleId      String              @unique
-  email         String
-  name          String
-  characters    Character[]
-  gold          Int                 @default(100)
-  inventory     Inventory[]
-  storyProgress UserStoryProgress[]
-  Completion    Completion[]
+  id         Int          @id @default(autoincrement())
+  googleId   String       @unique
+  email      String
+  name       String
+  characters Character[]
+  gold       Int          @default(100)
+  inventory  Inventory[]
+  Completion Completion[]
 }
 
 model Character {
@@ -97,12 +96,11 @@ model Equipment {
 }
 
 model StoryNode {
-  id          Int                 @id @default(autoincrement())
-  storyId     Int                 @unique
-  prompt      String              @db.Text
-  options     Option[]            @relation("CurrentNode")
-  nextOptions Option[]            @relation("NextNode")
-  progress    UserStoryProgress[]
+  id          Int      @id @default(autoincrement())
+  storyId     Int
+  prompt      String   @db.Text
+  options     Option[] @relation("CurrentNode")
+  nextOptions Option[] @relation("NextNode")
   endingType  String?
   goldReward  Int?
 }
@@ -115,26 +113,12 @@ model Option {
   nextNodeId  Int?
   nextNode    StoryNode? @relation("NextNode", fields: [nextNodeId], references: [id])
   result      String?
-  statCheckId Int? // Foreign key to StatCheck model
-  statCheck   StatCheck? @relation(fields: [statCheckId], references: [id]) // Relation to StatCheck model
 }
 
 model StatCheck {
-  id         Int      @id @default(autoincrement())
+  id         Int    @id @default(autoincrement())
   stat       String // Stat to check (e.g., 'strength', 'dexterity')
   difficulty Int // Difficulty to beat
-  options    Option[] // List of options that reference this stat check
-}
-
-model UserStoryProgress {
-  id            Int       @id @default(autoincrement())
-  userId        Int
-  characterId   Int
-  user          User      @relation(fields: [userId], references: [id])
-  currentNodeId Int
-  currentNode   StoryNode @relation(fields: [currentNodeId], references: [id])
-
-  @@unique([userId, characterId])
 }
 
 model Completion {

@@ -46,17 +46,17 @@ model Character {
 
 model Weapon {
   id         Int         @id @default(autoincrement())
-  name       String
-  damage     Int
-  rarity     String
+  name       String      @unique
+  // damage     Int
+  // rarity     String
   characters Character[] @relation("CharacterWeapons")
 }
 
 model Armor {
   id         Int         @id @default(autoincrement())
-  name       String
-  defense    Int
-  rarity     String
+  name       String      @unique
+  // defense    Int
+  // rarity     String
   characters Character[] @relation("CharacterArmor")
 }
 

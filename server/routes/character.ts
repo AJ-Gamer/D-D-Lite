@@ -141,8 +141,8 @@ character.post('/create', async (
     const startingWeapon: Weapon = await prisma.weapon.create({
       data: {
         name: startingWeaponName,
-        damage: 2,
-        rarity: 'common',
+        // damage: 2,
+        // rarity: 'common',
         characters: {
           connect: { id: newChar.id },
         },

@@ -97,7 +97,7 @@ model Equipment {
 
 model StoryNode {
   id          Int      @id @default(autoincrement())
-  storyId     Int
+  storyId     Int      @unique
   prompt      String   @db.Text
   options     Option[] @relation("CurrentNode")
   nextOptions Option[] @relation("NextNode")

@@ -148,7 +148,7 @@ character.post('/create', async (
         },
       },
     });
-    return res.status(201).json({ newChar, startingWeapon });
+    return res.status(201).json({ newChar });
   } catch (error) {
     console.error('Error creating character:', error);
     return res.status(500).json({ error: 'Failed to create character' });

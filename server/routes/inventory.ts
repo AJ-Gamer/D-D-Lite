@@ -119,45 +119,67 @@ inventory.delete('/deleteSold', async (req: Request, res: Response) => {
   }
 });
 
-inventory.patch('/equip', async (req: Request, res: Response) => {
-  const { equipmentId, characterId, equip } = req.body;
+inventory.patch('/equipWeapon', async (req: Request, res: Response) => {
+  const { itemName, characterId } = req.body;
 
-  if (!equipmentId || !characterId) {
-    return res.status(400).json({ error: 'Equipment ID and Character ID are required' });
+  if (!characterId || !itemName) {
+    return res.status(400).json({ error: 'Character ID and item name are required' });
   }
 
   try {
-    // Check if the equipped item exists by characterId and equipmentId
-    const existingEquippedItem = await prisma.equippedItem.findFirst({
-      where: {
-        characterId,
-        equipmentId,
+    // Find or create the weapon by name
+    const weapon = await prisma.weapon.upsert({
+      where: { name: itemName }, // Use 'name' as a unique field
+      update: {}, // No update needed if found
+      create: { name: itemName }
+    });
+
+    // Associate weapon with the character
+    await prisma.character.update({
+      where: { id: characterId },
+      data: {
+        weapons: {
+          connect: { id: weapon.id },
+        },
       },
     });
 
-    if (existingEquippedItem) {
-      // If it exists, update the existing record (optional: add any specific fields to update)
-      await prisma.equippedItem.update({
-        where: { id: existingEquippedItem.id },
-        data: { characterId, equipmentId },
-      });
-    } else {
-      // Otherwise, create a new equipped item entry
-      await prisma.equippedItem.create({
-        data: { characterId, equipmentId },
-      });
-    }
+    res.status(200).json({ message: `Weapon ${weapon.name} equipped successfully.` });
+  } catch (error) {
+    console.error('Error equipping weapon:', error);
+    res.status(500).json({ error: 'Failed to equip weapon' });
+  }
+});
 
-    // Update the equipment's `equipped` status in the Equipment model
-    await prisma.equipment.update({
-      where: { id: equipmentId },
-      data: { equipped: equip },
+inventory.patch('/equipArmor', async (req: Request, res: Response) => {
+  const { itemName, characterId } = req.body;
+
+  if (!characterId || !itemName) {
+    return res.status(400).json({ error: 'Character ID and item name are required' });
+  }
+
+  try {
+    // Find or create the armor by name
+    const armor = await prisma.armor.upsert({
+      where: { name: itemName },
+      update: {}, // No update needed if found
+      create: { name: itemName }
     });
 
-    res.status(200).json({ message: `Equipment ${equip ? 'equipped' : 'unequipped'} successfully` });
+    // Associate armor with the character
+    await prisma.character.update({
+      where: { id: characterId },
+      data: {
+        armor: {
+          connect: { id: armor.id },
+        },
+      },
+    });
+
+    res.status(200).json({ message: `Armor ${armor.name} equipped successfully.` });
   } catch (error) {
-    console.error('Error equipping item:', error);
-    res.status(500).json({ error: 'Failed to equip item' });
+    console.error('Error equipping armor:', error);
+    res.status(500).json({ error: 'Failed to equip armor' });
   }
 });
 

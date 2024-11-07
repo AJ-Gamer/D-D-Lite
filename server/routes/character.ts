@@ -143,9 +143,9 @@ character.post('/create', async (
         name: startingWeaponName,
         // damage: 2,
         // rarity: 'common',
-        characters: {
-          connect: { id: newChar.id },
-        },
+        // characters: {
+        //   connect: { id: newChar.id },
+        // },
       },
     });
     return res.status(201).json({ newChar });

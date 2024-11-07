@@ -244,7 +244,7 @@ const storyline: StoryNode[] = [
     storyId: 29,
   },
   {
-    prompt: `You yell out as you swing your {weapon} towards Malthir only for it stop midair against a magical barrier while he laughs in your face.`,
+    prompt: `You yell out as you swing your {weapon} towards Malthir only for it stop midair against a magical barrier while he laughs in your face as he turns back towards his unholy altar.`,
     options: [
       { text: 'Growl in anger as you desperately attack the barrier without rest', nextNodeId: 31 },
       { text: 'Stare at the barrier worriedly before you smirk nervously and taunt Malthir for hiding', nextNodeId: 32 },
@@ -253,13 +253,165 @@ const storyline: StoryNode[] = [
     storyId: 30,
   },
   {
-    prompt: `You pant heavily as you keep swinging your sword determinedly, your hope rising with each crack sliced into the barrier until it finally .`,
+    prompt: `You pant heavily as you keep swinging your sword determinedly, your hope rising with each crack sliced into the barrier until it finally shatters, leaving Malthir vulnerable.`,
     options: [
-      { text: 'Growl in anger as you desperately attack the barrier without rest', nextNodeId: 31 },
-      { text: 'Stare at the barrier worriedly before you smirk nervously and taunt Malthir for hiding', nextNodeId: 32 },
-      { text: 'step back and survey the room quickly before you notices an engraved magic circle on the ground', nextNodeId: 33 },
+      { text: 'Seize your chance and thrust your sword into his back!', nextNodeId: 34 },
+      { text: 'Tackle Malthir away from the alter and knock the Dragon Stone out of his hands', nextNodeId: 35 },
+      { text: 'Rest your sword on Malthir’s shoulder "Give up Malthir."', nextNodeId: 32},
     ],
     storyId: 31,
+  },
+  {
+    prompt: `Malthir frowns for a moment before his eyes glow brightly and releases a wave of magic that carries you away from him while he fully turns around to sneer at you. "I will enjoy killing you."`,
+    options: [
+      { text: 'Stand up straight and prepare yourself as you stare down the dark wizard', nextNodeId: 36 },
+    ],
+    storyId: 32,
+  },
+  {
+    prompt: `You take your sword and drag it through the magic circle while Malthir was attempeting to activate it, causing a massive explosion as the magical energy released from it's broken rune violently.`,
+    options: [
+      { text: 'Get flung back towards the entrance before you slam into the wall', nextNodeId: 37 },
+    ],
+    storyId: 33,
+  },
+  {
+    prompt: `You take a deep breath as you feel Malthir shake around your blade before you realize he was laughing as his blood dripped onto the Dragon Stone as both it and the magic circle you were both standing in glows brighter`,
+    options: [
+      { text: 'Stagger backwards in horror', nextNodeId: 38 },
+    ],
+    storyId: 34,
+  },
+  {
+    prompt: `Malthir attempts to gather magic for a spell but you slam the pommel of your sword into his forehead, causing him to be dazed.`,
+    options: [
+      { text: 'Get up and grab the Dragon Stone', nextNodeId: 39 },
+      { text: 'Stand up and stab Malthir in the heart', nextNodeId: 40 }
+    ],
+    storyId: 35,
+  },
+  {
+    prompt: `Malthir covers himself in an aura of magic before he lifts the hand holding the Dragon Stone towards you and releases a wave of fire.`,
+    options: [
+      { text: 'Quickly dodge to the left', nextNodeId: 41 },
+      { text: 'Quickly dodge to the right', nextNodeId: 42 }
+    ],
+    storyId: 36,
+  },
+  {
+    prompt: `You slowly look up in a daze, your vision swimming as the smoke in the dungeon slowly clears to reveal a furious and injured Malthir standing before you.`,
+    options: [
+      { text: 'look up at him tiredly before you notice a dim glow behind him', nextNodeId: 43 },
+    ],
+    storyId: 37,
+  },
+  {
+    prompt: `You stare in horror as a massive rift opens from the edge of the magic circle before an unholy roar escaped from wihin it as the Apoloypse Dragon crossed into your world, signifying the end of all living things.`,
+    options: [
+      { text: 'Bad Ending', nextNodeId: 38 },
+    ],
+    storyId: 38,
+  },
+  {
+    prompt: `Stare at the Dragon Stone as you feel its power almost pulsating in your hand temptingly while you hear Malthir slowly climb to his feet behind you.`,
+    options: [
+      { text: 'Destroy the stone!', nextNodeId: 44 },
+      { text: 'Use the stone!', nextNodeId: 45 }
+    ],
+    storyId: 39,
+  },
+  {
+    prompt: `You stand over Malthir's body triumphantly before you collect the Dragon Stone. You rest in Malthir's fortress, realizing that his minions had all fled before you return the Kingdom as a hero.`,
+    options: [
+      { text: 'Good ending', nextNodeId: 40 }
+    ],
+    storyId: 40,
+  },
+  {
+    prompt: `You run as fast as you can, dodging waves of fire, bolts of lighting, blasts of wind, and blades of ice as you notice Malthir exhuasting himself with his overuse of the Dragon Stone`,
+    options: [
+      { text: 'Wait for the next break in attacks and throw your sword at him', nextNodeId: 46 }
+    ],
+    storyId: 41,
+  },
+  {
+    prompt: `The wave of fire clips your arm as you dive to the ground, and it quickly spreads over the rest of your body, consuming you as Malthir turned back towards his alter uncaringly.`,
+    options: [
+      { text: 'Bad Ending', nextNodeId: 42 }
+    ],
+    storyId: 42,
+  },
+  {
+    prompt: `You stare at the shattered remains of the Dragon Stone for a few moments before you chuckle weakly even as Malthir conjures a dagger made of his own blood and plunges it into your chest.`,
+    options: [
+      { text: 'Good Ending', nextNodeId: 43 }
+    ],
+    storyId: 43,
+  },
+  {
+    prompt: `You grip the stone tightly before you place it on the ground and raise your sword above your head as Malthir starts charging up an attack "NOOOO!`,
+    options: [
+      { text: 'Exhale sharply before you plunge your sword into the stone and crack it in half before magic energy exploded from it flinging you backwards', nextNodeId: 37 }
+    ],
+    storyId: 44,
+  },
+  {
+    prompt: `You grip the stone tightly before you turn towards Malthir and let out a primal roar as you release the energy surging through you from the stone towards him.`,
+    options: [
+      { text: 'Admire the aftermath', nextNodeId: 47 }
+    ],
+    storyId: 45,
+  },
+  {
+    prompt: `Malthir looks at your sword in surprise before he bats it away with a wave of magic, unintentionally taking his eyes off of you as you rushed towards him from the side`,
+    options: [
+      { text: 'Tackle Malthir and pin down his hand with the stone', nextNodeId: 48 }
+    ],
+    storyId: 46,
+  },
+  {
+    prompt: `You stare at the ashes that used to be Malthir in morbid surprise before you look at the Dragon Stone in awe as it's energy continues to course through you. Should you keep the stone for yourself now that Malthir is dead or do you return the artifact to the kingdom?`,
+    options: [
+      { text: 'Keep the Dragon Stone', nextNodeId: 49 },
+      { text: 'Return the Dragon Stone', nextNodeId: 50 }
+    ],
+    storyId: 47,
+  },
+  {
+    prompt: `You press your elbow into Malthir's throat as you kneel on his left arm and keep his right arm pinned by the wrist as he glares up at you scornfully`,
+    options: [
+      { text: 'Try to rest the stone free of his hand', nextNodeId: 51},
+      { text: 'Knock him out', nextNodeId: 52 }
+    ],
+    storyId: 48,
+  },
+  {
+    prompt: `You decide to keep the Dragon Stone for yourself and learn it's secrets, although you won't learn of its corrupting properties until it is too late... for everyone else.`,
+    options: [
+      { text: 'Bad Ending', nextNodeId: 49 }
+    ],
+    storyId: 49,
+  },
+  {
+    prompt: `You decide to return the Dragon Stone to King Aldrith and you become a legendary hero of the Kingdom of Aethora. You go on a few more adventures to grow your legend, but eventually you retire and live a long and happy life.`,
+    options: [
+      { text: 'Good Ending', nextNodeId: 50 }
+    ],
+    storyId: 50,
+  },
+  {
+    prompt: `Malthir, feeling his grip weaken as you continue to try and take the Dragon Stone, closes his eyes in resignation. Knowing defeat is close, Malthir overloads his body with the stone's power before he exploded, instantly killing himself and taking you down with him. You saved the world, but no one will ever know.`,
+    options: [
+      { text: 'Bad Ending', nextNodeId: 51},
+    ],
+    storyId: 51,
+  },
+  {
+    prompt: `You slam your fist into Malthir's face, knocking him out immediately. You tie him up and secure the Dragon Stone before you return to King Aldrith as a hero.`,
+    options: [
+      { text: 'Good Ending', nextNodeId: 52 }
+    ],
+    storyId: 52,
   },
 ];
 
